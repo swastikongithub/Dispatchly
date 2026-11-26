@@ -439,37 +439,37 @@ public sealed partial class CitySimulationTests
             switch (action)
             {
                 case MoveRider move:
-                {
-                    var rider = Riders[move.RiderId];
-                    var task = rider.Task is { Status: OrderStatus.PickedUp } picked && move.To.DistanceTo(picked.Restaurant) > ArrivalRadiusMeters
-                        ? picked with { Status = OrderStatus.InTransit }
-                        : rider.Task;
-                    Riders[move.RiderId] = rider with { Location = move.To, Bearing = move.Bearing, Task = task };
-                    break;
-                }
+                    {
+                        var rider = Riders[move.RiderId];
+                        var task = rider.Task is { Status: OrderStatus.PickedUp } picked && move.To.DistanceTo(picked.Restaurant) > ArrivalRadiusMeters
+                            ? picked with { Status = OrderStatus.InTransit }
+                            : rider.Task;
+                        Riders[move.RiderId] = rider with { Location = move.To, Bearing = move.Bearing, Task = task };
+                        break;
+                    }
                 case SetOnline shift:
-                {
-                    var rider = Riders[shift.RiderId];
-                    Assert.Null(rider.Task);
-                    Riders[shift.RiderId] = rider with { Status = shift.Online ? RiderStatus.Available : RiderStatus.Offline };
-                    break;
-                }
+                    {
+                        var rider = Riders[shift.RiderId];
+                        Assert.Null(rider.Task);
+                        Riders[shift.RiderId] = rider with { Status = shift.Online ? RiderStatus.Available : RiderStatus.Offline };
+                        break;
+                    }
                 case ConfirmPickup pickup:
-                {
-                    var rider = Riders[pickup.RiderId];
-                    Assert.Equal(OrderStatus.Assigned, rider.Task?.Status);
-                    Assert.True(rider.Location.DistanceTo(rider.Task!.Restaurant) <= ArrivalRadiusMeters);
-                    Riders[pickup.RiderId] = rider with { Status = RiderStatus.Delivering, Task = rider.Task with { Status = OrderStatus.PickedUp } };
-                    break;
-                }
+                    {
+                        var rider = Riders[pickup.RiderId];
+                        Assert.Equal(OrderStatus.Assigned, rider.Task?.Status);
+                        Assert.True(rider.Location.DistanceTo(rider.Task!.Restaurant) <= ArrivalRadiusMeters);
+                        Riders[pickup.RiderId] = rider with { Status = RiderStatus.Delivering, Task = rider.Task with { Status = OrderStatus.PickedUp } };
+                        break;
+                    }
                 case Deliver deliver:
-                {
-                    var rider = Riders[deliver.RiderId];
-                    Assert.Contains(rider.Task?.Status, new OrderStatus?[] { OrderStatus.PickedUp, OrderStatus.InTransit });
-                    Assert.Equal(rider.Task!.DeliveryCode, deliver.Code);
-                    Riders[deliver.RiderId] = rider with { Status = RiderStatus.Available, Task = null };
-                    break;
-                }
+                    {
+                        var rider = Riders[deliver.RiderId];
+                        Assert.Contains(rider.Task?.Status, new OrderStatus?[] { OrderStatus.PickedUp, OrderStatus.InTransit });
+                        Assert.Equal(rider.Task!.DeliveryCode, deliver.Code);
+                        Riders[deliver.RiderId] = rider with { Status = RiderStatus.Available, Task = null };
+                        break;
+                    }
             }
         }
     }
