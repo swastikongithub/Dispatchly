@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- EF Core, PostGIS queries, Redis, OSRM client. Implements the Application ports. -->
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dispatchly.Application\Dispatchly.Application.csproj" />
+    <ProjectReference Include="..\Dispatchly.Domain\Dispatchly.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
