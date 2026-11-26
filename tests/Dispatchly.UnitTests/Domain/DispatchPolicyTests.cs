@@ -7,13 +7,27 @@ public sealed class DispatchPolicyTests
     private static readonly DispatchPolicy Policy = new();
     private static readonly DateTimeOffset Shown = Build.Now.AddMinutes(20);
 
-    [Fact]
-    public void The_search_widens_from_1_5_to_3_to_5_km_and_stays_there()
+    [Theory]
+    [InlineData(0, 1_500)]
+    [InlineData(4.9, 1_500)]
+    [InlineData(5, 3_000)]
+    [InlineData(9.9, 3_000)]
+    [InlineData(10, 5_000)]
+    [InlineData(600, 5_000)]
+    public void The_search_widens_every_5_seconds_from_1_5_to_3_to_5_km(double seconds, int meters)
     {
-        Assert.Equal(1_500, Policy.FirstRadius);
-        Assert.Equal(3_000, Policy.NextRadius(1_500));
-        Assert.Equal(5_000, Policy.NextRadius(3_000));
-        Assert.Equal(5_000, Policy.NextRadius(5_000));
+        Assert.Equal(meters, Policy.RadiusForAge(TimeSpan.FromSeconds(seconds)));
+    }
+
+    [Theory]
+    [InlineData("2026-11-26T18:29:59Z", "2026-11-26T00:00:00+05:30")]
+    [InlineData("2026-11-26T18:30:00Z", "2026-11-27T00:00:00+05:30")]
+    public void Today_starts_at_midnight_in_Delhi(string now, string start)
+    {
+        var startOfDay = Policy.StartOfCityDay(DateTimeOffset.Parse(now));
+
+        Assert.Equal(DateTimeOffset.Parse(start), startOfDay);
+        Assert.Equal(TimeSpan.Zero, startOfDay.Offset);
     }
 
     [Theory]

@@ -40,6 +40,30 @@ public sealed class OrderTests
     }
 
     [Fact]
+    public void A_drop_more_than_8_km_from_the_restaurant_is_refused()
+    {
+        var restaurant = Build.Restaurant();
+        var farAway = new OrderDrop(Build.KhanMarket.Move(0, 8_100), "Somewhere", "Rohini", null);
+
+        var error = Assert.Throws<DomainException>(() => Order.Place(
+            1, restaurant, Build.Customer(), [OrderItem.From(restaurant.Menu[0], 1)], farAway, PaymentMethod.Cash, "1234", Build.Policy, Now));
+
+        Assert.Equal("drop_too_far", error.Code);
+    }
+
+    [Fact]
+    public void The_search_widens_with_the_orders_age_and_never_narrows()
+    {
+        var order = Build.Order();
+
+        order.WidenSearch(Build.Policy, Now.AddSeconds(6));
+        Assert.Equal(3_000, order.SearchRadiusMeters);
+
+        order.WidenSearch(Build.Policy, Now.AddSeconds(1));
+        Assert.Equal(3_000, order.SearchRadiusMeters);
+    }
+
+    [Fact]
     public void Assigning_records_how_many_riders_were_free_and_how_far_the_chosen_one_was()
     {
         var order = Build.Order();

@@ -21,7 +21,8 @@ public sealed class Restaurant
         Phone = phone;
         Location = location;
         PrepMinutes = prepMinutes;
-        _menu.AddRange(menu);
+        // Copies: a menu item belongs to exactly one restaurant.
+        _menu.AddRange(menu.Select(m => new MenuItem { Id = m.Id, Name = m.Name, PricePaise = m.PricePaise }));
     }
 
     private Restaurant()

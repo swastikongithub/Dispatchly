@@ -8,7 +8,14 @@ public sealed class Customer
     {
         Name = name;
         Phone = phone;
-        _savedAddresses.AddRange(savedAddresses);
+        _savedAddresses.AddRange(savedAddresses.Select(a => new SavedAddress
+        {
+            Label = a.Label,
+            Address = a.Address,
+            Area = a.Area,
+            Lat = a.Lat,
+            Lng = a.Lng,
+        }));
     }
 
     private Customer()

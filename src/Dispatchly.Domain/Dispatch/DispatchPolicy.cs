@@ -12,6 +12,12 @@ public sealed record DispatchPolicy
     /// <summary>How often orders still searching are retried (§3.5).</summary>
     public TimeSpan RetryInterval { get; init; } = TimeSpan.FromSeconds(5);
 
+    /// <summary>The farthest a drop may be from the restaurant, in straight-line metres.</summary>
+    public double MaxDeliveryMeters { get; init; } = 8_000;
+
+    /// <summary>Delhi's offset from UTC (India has no daylight saving). "Today" starts at midnight here.</summary>
+    public TimeSpan CityUtcOffset { get; init; } = new(5, 30, 0);
+
     /// <summary>
     /// Average rider speed over straight-line distance, for ETAs until routes come from OSRM (§3.8).
     /// 18 km/h straight-line is about 22 km/h along real roads, inside the simulator's 18–28 km/h.
@@ -43,8 +49,22 @@ public sealed record DispatchPolicy
     /// <summary>The widest radius, used by reassignment.</summary>
     public int MaxRadius => SearchRadiiMeters[^1];
 
-    /// <summary>The next wider radius after <paramref name="current"/>, or the widest one.</summary>
-    public int NextRadius(int current) => SearchRadiiMeters.FirstOrDefault(r => r > current, MaxRadius);
+    /// <summary>
+    /// The radius for an order that has been searching for <paramref name="age"/>: one step wider
+    /// per retry interval (0–5 s: 1.5 km, 5–10 s: 3 km, then 5 km).
+    /// </summary>
+    public int RadiusForAge(TimeSpan age)
+    {
+        var step = age <= TimeSpan.Zero ? 0 : (int)Math.Min(age / RetryInterval, int.MaxValue);
+        return SearchRadiiMeters[Math.Min(step, SearchRadiiMeters.Count - 1)];
+    }
+
+    /// <summary>
+    /// Midnight in Delhi at the start of the day that contains <paramref name="now"/>, as UTC
+    /// (PostgreSQL timestamptz parameters must be UTC).
+    /// </summary>
+    public DateTimeOffset StartOfCityDay(DateTimeOffset now) =>
+        new DateTimeOffset(now.ToOffset(CityUtcOffset).Date, CityUtcOffset).ToUniversalTime();
 
     public int RiderPayPaise(double distanceMeters)
     {

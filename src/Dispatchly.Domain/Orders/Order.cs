@@ -39,7 +39,7 @@ public sealed class Order
 
     private readonly List<OrderItem> _items = [];
     private readonly List<OrderEvent> _events = [];
-    private List<GeoPoint> _route = [];
+    private IReadOnlyList<GeoPoint> _route = [];
 
     private Order()
     {
@@ -129,6 +129,10 @@ public sealed class Order
         }
 
         var distance = restaurant.Location.DistanceTo(drop.Location);
+        if (distance > policy.MaxDeliveryMeters)
+        {
+            throw new DomainException("drop_too_far", $"The drop is {distance / 1_000:F1} km from the restaurant; the limit is {policy.MaxDeliveryMeters / 1_000:F1} km.");
+        }
         var order = new Order
         {
             Code = OrderCode.Format(number),
@@ -158,11 +162,11 @@ public sealed class Order
         return order;
     }
 
-    /// <summary>The search found nobody: widen it for the next retry (1.5 → 3 → 5 km).</summary>
-    public void WidenSearch(DispatchPolicy policy)
+    /// <summary>Widens the search with the order's age (1.5 → 3 → 5 km, §3.5). Never narrows it.</summary>
+    public void WidenSearch(DispatchPolicy policy, DateTimeOffset now)
     {
         Require(OrderStatus.Searching);
-        SearchRadiusMeters = policy.NextRadius(SearchRadiusMeters);
+        SearchRadiusMeters = Math.Max(SearchRadiusMeters, policy.RadiusForAge(now - CreatedAt));
     }
 
     public void Assign(Rider rider, int freeRiders, double distanceMeters, DispatchPolicy policy, DateTimeOffset now)
