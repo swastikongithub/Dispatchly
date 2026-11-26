@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Dispatchly.slnx
+
+      - name: Build
+        run: dotnet build Dispatchly.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --solution Dispatchly.slnx --configuration Release --no-build
+
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test -- --watch=false
+
+  compose:
+    name: Docker Compose (PostGIS + Redis)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create .env with a throwaway password
+        run: |
+          password="$(openssl rand -hex 24)"
+          echo "::add-mask::$password"
+          cp .env.example .env
+          sed -i "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$password/" .env
+
+      - name: Start services
+        run: docker compose up --detach --wait --wait-timeout 120
+
+      - name: Check PostGIS
+        run: docker compose exec -T db psql -U dispatchly -d dispatchly -tAc "SELECT postgis_full_version();"
+
+      - name: Check Redis
+        run: test "$(docker compose exec -T redis redis-cli ping)" = "PONG"
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop services
+        if: always()
+        run: docker compose down --volumes
