@@ -17,6 +17,8 @@ public sealed class AuthController(TokenIssuer tokens, IDemoAccounts demo) : Con
     /// <summary>One-click demo sign-in (PLAN.md §1.3): a token for the seeded account of that role.</summary>
     [HttpPost("demo")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DemoSession>> Demo(DemoSignInRequest request, CancellationToken ct)
     {
         switch (request.Role)

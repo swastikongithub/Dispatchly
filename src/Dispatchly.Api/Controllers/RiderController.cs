@@ -14,6 +14,8 @@ public sealed class RiderController(RiderService riders) : ControllerBase
 {
     /// <summary>Go online or offline. A rider on a task can't go offline.</summary>
     [HttpPut("status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<RiderTaskView> SetStatus(RiderStatusRequest request, CancellationToken ct) =>
         riders.SetOnlineAsync(User.RiderId(), request.Online, ct);
@@ -23,13 +25,17 @@ public sealed class RiderController(RiderService riders) : ControllerBase
     public Task<RiderTaskView> Task(CancellationToken ct) =>
         riders.GetTaskAsync(User.RiderId(), ct);
 
+    /// <summary>"Picked up · Start ride": the rider has the food.</summary>
     [HttpPost("task/pickup")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<RiderTaskView> ConfirmPickup(CancellationToken ct) =>
         riders.ConfirmPickupAsync(User.RiderId(), ct);
 
     /// <summary>Completes the delivery with the customer's code. A wrong code is 422 and changes nothing.</summary>
     [HttpPost("task/deliver")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public Task<DeliveryResult> Deliver(DeliverRequest request, CancellationToken ct) =>
@@ -38,6 +44,7 @@ public sealed class RiderController(RiderService riders) : ControllerBase
     /// <summary>A GPS position from the mobile app.</summary>
     [HttpPost("location")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Location(LocationUpdate update, CancellationToken ct)
     {
         await riders.UpdateLocationAsync(User.RiderId(), update, ct);

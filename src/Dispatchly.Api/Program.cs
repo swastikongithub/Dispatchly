@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dispatchly.Api;
 using Dispatchly.Api.Auth;
@@ -36,17 +37,13 @@ if (configuration.GetValue("Workers:AssignmentRetry", defaultValue: true))
 
 builder.Services.AddDemoAuth(configuration);
 
-// Enums travel as their names ("Searching"), in responses and in the OpenAPI document.
-builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+// Enums travel as their names ("Searching"), numbers only as JSON numbers: in requests,
+// responses and the OpenAPI document (which reads the HTTP JSON options).
+builder.Services.AddControllers().AddJsonOptions(o => Json(o.JsonSerializerOptions));
+builder.Services.ConfigureHttpJsonOptions(o => Json(o.SerializerOptions));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ErrorHandler>();
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
-{
-    document.Info.Title = "Dispatchly API";
-    document.Info.Description = "REST API v1. The SignalR contract is in docs/realtime.md.";
-    return Task.CompletedTask;
-}));
+builder.Services.AddDispatchlyOpenApi();
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database");
 
 var app = builder.Build();
@@ -68,3 +65,9 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 await app.RunAsync();
+
+static void Json(JsonSerializerOptions options)
+{
+    options.Converters.Add(new JsonStringEnumConverter());
+    options.NumberHandling = JsonNumberHandling.Strict;
+}

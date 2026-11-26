@@ -13,6 +13,7 @@ public sealed class RestaurantsController(RestaurantQueries restaurants) : Contr
 {
     /// <summary>The nearest restaurants to <paramref name="near"/> ("lat,lng"), closest first, with their menus.</summary>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyList<NearbyRestaurant>>> Near([FromQuery] string near, CancellationToken ct)
     {
