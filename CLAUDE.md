@@ -5,7 +5,7 @@ Dispatchly is a live delivery dispatch and tracking platform: ASP.NET Core (.NET
 ## The approved designs are the source of truth. Follow them strictly.
 - Visual target: `designs/screenshots/*.png`. Exact values: `designs/html/*.html`. When they disagree, the HTML wins.
 - Every colour, font size, radius, shadow, spacing and motion value comes from `design-tokens.json`. Never hard-code a value that isn't there, and never invent a new one.
-- design-tokens.json must mirror the approved HTML exactly. Adding a token for a value that already appears in the approved HTML doesn't need my approval. Changing an existing value or inventing a new one still does.
+- design-tokens.json must mirror the approved HTML exactly. Adding a token for a value that already appears in the approved HTML doesn't need my approval. Values specified in PLAN.md count as approved too, so they can be added as tokens without asking. Only changing an existing value or inventing a new one needs my approval.
 - Copy is part of the design. Use the exact labels and microcopy from the designs. Only sample data (names, numbers) is replaced by real data.
 - Don't add UI kits (Angular Material, PrimeNG, Bootstrap, DaisyUI, Spartan, shadcn-style). Build components from the designs on Angular CDK/Aria.
 - Only the deviations in `PLAN.md` §11 are allowed. If something in a design looks wrong, **ask** instead of changing it.

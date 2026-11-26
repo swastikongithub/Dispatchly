@@ -1,5 +1,5 @@
 {
-  "$description": "Dispatchly design tokens, extracted from the approved UI designs (designs/html). Source of truth for Tailwind @theme on web and the theme object in the mobile app. Must mirror the approved HTML exactly: adding a token for a value that already appears there needs no approval; changing an existing value or inventing a new one does.",
+  "$description": "Dispatchly design tokens, extracted from the approved UI designs (designs/html). Source of truth for Tailwind @theme on web and the theme object in the mobile app. Must mirror the approved HTML exactly: adding a token for a value that already appears there, or that PLAN.md specifies, needs no approval; changing an existing value or inventing a new one does.",
   "approved": "2026-11-26",
 
   "color": {
@@ -202,7 +202,15 @@
 
   "motion": {
     "$note": "Not visible in static mockups; defined in PLAN.md section 6. Use these everywhere.",
-    "duration": { "instant": "100ms", "fast": "160ms", "base": "220ms", "panel": "280ms", "sheet": "360ms", "camera": "800ms", "riderUpdateInterval": "2000ms" },
+    "duration": { "instant": "100ms", "fast": "160ms", "base": "220ms", "panel": "280ms", "sheet": "360ms", "camera": "800ms", "riderUpdateInterval": "2000ms",
+      "headlineStagger": "60ms", "bearing": "300ms", "successCheck": "300ms", "codeShake": "300ms", "digitRoll": "400ms",
+      "progress": "600ms", "headlineReveal": "600ms", "holdToConfirm": "600ms", "maxExtrapolation": "1000ms", "rowHighlight": "1200ms",
+      "renderDelay": "2000ms", "needsRiderPulse": "2000ms", "deliveredFadeDelay": "3000ms", "toastDismiss": "4000ms",
+      "reconnectingAfter": "5000ms", "cameraReframeMin": "5000ms", "markersDimAfter": "10000ms" },
+    "scale": { "mapFrameEnter": 0.96 },
+    "threshold": { "slideToConfirm": 0.85 },
+    "frameRate": { "target": 60, "nonSelectedFallback": 30 },
+    "toast": { "maxVisible": 2 },
     "easing": { "standard": "cubic-bezier(0.2, 0, 0, 1)", "enter": "cubic-bezier(0.05, 0.7, 0.1, 1)", "exit": "cubic-bezier(0.3, 0, 0.8, 0.15)", "linear": "linear" },
     "spring": { "sheet": { "stiffness": 380, "damping": 36 }, "slideToConfirm": { "stiffness": 500, "damping": 40 } },
     "press": "scale(0.98) for 100ms"
