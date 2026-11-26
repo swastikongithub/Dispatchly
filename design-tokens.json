@@ -1,5 +1,5 @@
 {
-  "$description": "Dispatchly design tokens, extracted from the approved UI designs (designs/html). Source of truth for Tailwind @theme on web and the theme object in the mobile app. Do not add or change values without approval.",
+  "$description": "Dispatchly design tokens, extracted from the approved UI designs (designs/html). Source of truth for Tailwind @theme on web and the theme object in the mobile app. Must mirror the approved HTML exactly: adding a token for a value that already appears there needs no approval; changing an existing value or inventing a new one does.",
   "approved": "2026-11-26",
 
   "color": {
@@ -26,7 +26,17 @@
       "textTertiary": "#7B828A",
       "textBody": "#C9CDD2",
       "hairline": "rgba(255,255,255,0.08)",
-      "outlineButtonBorder": "rgba(255,255,255,0.16)"
+      "outlineButtonBorder": "rgba(255,255,255,0.16)",
+      "textMuted": "#A3A9B0",
+      "mapControlIcon": "#E1E4E7",
+      "raisedSoft": "#1F2226",
+      "grabber": "#3A3F46",
+      "timelineLine": "#3A3F46",
+      "timelinePending": "#4A5058",
+      "slideHint": "#5F666E",
+      "sheetBorder": "rgba(255,255,255,0.06)",
+      "statDivider": "rgba(255,255,255,0.1)",
+      "mapChip": "rgba(18,20,24,0.92)"
     },
 
     "light": {
@@ -40,7 +50,8 @@
       "textSecondary": "#555B62",
       "textSecondaryApp": "#5E646C",
       "textBody": "#3A3F45",
-      "textOnPill": "#1F2328"
+      "textOnPill": "#1F2328",
+      "trackOnSurfaceAlt": "#DFE2E6"
     },
 
     "accent": {
@@ -50,7 +61,10 @@
       "orangeTextOnLight": "#B54708",
       "orangeTintDark": "rgba(255,138,31,0.16)",
       "orangeTintLight": "#FFE7D1",
-      "orangeRing": "rgba(255,138,31,0.18)"
+      "orangeRing": "rgba(255,138,31,0.18)",
+      "orangeRingStrong": "rgba(255,138,31,0.2)",
+      "orangeTintPill": "rgba(255,138,31,0.1)",
+      "orangeOutline": "rgba(255,138,31,0.45)"
     },
 
     "status": {
@@ -63,7 +77,8 @@
       "lateText": "#FF8F92",
       "lateTint": "rgba(255,90,95,0.14)",
       "busyOnLight": "#A3A9B0",
-      "restaurantPin": "#E8EAED"
+      "restaurantPin": "#E8EAED",
+      "lateRing": "rgba(255,90,95,0.3)"
     },
 
     "map": {
@@ -76,6 +91,16 @@
         "land": "#E8EAED", "street": "#F6F7F8", "park": "#D5E6D2", "centralPark": "#CBE0C7",
         "water": "#BFD6E8", "road": "#FFFFFF", "ringRoad": "#FFFFFF", "casing": "#D3D7DC",
         "label": "#5E646C", "waterLabel": "#355A76"
+      }
+    },
+
+    "marker": {
+      "dark": {
+        "routeTravelled": "#6B727A", "otherDropStroke": "#A3A9B0", "pill": "#F2F3F5", "pillText": "#121418"
+      },
+      "light": {
+        "routeTravelled": "#8C939A", "searchRings": "#8C939A", "routeCasing": "#FFFFFF", "pinStroke": "#FFFFFF",
+        "pill": "#FFFFFF", "pillBorder": "#D3D7DC", "pillText": "#1F2328", "pillInk": "#0B0C0E", "pillInkText": "#FFFFFF"
       }
     }
   },
@@ -95,11 +120,14 @@
     "etaPanel":      { "family": "display", "size": "44px", "weight": 700, "lineHeight": 1.0, "tracking": "-0.03em" },
     "statLarge":     { "family": "display", "size": "44px", "weight": 700, "tracking": "-0.03em" },
     "cardEta":       { "family": "display", "size": "34px", "weight": 700, "tracking": "-0.03em" },
+    "heroChipStat":  { "family": "display", "size": "30px", "weight": 700, "tracking": "-0.02em" },
     "screenTitle":   { "family": "display", "size": "28px", "weight": 700, "tracking": "-0.02em" },
+    "deliveryCode":  { "family": "display", "size": "26px", "weight": 700, "tracking": "0.16em" },
     "stepTitle":     { "family": "display", "size": "24px", "weight": 700, "tracking": "-0.02em" },
     "panelTitle":    { "family": "display", "size": "19px", "weight": 700, "tracking": "-0.01em" },
     "wordmark":      { "family": "display", "size": "17-19px", "weight": 700, "tracking": "-0.02em" },
     "lead":          { "family": "text", "size": "21px", "lineHeight": 1.45 },
+    "ctaLead":       { "family": "text", "size": "19px", "lineHeight": 1.5 },
     "bodyLarge":     { "family": "text", "size": "18px", "lineHeight": 1.55 },
     "spec":          { "family": "text", "size": "17px", "lineHeight": 1.5 },
     "body":          { "family": "text", "size": "16px", "lineHeight": 1.5 },
@@ -110,9 +138,26 @@
     "mapLabel":      { "family": "text", "weight": 600, "transform": "uppercase", "tracking": "0.12em", "halo": "land colour, ~0.38 x font size" }
   },
 
-  "radius": { "pill": "999px", "sheet": "28px", "heroCard": "28px", "phoneBezel": "38px", "card": "20px", "panel": "18px", "cardSmall": "16px", "item": "14px", "control": "12px", "smallControl": "10px", "tab": "8px" },
+  "radius": { "pill": "999px", "sheet": "28px", "heroCard": "28px", "phoneBezel": "38px", "card": "20px", "panel": "18px", "cardSmall": "16px", "item": "14px", "control": "12px", "smallControl": "10px", "tab": "8px",
+    "circle": "50%", "slideTrack": "32px", "phoneScreen": "31px", "segmentedTrack": "11px", "filterButton": "9px", "kbd": "6px", "bar": "3px" },
 
-  "space": [2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 104, 112, 120, 140],
+  "space": [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 104, 112, 120, 140],
+
+  "borderWidth": { "hairline": "1px", "stepBadge": "1.5px", "timelinePending": "2px", "timelineCurrent": "3px" },
+
+  "opacity": { "linkHover": 0.85, "timelineDone": 0.5 },
+
+  "size": {
+    "$note": "Component dimensions. Square unless the name says width or height.",
+    "dotChip": "6px", "dotLive": "8px", "dotLegend": "10px", "dotTimeline": "10px", "dotTimelineCurrent": "12px",
+    "timelineLine": "2px", "timelineStepMinHeight": "26px", "divider": "1px",
+    "progressBar": "6px", "progressBarCard": "5px", "grabberWidth": "36px", "grabberHeight": "5px",
+    "avatarSmall": "28px", "iconButtonSmall": "32px", "stepBadge": "32px", "avatarButton": "36px", "rowIcon": "38px",
+    "searchField": "40px", "mapControl": "42px", "avatar": "44px", "floatingButton": "44px", "actionButton": "44px", "actionButtonTall": "48px",
+    "toggleTrackWidth": "46px", "toggleTrackHeight": "28px", "toggleThumb": "22px", "toggleThumbInset": "3px",
+    "slideTrack": "64px", "slideThumb": "54px", "slideThumbInset": "4px", "slideThumbStep": "46px",
+    "slideHintWidth": "28px", "slideHintHeight": "16px", "slideHintRight": "22px", "slideHintTop": "24px"
+  },
 
   "layout": {
     "contentMaxWidth": "1200px",
@@ -122,7 +167,24 @@
     "ordersPanelWidth": "372px",
     "riderCardWidth": "348px",
     "phoneDesignSize": "390x844",
-    "minTouchTarget": "44px"
+    "minTouchTarget": "44px",
+    "dashboardDesignSize": "1440x900",
+    "mapDesignSize": "1200x800",
+    "panelMinWidth": "300px",
+    "panelSpacerFlexBasis": "120px",
+    "searchFlexBasis": "260px",
+    "searchMaxWidth": "420px",
+    "phoneOverlayInset": "16px",
+    "trackingRecenterTop": "270px",
+    "landing": {
+      "leadMaxWidth": "620px", "ctaLeadMaxWidth": "520px",
+      "heroMapHeight": "560px", "heroChipInset": "20px", "heroTrackingCardWidth": "290px",
+      "statFlexBasis": "220px", "stepFlexBasis": "230px",
+      "assignTextFlexBasis": "380px", "assignMapFlexBasis": "520px", "assignMapHeight": "520px", "assignToastInset": "16px",
+      "specLabelWidth": "240px", "specValueFlexBasis": "320px",
+      "deviceDesktop": "648x405", "deviceDesktopScale": 0.45,
+      "devicePhone": "203x439", "devicePhoneScale": 0.52, "phoneBezelPadding": "7px"
+    }
   },
 
   "shadow": {
@@ -131,7 +193,11 @@
     "sheetLight": "0 -8px 30px rgba(0,0,0,0.08)",
     "cardOnDark": "0 20px 40px rgba(0,0,0,0.35)",
     "chipLight": "0 8px 24px rgba(0,0,0,0.08)",
-    "device": "0 30px 60px -28px rgba(11,12,14,0.45)"
+    "device": "0 30px 60px -28px rgba(11,12,14,0.45)",
+    "devicePhone": "0 30px 60px -28px rgba(11,12,14,0.55)",
+    "liveRing": "0 0 0 4px rgba(255,138,31,0.18)",
+    "liveRingStrong": "0 0 0 4px rgba(255,138,31,0.2)",
+    "lateRing": "0 0 0 3px rgba(255,90,95,0.3)"
   },
 
   "motion": {
@@ -142,7 +208,37 @@
     "press": "scale(0.98) for 100ms"
   },
 
-  "icon": { "set": "Lucide", "stroke": 2, "grid": 24, "sizes": [16, 17, 18, 20, 22], "caps": "round", "joins": "round" },
+  "icon": { "set": "Lucide", "stroke": 2, "grid": 24, "sizes": [16, 17, 18, 20, 22], "caps": "round", "joins": "round",
+    "strokeEmphasis": 2.2, "strokeHeavy": 2.4 },
+
+  "brand": {
+    "mark": { "viewBox": 24, "ring": { "cx": 12, "cy": 12, "r": 8.5, "stroke": 2 }, "dot": { "cx": 18, "cy": 6, "r": 3.4, "stroke": 1.6 },
+      "colors": "ring = the surface's primary text colour, dot = accent.orange, dot stroke = the surface colour behind the mark" },
+    "markSize": { "dashboard": "22px", "landingHeader": "24px", "landingFooter": "20px" },
+    "gap": { "dashboard": "9px", "landingHeader": "10px", "landingFooter": "12px" },
+    "wordmarkSize": { "dashboard": "17px", "landing": "19px" }
+  },
+
+  "map": {
+    "$note": "Map style geometry in SVG units from designs/html/map-*.html, drawn 1:1 at 1200x800. Every screen reuses the same drawing at its own viewBox, so rendered px = units x (frame / viewBox). Coordinates and outlines of the hand-drawn city are drawing, not tokens (PLAN §11.5).",
+    "streetGrid": { "stroke": 1.2, "cells": ["22x22", "17x25 rotate(24)", "25x15 rotate(-17)"] },
+    "minorRoad": { "width": 2.5, "casing": 4.5 },
+    "arterial": { "width": 4, "casing": 7 },
+    "ringRoad": { "width": 7, "casing": 11 },
+    "river": { "width": 64 },
+    "roundabout": { "r": 64, "width": 5, "casing": 8, "innerR": 42, "innerWidth": 3, "parkR": 22 },
+    "circlePark": { "r": 30, "stroke": 3 },
+    "label": {
+      "$note": "Per view. Ratios are constant: tracking 0.12em, halo 0.38 x size, water label 1.1 x size with 0.41em tracking.",
+      "mapStyle":    { "viewBox": "1200x800", "frame": "1200x800", "size": 11,  "tracking": 1.32, "halo": 4.18, "waterSize": 12.1, "waterTracking": 4.95 },
+      "dashboard":   { "viewBox": "1200x800", "frame": "1440x900", "size": 11,  "tracking": 1.32, "halo": 4.18, "waterSize": 12.1, "waterTracking": 4.95 },
+      "tracking":    { "viewBox": "433x938",  "frame": "390x844",  "size": 10,  "tracking": 1.20, "halo": 3.80, "waterSize": 11.0, "waterTracking": 4.50 },
+      "rider":       { "viewBox": "279x603",  "frame": "390x844",  "size": 7,   "tracking": 0.84, "halo": 2.66, "waterSize": 7.7,  "waterTracking": 3.15 },
+      "landingHero": { "viewBox": "700x327",  "frame": "content width x 560", "size": 7,   "tracking": 0.84, "halo": 2.66, "waterSize": 7.7,  "waterTracking": 3.15 },
+      "landingAssign": { "viewBox": "300x269", "frame": "flex x 520", "size": 5.5, "tracking": 0.66, "halo": 2.09, "waterSize": 6.1, "waterTracking": 2.48 },
+      "weight": 600, "waterWeight": 500, "waterStyle": "italic"
+    }
+  },
 
   "marker": {
     "available": "filled dot, status.available, 2px stroke in map land colour",
@@ -154,6 +250,59 @@
     "newOrder": "orange square with two expanding rings, the inner one dashed",
     "routeActive": "4px orange line over an 11px 22%-opacity orange glow (dark) / 5.5px orange over 11px white casing (light)",
     "routeTravelled": "dotted grey line",
-    "routeOthers": "2.5px orange at 32% opacity"
+    "routeOthers": "2.5px orange at 32% opacity",
+
+    "geometry": {
+      "$note": "SVG units from the approved HTML, per view (see map.label for each view's viewBox and frame). r = radius, stroke = stroke width.",
+      "dashboard": {
+        "available": { "r": 5, "stroke": 2 },
+        "onDelivery": { "r": 6.5, "stroke": 2, "pointer": "M0 -12.5L3.8 -7H-3.8Z" },
+        "late": { "r": 6, "stroke": 2, "ringR": 12, "ringStroke": 2, "ringOpacity": 0.5 },
+        "selected": { "r": 8.5, "stroke": 2.5, "pointer": "M0 -16L4.6 -9.5H-4.6Z", "haloR": 16, "haloOpacity": 0.2, "outerHaloR": 28, "outerHaloOpacity": 0.08 },
+        "pill": { "height": 26, "radius": 13, "fontSize": 12.5, "weight": 600, "offset": [18, -15] },
+        "restaurant": { "size": 10, "radius": 3, "stroke": 2 },
+        "restaurantActive": { "size": 12, "radius": 3.5, "stroke": 2 },
+        "drop": { "r": 7.5, "stroke": 3 },
+        "otherDrop": { "r": 3.5, "stroke": 1.5 },
+        "newOrder": { "size": 10, "radius": 3, "stroke": 2, "ringR": 20, "ringStroke": 1.5, "ringDash": "3 4", "ringOpacity": 0.45, "outerRingR": 34, "outerRingStroke": 1.5, "outerRingOpacity": 0.2 },
+        "routeActive": { "width": 4, "glow": 11, "glowOpacity": 0.22 },
+        "routeTravelled": { "width": 3, "dash": "1 6" },
+        "routeOthers": { "width": 2.5, "opacity": 0.32 }
+      },
+      "tracking": {
+        "rider": { "haloR": 22, "haloOpacity": 0.16, "ringR": 12.5, "r": 8.5, "pointer": "M0 -18L5 -11H-5Z" },
+        "routeActive": { "width": 5.5, "casing": 11 },
+        "routeTravelled": { "width": 4, "dash": "0.5 8" },
+        "restaurant": { "size": 20, "radius": 6, "stroke": 2.5, "dotR": 2.6 },
+        "home": { "r": 11, "stroke": 3, "dotR": 3.5 },
+        "pill": { "height": 23, "radius": 11.5, "fontSize": 11.5, "weight": 600, "stroke": 1 }
+      },
+      "rider": {
+        "self": { "r": 7.5, "stroke": 2.4, "haloR": 17, "haloOpacity": 0.14 },
+        "route": { "width": 3.2, "casing": 7, "dash": "5 4" },
+        "restaurant": { "size": 14, "radius": 4, "stroke": 2 },
+        "drop": { "r": 7, "stroke": 2.5, "dotR": 2.2 },
+        "pill": { "height": 16, "radius": 8, "fontSize": 8, "weight": 600 }
+      },
+      "landingHero": {
+        "available": { "r": 4, "stroke": 1.5 },
+        "onDelivery": { "r": 4.8, "stroke": 1.5, "pointer": "M0 -9.5L2.9 -5.2H-2.9Z" },
+        "highlighted": { "r": 5.6, "stroke": 1.5, "pointer": "M0 -10.5L3.2 -5.8H-3.2Z", "haloR": 15, "haloOpacity": 0.14 },
+        "late": { "r": 4.4, "stroke": 1.5, "ringR": 8, "ringStroke": 1.5, "ringOpacity": 0.5 },
+        "restaurant": { "size": 8, "radius": 2, "stroke": 1.5 },
+        "drop": { "r": 4.5, "stroke": 2 },
+        "route": { "width": 3 },
+        "routeOthers": { "width": 2, "opacity": 0.35 }
+      },
+      "landingAssign": {
+        "searchRings": { "r": [32, 68, 108], "stroke": 0.7, "dash": "2 3" },
+        "link": { "width": 2.2 },
+        "busy": { "r": 3.2, "stroke": 1.2 },
+        "free": { "r": 4.2, "stroke": 1.4 },
+        "assigned": { "r": 5.2, "stroke": 1.6, "haloR": 10, "haloOpacity": 0.18 },
+        "restaurant": { "size": 12, "radius": 3.5, "stroke": 1.5, "dotR": 1.6 },
+        "pill": { "height": 12, "radius": 6, "fontSize": 6, "weight": 600, "stroke": 0.6 }
+      }
+    }
   }
 }
