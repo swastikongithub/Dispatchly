@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dispatchly.Domain\Dispatchly.Domain.csproj" />
     <ProjectReference Include="..\..\src\Dispatchly.Application\Dispatchly.Application.csproj" />
+    <ProjectReference Include="..\..\src\Dispatchly.Simulator\Dispatchly.Simulator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
