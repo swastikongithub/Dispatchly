@@ -2,8 +2,13 @@
 
   <!-- REST API (/api/v1), SignalR hub, auth and OpenAPI. Hosts the Simulator. -->
 
+  <PropertyGroup>
+    <UserSecretsId>4f0c1d5e-7a39-4f7e-9d0b-2a1f3b6c8e41</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,4 @@
+# Generated from the API: openapi.json by the API's integration tests, schema.d.ts by `npm run api`.
+# Both are checked for drift as generated, so they keep the generators' formatting.
+src/app/core/api/openapi.json
+src/app/core/api/schema.d.ts

@@ -11,7 +11,9 @@
     "tokens": "node scripts/build-tokens.mjs",
     "tokens:check": "node scripts/build-tokens.mjs --check",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "api": "openapi-typescript src/app/core/api/openapi.json --output src/app/core/api/schema.d.ts",
+    "api:check": "openapi-typescript src/app/core/api/openapi.json --output src/app/core/api/schema.d.ts --check"
   },
   "private": true,
   "packageManager": "npm@11.4.2",
@@ -38,10 +40,16 @@
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "jsdom": "^31.0.0",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.33",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.2",
     "vitest": "^5.0.0"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   }
 }

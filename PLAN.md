@@ -434,13 +434,13 @@ Each phase ends with its **"done when"** check. UI phases also pass the fidelity
 |---|---|---|---|
 | W0 | Setup | Repo, solution and projects, Angular app, Docker Compose (PostGIS, Redis), CI building both, CLAUDE.md + this pack committed | `docker compose up` runs, CI is green |
 | W1 | **Design system + map style** | tokens.css generated from JSON, fonts, icons, every §4.3 component, `/styleguide`, both MapLibre styles | The styleguide matches the designs in dark and light at 1440 and 390, and the map screenshots match `map-*.png` closely |
-| W2 | Backend core | Entities, migrations, seed (§12), assignment service (§3.5), REST endpoints, OpenAPI → generated TS client | The 50-concurrent-orders test passes, and every endpoint is covered by integration tests |
+| W2 | Backend core | Entities, migrations, seed (§12), assignment service (§3.5), REST endpoints, JWT bearer + `POST /auth/demo` (moved from W8, approved 2026-11-26), OpenAPI → generated TS client | The 50-concurrent-orders test passes, and every endpoint is covered by integration tests |
 | W3 | Simulator + real time | BackgroundService (§3.7), SignalR hub and groups (§3.6), snapshot endpoint | A test client sees `riders:batch` every 2 s, and orders complete on their own |
 | W4 | **Dispatcher dashboard** | §5.2 complete with interpolation (§6.2) | Matches `dashboard.png`, 60 fps with 500 riders, every state and keyboard shortcut works |
 | W5 | **Customer flow** | Order placement (§5.5, approved first) + tracking (§5.3) | Matches `tracking.png`, the full order-to-delivery flow works on a phone |
 | W6 | **Rider app** | §5.4 incl. drop step + slide to confirm | Matches `rider.png`, the full pickup → delivery flow works with touch and keyboard |
 | W7 | **Landing** | §5.1 with live data and scroll motion | Matches `landing.png`, Lighthouse ≥ 90, works at 360 px |
-| W8 | Auth + demo roles | Identity, JWT, role guards, one-click demo sign-in, role picker | Each role sees only its screens, and a new visitor reaches the live demo in 1 click |
+| W8 | Auth + demo roles | Identity accounts, web role guards, the role picker and one-click demo sign-in in the UI (the API's JWT and `POST /auth/demo` arrive in W2) | Each role sees only its screens, and a new visitor reaches the live demo in 1 click |
 | W9 | Realism | OSRM (Delhi-clipped extract) routes + ETAs, Redis live positions + backplane, zones | Riders follow real roads, and ETAs come from routes |
 | W10 | **Polish pass** | Every state in §5, reduced motion, a11y audit (axe + keyboard), perf budgets (§6.4), §11 items | Nothing frozen, blank or jumpy anywhere, and every budget is met |
 | W11 | Ship | Production Compose, deployment, README (architecture diagram, GIFs, 45 s demo video), k6 load test results | A public link works and the README shows *measured* numbers |
