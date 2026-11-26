@@ -82,7 +82,7 @@ const holdDuration = ms(tokens.motion.duration.holdToConfirm);
       background: var(--ui-raised-hover);
     }
     .track[data-state='focus'] {
-      outline: var(--focus-width) solid var(--focus-color);
+      outline: var(--focus-width) solid var(--ui-focus);
       outline-offset: var(--focus-offset);
     }
     .knob {

@@ -55,6 +55,7 @@
   --ui-accent-tint: var(--color-accent-orange-tint-dark);
   --ui-accent-ring: var(--color-accent-orange-ring);
   --ui-on-accent: var(--color-ink);
+  --ui-focus: var(--focus-color);
   --ui-available: var(--color-status-available);
   --ui-available-text: var(--color-status-available-text);
   --ui-available-tint: var(--color-status-available-tint);
@@ -109,11 +110,13 @@
   --ui-accent-tint: var(--color-accent-orange-tint-light);
   --ui-accent-ring: var(--color-accent-orange-ring);
   --ui-on-accent: var(--color-ink);
+  /* Orange on white is 2.36:1; the light theme rings in the orange text colour (5.43:1). */
+  --ui-focus: var(--focus-color-on-light);
   --ui-available: var(--color-status-available-on-light);
-  --ui-available-text: var(--color-status-available-on-light);
+  --ui-available-text: var(--color-status-available-text-on-light);
   --ui-available-tint: var(--color-status-available-tint);
   --ui-late: var(--color-status-late);
-  --ui-late-text: var(--color-status-late);
+  --ui-late-text: var(--color-status-late-text-on-light);
   --ui-late-tint: var(--color-status-late-tint);
   --ui-restaurant: var(--color-ink);
 }

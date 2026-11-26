@@ -21,7 +21,7 @@
 
   /* Focus: a 2px orange outline with a 2px offset on every interactive element (PLAN.md §6.1). */
   :focus-visible {
-    outline: var(--focus-width) solid var(--focus-color);
+    outline: var(--focus-width) solid var(--ui-focus);
     outline-offset: var(--focus-offset);
   }
 

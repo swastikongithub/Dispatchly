@@ -51,7 +51,7 @@ const isApple =
     }
     .field:has(input:focus-visible),
     .field[data-state='focus'] {
-      outline: var(--focus-width) solid var(--focus-color);
+      outline: var(--focus-width) solid var(--ui-focus);
       outline-offset: var(--focus-offset);
     }
     svg {
