@@ -52,6 +52,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/live/snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LiveSnapshot"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/live/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PublicSnapshot"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders": {
         parameters: {
             query?: never;
@@ -604,6 +674,38 @@ export interface components {
             area: string;
             location: components["schemas"]["Position"];
         };
+        EtaChanged: {
+            /** Format: date-time */
+            at: string;
+            code: string;
+            /** Format: date-time */
+            estimatedDeliveryAt: string;
+            isLate: boolean;
+            /** Format: int32 */
+            minutesLate: number;
+        };
+        LiveRider: {
+            /** Format: int32 */
+            id: number;
+            name: string;
+            vehicle: string;
+            plate: string;
+            phone: string;
+            status: components["schemas"]["RiderStatus"];
+            location: components["schemas"]["Position"];
+            /** Format: double */
+            bearing: number;
+            orderCode: null | string;
+            /** Format: date-time */
+            onlineSince: null | string;
+        };
+        LiveSnapshot: {
+            /** Format: date-time */
+            at: string;
+            riders: components["schemas"]["LiveRider"][];
+            orders: components["schemas"]["OrderSummary"][];
+            stats: components["schemas"]["LiveStats"];
+        };
         LiveStats: {
             /** Format: int32 */
             ridersOnline: number;
@@ -615,6 +717,12 @@ export interface components {
             runningLate: number;
             /** Format: int32 */
             needsRider: number;
+            /** Format: int32 */
+            ridersFree: number;
+            /** Format: int32 */
+            ridersOnDelivery: number;
+            /** Format: int32 */
+            deliveredToday: number;
         };
         LocationUpdate: {
             /** Format: double */
@@ -747,6 +855,12 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        PublicSnapshot: {
+            /** Format: date-time */
+            at: string;
+            riders: (number | string)[][];
+            stats: components["schemas"]["LiveStats"];
+        };
         RestaurantStop: {
             /** Format: int32 */
             id: number;
@@ -767,6 +881,28 @@ export interface components {
             location: components["schemas"]["Position"];
             /** Format: double */
             bearing: number;
+        };
+        RiderPosition: {
+            /** Format: date-time */
+            at: string;
+            code: string;
+            /** Format: int32 */
+            riderId: number;
+            location: {
+                /** Format: double */
+                lat: number;
+                /** Format: double */
+                lng: number;
+            };
+            /** Format: double */
+            bearing: number;
+            /** Format: double */
+            remainingMeters: null | number;
+        };
+        RidersBatch: {
+            /** Format: date-time */
+            at: string;
+            riders: (number | string)[][];
         };
         RiderSelf: {
             /** Format: int32 */
