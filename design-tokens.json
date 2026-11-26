@@ -73,10 +73,12 @@
       "availableOnLight": "#2F6FDE",
       "availableText": "#9EC3FF",
       "availableTint": "rgba(91,155,255,0.14)",
+      "availableTextOnLight": "#2463CF",
       "onDelivery": "#FF8A1F",
       "late": "#FF5A5F",
       "lateText": "#FF8F92",
       "lateTint": "rgba(255,90,95,0.14)",
+      "lateTextOnLight": "#B42318",
       "busyOnLight": "#A3A9B0",
       "restaurantPin": "#E8EAED",
       "lateRing": "rgba(255,90,95,0.3)"
@@ -146,9 +148,9 @@
 
   "borderWidth": { "hairline": "1px", "stepBadge": "1.5px", "timelinePending": "2px", "timelineCurrent": "3px" },
 
-  "opacity": { "linkHover": 0.85, "timelineDone": 0.5, "markersDisconnected": 0.5 },
+  "opacity": { "linkHover": 0.85, "timelineDone": 0.5, "markersDisconnected": 0.5, "skeletonPulse": 0.5 },
 
-  "focus": { "width": "2px", "offset": "2px", "color": "accent.orange" },
+  "focus": { "width": "2px", "offset": "2px", "color": "accent.orange", "colorOnLight": "accent.orangeTextOnLight" },
 
   "size": {
     "$note": "Component dimensions. Square unless the name says width or height.",
@@ -209,7 +211,7 @@
     "$note": "Not visible in static mockups; defined in PLAN.md section 6. Use these everywhere.",
     "duration": { "instant": "100ms", "fast": "160ms", "base": "220ms", "panel": "280ms", "sheet": "360ms", "camera": "800ms", "riderUpdateInterval": "2000ms",
       "headlineStagger": "60ms", "bearing": "300ms", "successCheck": "300ms", "codeShake": "300ms", "digitRoll": "400ms",
-      "progress": "600ms", "headlineReveal": "600ms", "holdToConfirm": "600ms", "maxExtrapolation": "1000ms", "rowHighlight": "1200ms",
+      "progress": "600ms", "headlineReveal": "600ms", "holdToConfirm": "600ms", "maxExtrapolation": "1000ms", "rowHighlight": "1200ms", "skeletonPulse": "1200ms",
       "renderDelay": "2000ms", "needsRiderPulse": "2000ms", "deliveredFadeDelay": "3000ms", "toastDismiss": "4000ms",
       "reconnectingAfter": "5000ms", "cameraReframeMin": "5000ms", "markersDimAfter": "10000ms" },
     "scale": { "mapFrameEnter": 0.96, "press": 0.98 },
@@ -221,7 +223,7 @@
     "press": "scale(0.98) for 100ms"
   },
 
-  "icon": { "set": "Lucide", "stroke": 2, "grid": 24, "sizes": [16, 17, 18, 20, 22], "caps": "round", "joins": "round",
+  "icon": { "set": "Lucide", "stroke": 2, "grid": 24, "sizes": [14, 16, 17, 18, 20, 22], "caps": "round", "joins": "round",
     "strokeEmphasis": 2.2, "strokeHeavy": 2.4 },
 
   "brand": {

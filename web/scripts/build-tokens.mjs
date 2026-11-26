@@ -131,6 +131,7 @@ for (const [key, value] of Object.entries(tokens.opacity)) v(`opacity-${kebab(ke
 v('focus-width', tokens.focus.width);
 v('focus-offset', tokens.focus.offset);
 v('focus-color', `var(--color-${name(tokens.focus.color.split('.'))})`);
+v('focus-color-on-light', `var(--color-${name(tokens.focus.colorOnLight.split('.'))})`);
 
 section('Icons and brand (→ icon, brand)');
 v('icon-stroke', tokens.icon.stroke);

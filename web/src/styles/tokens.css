@@ -65,10 +65,12 @@
   --color-status-available-on-light: #2f6fde;
   --color-status-available-text: #9ec3ff;
   --color-status-available-tint: rgba(91, 155, 255, 0.14);
+  --color-status-available-text-on-light: #2463cf;
   --color-status-on-delivery: #ff8a1f;
   --color-status-late: #ff5a5f;
   --color-status-late-text: #ff8f92;
   --color-status-late-tint: rgba(255, 90, 95, 0.14);
+  --color-status-late-text-on-light: #b42318;
   --color-status-busy-on-light: #a3a9b0;
   --color-status-restaurant-pin: #e8eaed;
   --color-status-late-ring: rgba(255, 90, 95, 0.3);
@@ -350,6 +352,7 @@
   --duration-hold-to-confirm: 600ms;
   --duration-max-extrapolation: 1000ms;
   --duration-row-highlight: 1200ms;
+  --duration-skeleton-pulse: 1200ms;
   --duration-render-delay: 2000ms;
   --duration-needs-rider-pulse: 2000ms;
   --duration-delivered-fade-delay: 3000ms;
@@ -368,14 +371,17 @@
   --opacity-link-hover: 0.85;
   --opacity-timeline-done: 0.5;
   --opacity-markers-disconnected: 0.5;
+  --opacity-skeleton-pulse: 0.5;
   --focus-width: 2px;
   --focus-offset: 2px;
   --focus-color: var(--color-accent-orange);
+  --focus-color-on-light: var(--color-accent-orange-text-on-light);
 
   /* Icons and brand (→ icon, brand) */
   --icon-stroke: 2;
   --icon-stroke-emphasis: 2.2;
   --icon-stroke-heavy: 2.4;
+  --icon-size-14: 14px;
   --icon-size-16: 16px;
   --icon-size-17: 17px;
   --icon-size-18: 18px;
