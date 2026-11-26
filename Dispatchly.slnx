@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Dispatchly.Api/Dispatchly.Api.csproj" />
     <Project Path="src/Dispatchly.Application/Dispatchly.Application.csproj" />
     <Project Path="src/Dispatchly.Domain/Dispatchly.Domain.csproj" />
     <Project Path="src/Dispatchly.Infrastructure/Dispatchly.Infrastructure.csproj" />
