@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- API and database tests against a real PostGIS (Testcontainers), including the
-       50-concurrent-orders assignment test. Tests arrive with the backend core (W2). -->
+  <!-- API and database tests against a real PostGIS (Testcontainers, so Docker must be running),
+       including the 50-concurrent-orders assignment test. -->
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- Exit code 8 = "zero tests ran". Remove this line when the first test lands (W2). -->
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
   </ItemGroup>
 
   <ItemGroup>

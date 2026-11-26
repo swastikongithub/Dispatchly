@@ -1,0 +1,1438 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Dispatchly API",
+    "description": "REST API v1. The SignalR contract is in docs/realtime.md.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/auth/demo": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoSignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoSession"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/OrderStatus"
+            }
+          },
+          {
+            "name": "late",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderSummary"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders/{code}": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders/{code}/reassign": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants": {
+      "get": {
+        "tags": [
+          "Restaurants"
+        ],
+        "parameters": [
+          {
+            "name": "near",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NearbyRestaurant"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stats/live": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rider/status": {
+      "put": {
+        "tags": [
+          "Rider"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiderStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderTaskView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rider/task": {
+      "get": {
+        "tags": [
+          "Rider"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderTaskView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rider/task/pickup": {
+      "post": {
+        "tags": [
+          "Rider"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderTaskView"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rider/task/deliver": {
+      "post": {
+        "tags": [
+          "Rider"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliverRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rider/location": {
+      "post": {
+        "tags": [
+          "Rider"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DeliverRequest": {
+        "required": [
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "DeliveryResult": {
+        "required": [
+          "code",
+          "earnedPaise",
+          "rider"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "earnedPaise": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rider": {
+            "$ref": "#/components/schemas/RiderSelf"
+          }
+        }
+      },
+      "DemoSession": {
+        "required": [
+          "token",
+          "expiresAt",
+          "role",
+          "name",
+          "riderId",
+          "customerId"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "name": {
+            "type": "string"
+          },
+          "riderId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "customerId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "DemoSignInRequest": {
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        }
+      },
+      "DropRequest": {
+        "required": [
+          "lat",
+          "lng",
+          "address",
+          "area",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "address": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "DropStop": {
+        "required": [
+          "customerFirstName",
+          "label",
+          "address",
+          "area",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "customerFirstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "address": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          }
+        }
+      },
+      "LiveStats": {
+        "required": [
+          "ridersOnline",
+          "activeOrders",
+          "averageDeliveryMinutes",
+          "runningLate",
+          "needsRider"
+        ],
+        "type": "object",
+        "properties": {
+          "ridersOnline": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageDeliveryMinutes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "runningLate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "needsRider": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LocationUpdate": {
+        "required": [
+          "lat",
+          "lng",
+          "bearing"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "bearing": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "MenuEntry": {
+        "required": [
+          "id",
+          "name",
+          "pricePaise"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pricePaise": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NearbyRestaurant": {
+        "required": [
+          "id",
+          "name",
+          "area",
+          "address",
+          "location",
+          "prepMinutes",
+          "distanceMeters",
+          "menu"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "prepMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distanceMeters": {
+            "type": "number",
+            "format": "double"
+          },
+          "menu": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuEntry"
+            }
+          }
+        }
+      },
+      "OrderDetails": {
+        "required": [
+          "code",
+          "status",
+          "isLate",
+          "minutesLate",
+          "restaurant",
+          "drop",
+          "rider",
+          "items",
+          "totalPaise",
+          "payment",
+          "deliveryCode",
+          "route",
+          "distanceMeters",
+          "remainingMeters",
+          "searchRadiusMeters",
+          "createdAt",
+          "readyAt",
+          "promisedBy",
+          "estimatedDeliveryAt",
+          "assignedAt",
+          "pickedUpAt",
+          "deliveredAt",
+          "timeline"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "isLate": {
+            "type": "boolean"
+          },
+          "minutesLate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "restaurant": {
+            "$ref": "#/components/schemas/RestaurantStop"
+          },
+          "drop": {
+            "$ref": "#/components/schemas/DropStop"
+          },
+          "rider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RiderCard"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLine"
+            }
+          },
+          "totalPaise": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "deliveryCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "distanceMeters": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingMeters": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "searchRadiusMeters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readyAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "promisedBy": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estimatedDeliveryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assignedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "pickedUpAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "deliveredAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimelineEntry"
+            }
+          }
+        }
+      },
+      "OrderEventType": {
+        "enum": [
+          "Placed",
+          "Assigned",
+          "Reassigned",
+          "ArrivedAtRestaurant",
+          "PickedUp",
+          "OnTheWay",
+          "Delivered"
+        ]
+      },
+      "OrderLine": {
+        "required": [
+          "menuItemId",
+          "name",
+          "quantity",
+          "unitPricePaise"
+        ],
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPricePaise": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrderStatus": {
+        "enum": [
+          "Searching",
+          "Assigned",
+          "PickedUp",
+          "InTransit",
+          "Delivered",
+          "Cancelled"
+        ]
+      },
+      "OrderSummary": {
+        "required": [
+          "code",
+          "status",
+          "isLate",
+          "minutesLate",
+          "restaurantName",
+          "restaurantArea",
+          "dropArea",
+          "riderId",
+          "riderName",
+          "searchRadiusMeters",
+          "createdAt",
+          "promisedBy",
+          "estimatedDeliveryAt"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "isLate": {
+            "type": "boolean"
+          },
+          "minutesLate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "restaurantName": {
+            "type": "string"
+          },
+          "restaurantArea": {
+            "type": "string"
+          },
+          "dropArea": {
+            "type": "string"
+          },
+          "riderId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "riderName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "searchRadiusMeters": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "promisedBy": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estimatedDeliveryAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentMethod": {
+        "enum": [
+          "Online",
+          "Cash"
+        ]
+      },
+      "PlaceOrderLine": {
+        "required": [
+          "menuItemId",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "menuItemId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PlaceOrderRequest": {
+        "required": [
+          "restaurantId",
+          "items",
+          "drop",
+          "payment"
+        ],
+        "type": "object",
+        "properties": {
+          "restaurantId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlaceOrderLine"
+            }
+          },
+          "drop": {
+            "$ref": "#/components/schemas/DropRequest"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          }
+        }
+      },
+      "Position": {
+        "required": [
+          "lat",
+          "lng"
+        ],
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "What went wrong, for clients to switch on: e.g. no_free_rider, wrong_delivery_code."
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Validation errors by field, on 400 responses."
+          }
+        }
+      },
+      "RestaurantStop": {
+        "required": [
+          "id",
+          "name",
+          "area",
+          "address",
+          "phone",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          }
+        }
+      },
+      "RiderCard": {
+        "required": [
+          "id",
+          "name",
+          "vehicle",
+          "plate",
+          "phone",
+          "status",
+          "location",
+          "bearing"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "vehicle": {
+            "type": "string"
+          },
+          "plate": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiderStatus"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "bearing": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RiderSelf": {
+        "required": [
+          "id",
+          "name",
+          "status",
+          "onlineSince",
+          "tripsToday",
+          "earnedTodayPaise",
+          "location",
+          "bearing"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiderStatus"
+          },
+          "onlineSince": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "tripsToday": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "earnedTodayPaise": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "bearing": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RiderStatus": {
+        "enum": [
+          "Offline",
+          "Available",
+          "Assigned",
+          "AtRestaurant",
+          "Delivering"
+        ]
+      },
+      "RiderStatusRequest": {
+        "required": [
+          "online"
+        ],
+        "type": "object",
+        "properties": {
+          "online": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RiderTask": {
+        "required": [
+          "code",
+          "status",
+          "restaurant",
+          "readyAt",
+          "items",
+          "totalPaise",
+          "payment",
+          "drop",
+          "distanceMeters",
+          "dropRideMinutes",
+          "riderPayPaise",
+          "route"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "restaurant": {
+            "$ref": "#/components/schemas/RestaurantStop"
+          },
+          "readyAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLine"
+            }
+          },
+          "totalPaise": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "drop": {
+            "$ref": "#/components/schemas/DropStop"
+          },
+          "distanceMeters": {
+            "type": "number",
+            "format": "double"
+          },
+          "dropRideMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "riderPayPaise": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          }
+        }
+      },
+      "RiderTaskView": {
+        "required": [
+          "rider",
+          "task"
+        ],
+        "type": "object",
+        "properties": {
+          "rider": {
+            "$ref": "#/components/schemas/RiderSelf"
+          },
+          "task": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RiderTask"
+              }
+            ]
+          }
+        }
+      },
+      "Role": {
+        "enum": [
+          "Dispatcher",
+          "Customer",
+          "Rider"
+        ]
+      },
+      "TimelineEntry": {
+        "required": [
+          "type",
+          "at",
+          "riderId",
+          "riderName",
+          "freeRiders",
+          "distanceMeters",
+          "previousRiderId",
+          "previousRiderName"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/OrderEventType"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "riderId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "riderName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "freeRiders": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "distanceMeters": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "previousRiderId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "previousRiderName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Orders"
+    },
+    {
+      "name": "Restaurants"
+    },
+    {
+      "name": "Stats"
+    },
+    {
+      "name": "Rider"
+    }
+  ]
+}
