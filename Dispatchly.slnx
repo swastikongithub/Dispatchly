@@ -6,4 +6,7 @@
     <Project Path="src/Dispatchly.Infrastructure/Dispatchly.Infrastructure.csproj" />
     <Project Path="src/Dispatchly.Simulator/Dispatchly.Simulator.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dispatchly.UnitTests/Dispatchly.UnitTests.csproj" />
+  </Folder>
 </Solution>
