@@ -10,14 +10,25 @@
 
   /*
    * Loading placeholders. The placeholder text sets the size, so skeletons match the real
-   * content without new dimensions. Static on purpose: the needs-rider pulse is the only
-   * infinite animation (PLAN.md §6.3).
+   * content without new dimensions. They fade 1 → 0.5 → 1 while loading, so they never look
+   * frozen: the one approved exception to the single infinite animation (PLAN.md §6.3).
    */
   .ui-skeleton {
     color: transparent !important;
     background: var(--ui-raised);
     border-radius: var(--radius-bar);
     user-select: none;
+    animation: ui-skeleton-pulse var(--duration-skeleton-pulse) var(--ease-standard) infinite;
+  }
+  @keyframes ui-skeleton-pulse {
+    50% {
+      opacity: var(--opacity-skeleton-pulse);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ui-skeleton {
+      animation: none;
+    }
   }
   .ui-skeleton * {
     visibility: hidden;
