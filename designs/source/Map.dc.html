@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dispatchly map style</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@600;700&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="position: absolute; inset: 0; overflow: hidden; background: {{c.land}}; font-family: Inter, system-ui, sans-serif">
+<svg viewBox="{{vb}}" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block">
+<defs>
+<pattern id="{{idA}}" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M0 0.5H22M0.5 0V22" stroke="{{c.street}}" stroke-width="1.2" fill="none"></path></pattern>
+<pattern id="{{idB}}" width="17" height="25" patternUnits="userSpaceOnUse" patternTransform="rotate(24)"><path d="M0 0.5H17M0.5 0V25" stroke="{{c.street}}" stroke-width="1.2" fill="none"></path></pattern>
+<pattern id="{{idC}}" width="25" height="15" patternUnits="userSpaceOnUse" patternTransform="rotate(-17)"><path d="M0 0.5H25M0.5 0V15" stroke="{{c.street}}" stroke-width="1.2" fill="none"></path></pattern>
+<g id="{{idArt}}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M600 300 C700 300 820 292 900 300 C980 308 1060 300 1240 292"></path>
+<path d="M740 560 C850 560 950 560 1010 546 C1080 532 1160 522 1240 520"></path>
+<path d="M560 236 C566 180 590 120 612 -20"></path>
+<path d="M516 268 C456 238 380 200 300 172 C230 147 150 132 -20 122"></path>
+<path d="M584 352 C602 400 620 440 640 470 C660 520 680 560 700 600 C720 650 760 700 800 760 C830 800 860 840 880 900"></path>
+<path d="M604 474 C584 540 544 600 504 660 C474 704 452 760 442 900"></path>
+<path d="M290 705 C390 700 460 690 520 672 C580 655 640 668 700 660 C760 652 840 648 960 640"></path>
+<path d="M1062 -20 C1072 150 1062 300 1072 450 C1082 600 1092 700 1102 900"></path>
+<path d="M528 332 C490 372 452 402 402 452 C362 492 302 542 200 602"></path>
+</g>
+<g id="{{idMin}}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M480 470 L700 470"></path>
+<path d="M440 560 C540 560 640 560 740 560"></path>
+<path d="M600 268 C650 230 700 200 760 160 C800 135 840 110 880 80"></path>
+<path d="M300 172 C320 260 330 340 340 420 C346 470 360 520 380 560"></path>
+<path d="M402 452 C440 500 470 540 500 580 C520 610 530 640 520 672"></path>
+<path d="M1072 380 C1120 370 1180 360 1240 360"></path>
+<path d="M700 600 C740 590 780 585 840 590"></path>
+<path d="M640 470 C690 452 740 440 800 445"></path>
+</g>
+<path id="{{idRing}}" fill="none" d="M260 130 C420 70 700 60 860 120 C930 150 930 240 905 330 C885 420 900 520 880 610 C860 700 760 740 600 750 C440 760 300 740 230 650 C170 570 160 420 180 300 C190 210 210 160 260 130Z"></path>
+</defs>
+
+<rect x="-2000" y="-2000" width="5200" height="4800" fill="{{c.land}}"></rect>
+<rect x="-2000" y="-2000" width="5200" height="4800" fill="{{fA}}"></rect>
+<path d="M90 30 L480 20 L505 255 L310 300 L100 275 Z" fill="{{c.land}}"></path>
+<path d="M90 30 L480 20 L505 255 L310 300 L100 275 Z" fill="{{fB}}"></path>
+<path d="M600 575 L905 535 L960 820 L615 835 Z" fill="{{c.land}}"></path>
+<path d="M600 575 L905 535 L960 820 L615 835 Z" fill="{{fC}}"></path>
+<path d="M1040 100 L1320 90 L1320 540 L1050 570 Z" fill="{{c.land}}"></path>
+<path d="M1040 100 L1320 90 L1320 540 L1050 570 Z" fill="{{fB}}"></path>
+
+<g fill="{{c.park}}">
+<path d="M245 250 C290 215 385 228 425 272 C455 312 442 384 400 424 C358 455 288 444 256 402 C228 362 218 290 245 250Z"></path>
+<path d="M618 572 C650 555 712 560 726 586 C736 612 700 630 660 626 C628 623 604 600 618 572Z"></path>
+<path d="M398 690 C430 674 470 682 478 706 C484 730 454 742 424 736 C398 731 386 708 398 690Z"></path>
+<path d="M1048 400 C1090 384 1142 394 1152 426 C1160 456 1120 472 1084 466 C1054 461 1036 426 1048 400Z"></path>
+<path d="M760 420 C790 410 820 420 826 444 C830 466 806 478 782 474 C760 470 748 440 760 420Z"></path>
+<rect x="418" y="436" width="62" height="68" rx="12"></rect>
+<rect x="478" y="460" width="206" height="20" rx="6"></rect>
+</g>
+
+<path d="M930 -60 C962 80 1012 160 982 262 C952 352 932 422 972 522 C1002 602 1032 692 1002 860" fill="none" stroke="{{c.water}}" stroke-width="64" stroke-linecap="round"></path>
+
+<use href="{{hRing}}" stroke="{{c.casing}}" stroke-width="11"></use>
+<use href="{{hArt}}" stroke="{{c.casing}}" stroke-width="7"></use>
+<use href="{{hMin}}" stroke="{{c.casing}}" stroke-width="4.5"></use>
+<use href="{{hMin}}" stroke="{{c.road}}" stroke-width="2.5"></use>
+<use href="{{hArt}}" stroke="{{c.road}}" stroke-width="4"></use>
+<use href="{{hRing}}" stroke="{{c.ring}}" stroke-width="7"></use>
+
+<circle cx="560" cy="300" r="64" fill="none" stroke="{{c.casing}}" stroke-width="8"></circle>
+<circle cx="560" cy="300" r="64" fill="none" stroke="{{c.road}}" stroke-width="5"></circle>
+<circle cx="560" cy="300" r="42" fill="none" stroke="{{c.road}}" stroke-width="3"></circle>
+<circle cx="560" cy="300" r="22" fill="{{c.cp}}"></circle>
+<circle cx="712" cy="470" r="30" fill="{{c.park}}" stroke="{{c.road}}" stroke-width="3"></circle>
+
+<g font-size="{{ls}}" font-weight="600" letter-spacing="{{lsp}}" text-anchor="middle" fill="{{c.label}}" stroke="{{c.land}}" stroke-width="{{halo}}" stroke-linejoin="round" paint-order="stroke" font-family="Inter, system-ui, sans-serif">
+<text x="560" y="222">CONNAUGHT PLACE</text>
+<text x="448" y="196">PAHARGANJ</text>
+<text x="232" y="214">KAROL BAGH</text>
+<text x="742" y="196">DARYAGANJ</text>
+<text x="372" y="520">CHANAKYAPURI</text>
+<text x="712" y="516">INDIA GATE</text>
+<text x="672" y="648">LODHI GARDEN</text>
+<text x="800" y="616">LAJPAT NAGAR</text>
+<text x="440" y="764">HAUZ KHAS</text>
+<text x="1150" y="250">LAXMI NAGAR</text>
+<text x="1100" y="494">AKSHARDHAM</text>
+</g>
+<text x="968" y="420" transform="rotate(76 968 420)" text-anchor="middle" font-size="{{rs}}" font-style="italic" font-weight="500" letter-spacing="{{rsp}}" fill="{{c.waterLabel}}" font-family="Inter, system-ui, sans-serif">YAMUNA</text>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"viewBox":{"editor":null,"default":"0 0 1200 800"},"labelSize":{"editor":null,"default":11},"$preview":{"width":1200,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const t = this.props.theme === 'light' ? 'light' : 'dark';
+    const P = {
+      dark: { land: '#121418', street: '#1C1F24', park: '#142119', cp: '#18291E', water: '#0C1A24', road: '#2B3037', ring: '#363C45', casing: '#0D0F12', label: '#7D858E', waterLabel: '#6A8DA6' },
+      light: { land: '#E8EAED', street: '#F6F7F8', park: '#D5E6D2', cp: '#CBE0C7', water: '#BFD6E8', road: '#FFFFFF', ring: '#FFFFFF', casing: '#D3D7DC', label: '#5E646C', waterLabel: '#355A76' }
+    };
+    const ls = Number(this.props.labelSize ?? 11);
+    const id = (k) => k + '-' + t;
+    return {
+      c: P[t],
+      vb: this.props.viewBox ?? '0 0 1200 800',
+      ls: ls,
+      lsp: (ls * 0.12).toFixed(2),
+      halo: (ls * 0.38).toFixed(2),
+      rs: (ls * 1.1).toFixed(1),
+      rsp: (ls * 0.45).toFixed(2),
+      idA: id('stA'), idB: id('stB'), idC: id('stC'),
+      fA: 'url(#' + id('stA') + ')', fB: 'url(#' + id('stB') + ')', fC: 'url(#' + id('stC') + ')',
+      idArt: id('art'), idMin: id('min'), idRing: id('ring'),
+      hArt: '#' + id('art'), hMin: '#' + id('min'), hRing: '#' + id('ring')
+    };
+  }
+}
+</script>
+</body>
+</html>

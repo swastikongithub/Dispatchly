@@ -1,0 +1,159 @@
+{
+  "$description": "Dispatchly design tokens, extracted from the approved UI designs (designs/html). Source of truth for Tailwind @theme on web and the theme object in the mobile app. Do not add or change values without approval.",
+  "approved": "2026-11-26",
+
+  "color": {
+    "ink": "#0B0C0E",
+
+    "dark": {
+      "canvas": "#121418",
+      "landingCanvas": "#0B0C0E",
+      "panel": "rgba(23,25,29,0.94)",
+      "panelSolid": "#17191D",
+      "panelBorder": "rgba(255,255,255,0.07)",
+      "raised": "#22252A",
+      "raisedStrong": "#24282D",
+      "selected": "#262A30",
+      "input": "#0F1114",
+      "inputBorder": "#2A2E34",
+      "kbdBorder": "#2F343A",
+      "divider": "#24282D",
+      "track": "#2A2E34",
+      "textPrimary": "#F2F3F5",
+      "textPrimaryLanding": "#F5F6F7",
+      "textSecondary": "#9AA1A9",
+      "textSecondaryAlt": "#A1A7AE",
+      "textTertiary": "#7B828A",
+      "textBody": "#C9CDD2",
+      "hairline": "rgba(255,255,255,0.08)",
+      "outlineButtonBorder": "rgba(255,255,255,0.16)"
+    },
+
+    "light": {
+      "surface": "#FFFFFF",
+      "surfaceAlt": "#F4F5F7",
+      "border": "#E3E5E8",
+      "divider": "#DADDE1",
+      "track": "#E6E8EB",
+      "grabber": "#D5D8DC",
+      "textPrimary": "#0B0C0E",
+      "textSecondary": "#555B62",
+      "textSecondaryApp": "#5E646C",
+      "textBody": "#3A3F45",
+      "textOnPill": "#1F2328"
+    },
+
+    "accent": {
+      "orange": "#FF8A1F",
+      "orangeOnLight": "#F57A12",
+      "orangeTextOnDark": "#FFB26B",
+      "orangeTextOnLight": "#B54708",
+      "orangeTintDark": "rgba(255,138,31,0.16)",
+      "orangeTintLight": "#FFE7D1",
+      "orangeRing": "rgba(255,138,31,0.18)"
+    },
+
+    "status": {
+      "available": "#5B9BFF",
+      "availableOnLight": "#2F6FDE",
+      "availableText": "#9EC3FF",
+      "availableTint": "rgba(91,155,255,0.14)",
+      "onDelivery": "#FF8A1F",
+      "late": "#FF5A5F",
+      "lateText": "#FF8F92",
+      "lateTint": "rgba(255,90,95,0.14)",
+      "busyOnLight": "#A3A9B0",
+      "restaurantPin": "#E8EAED"
+    },
+
+    "map": {
+      "dark": {
+        "land": "#121418", "street": "#1C1F24", "park": "#142119", "centralPark": "#18291E",
+        "water": "#0C1A24", "road": "#2B3037", "ringRoad": "#363C45", "casing": "#0D0F12",
+        "label": "#7D858E", "waterLabel": "#6A8DA6"
+      },
+      "light": {
+        "land": "#E8EAED", "street": "#F6F7F8", "park": "#D5E6D2", "centralPark": "#CBE0C7",
+        "water": "#BFD6E8", "road": "#FFFFFF", "ringRoad": "#FFFFFF", "casing": "#D3D7DC",
+        "label": "#5E646C", "waterLabel": "#355A76"
+      }
+    }
+  },
+
+  "font": {
+    "display": "'Inter Tight', Inter, system-ui, sans-serif",
+    "text": "Inter, system-ui, sans-serif",
+    "weights": { "display": [600, 700], "text": [400, 500, 600, 700] },
+    "numerals": "tabular-nums on every number (ETAs, times, counts, prices, order IDs)"
+  },
+
+  "type": {
+    "heroDisplay":   { "family": "display", "size": "clamp(52px, 7.4vw, 104px)", "weight": 700, "lineHeight": 0.98, "tracking": "-0.04em" },
+    "ctaDisplay":    { "family": "display", "size": "clamp(48px, 6vw, 88px)", "weight": 700, "lineHeight": 1.0, "tracking": "-0.04em" },
+    "sectionTitle":  { "family": "display", "size": "clamp(40px, 4.6vw, 64px)", "weight": 700, "lineHeight": 1.02, "tracking": "-0.035em" },
+    "etaHero":       { "family": "display", "size": "56px", "weight": 700, "lineHeight": 1.0, "tracking": "-0.035em" },
+    "etaPanel":      { "family": "display", "size": "44px", "weight": 700, "lineHeight": 1.0, "tracking": "-0.03em" },
+    "statLarge":     { "family": "display", "size": "44px", "weight": 700, "tracking": "-0.03em" },
+    "cardEta":       { "family": "display", "size": "34px", "weight": 700, "tracking": "-0.03em" },
+    "screenTitle":   { "family": "display", "size": "28px", "weight": 700, "tracking": "-0.02em" },
+    "stepTitle":     { "family": "display", "size": "24px", "weight": 700, "tracking": "-0.02em" },
+    "panelTitle":    { "family": "display", "size": "19px", "weight": 700, "tracking": "-0.01em" },
+    "wordmark":      { "family": "display", "size": "17-19px", "weight": 700, "tracking": "-0.02em" },
+    "lead":          { "family": "text", "size": "21px", "lineHeight": 1.45 },
+    "bodyLarge":     { "family": "text", "size": "18px", "lineHeight": 1.55 },
+    "spec":          { "family": "text", "size": "17px", "lineHeight": 1.5 },
+    "body":          { "family": "text", "size": "16px", "lineHeight": 1.5 },
+    "bodySmall":     { "family": "text", "size": "15px", "lineHeight": 1.45 },
+    "ui":            { "family": "text", "size": "14px" },
+    "meta":          { "family": "text", "size": "13px" },
+    "caption":       { "family": "text", "size": "12px" },
+    "mapLabel":      { "family": "text", "weight": 600, "transform": "uppercase", "tracking": "0.12em", "halo": "land colour, ~0.38 x font size" }
+  },
+
+  "radius": { "pill": "999px", "sheet": "28px", "heroCard": "28px", "phoneBezel": "38px", "card": "20px", "panel": "18px", "cardSmall": "16px", "item": "14px", "control": "12px", "smallControl": "10px", "tab": "8px" },
+
+  "space": [2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 104, 112, 120, 140],
+
+  "layout": {
+    "contentMaxWidth": "1200px",
+    "pageGutter": "24px",
+    "sectionPaddingY": "112px",
+    "dashboardPadding": "16px",
+    "ordersPanelWidth": "372px",
+    "riderCardWidth": "348px",
+    "phoneDesignSize": "390x844",
+    "minTouchTarget": "44px"
+  },
+
+  "shadow": {
+    "panelOnMap": "0 12px 32px rgba(0,0,0,0.35)",
+    "floatingLight": "0 4px 14px rgba(0,0,0,0.12)",
+    "sheetLight": "0 -8px 30px rgba(0,0,0,0.08)",
+    "cardOnDark": "0 20px 40px rgba(0,0,0,0.35)",
+    "chipLight": "0 8px 24px rgba(0,0,0,0.08)",
+    "device": "0 30px 60px -28px rgba(11,12,14,0.45)"
+  },
+
+  "motion": {
+    "$note": "Not visible in static mockups; defined in PLAN.md section 6. Use these everywhere.",
+    "duration": { "instant": "100ms", "fast": "160ms", "base": "220ms", "panel": "280ms", "sheet": "360ms", "camera": "800ms", "riderUpdateInterval": "2000ms" },
+    "easing": { "standard": "cubic-bezier(0.2, 0, 0, 1)", "enter": "cubic-bezier(0.05, 0.7, 0.1, 1)", "exit": "cubic-bezier(0.3, 0, 0.8, 0.15)", "linear": "linear" },
+    "spring": { "sheet": { "stiffness": 380, "damping": 36 }, "slideToConfirm": { "stiffness": 500, "damping": 40 } },
+    "press": "scale(0.98) for 100ms"
+  },
+
+  "icon": { "set": "Lucide", "stroke": 2, "grid": 24, "sizes": [16, 17, 18, 20, 22], "caps": "round", "joins": "round" },
+
+  "marker": {
+    "available": "filled dot, status.available, 2px stroke in map land colour",
+    "onDelivery": "filled dot + heading pointer (triangle) rotated to bearing, status.onDelivery",
+    "late": "status.late dot + 50%-opacity ring",
+    "selected": "larger orange dot, 2.5px white stroke, two soft halos (20% and 8%), name/ETA pill beside it",
+    "restaurant": "rounded square, status.restaurantPin (dark map) or ink with white dot (light map)",
+    "drop": "ring dot (dark centre, light stroke) with a label pill above",
+    "newOrder": "orange square with two expanding rings, the inner one dashed",
+    "routeActive": "4px orange line over an 11px 22%-opacity orange glow (dark) / 5.5px orange over 11px white casing (light)",
+    "routeTravelled": "dotted grey line",
+    "routeOthers": "2.5px orange at 32% opacity"
+  }
+}

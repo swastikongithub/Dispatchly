@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dispatchly landing page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Inter+Tight:wght@600;700&amp;display=swap">
+<style>
+body{margin:0;background:#0B0C0E}
+a{color:inherit}a:hover{opacity:.85}
+</style>
+</helmet>
+<div style="background: #0B0C0E; color: #F5F6F7; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased">
+
+<header style="max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap">
+<a href="#top" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #F5F6F7">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#F5F6F7" stroke-width="2"></circle><circle cx="18" cy="6" r="3.4" fill="#FF8A1F" stroke="#0B0C0E" stroke-width="1.6"></circle></svg>
+<span style="font-family: 'Inter Tight', Inter, sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em">Dispatchly</span>
+</a>
+<nav aria-label="Main" style="display: flex; gap: 28px; flex-wrap: wrap; margin-left: auto; font-size: 14px">
+<a href="#how" style="color: #A1A7AE; text-decoration: none">How it works</a>
+<a href="#assign" style="color: #A1A7AE; text-decoration: none">Assignment</a>
+<a href="#views" style="color: #A1A7AE; text-decoration: none">Screens</a>
+<a href="#specs" style="color: #A1A7AE; text-decoration: none">Tech specs</a>
+<a href="#" style="color: #A1A7AE; text-decoration: none">GitHub</a>
+</nav>
+<a href="Dashboard.dc.html" style="background: #F5F6F7; color: #0B0C0E; text-decoration: none; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: 999px">Open dashboard</a>
+</header>
+
+<section id="top" style="max-width: 1200px; margin: 0 auto; padding: 72px 24px 0; text-align: center">
+<p style="margin: 0 0 24px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #FFB26B; background: rgba(255,138,31,0.1); padding: 6px 12px; border-radius: 999px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FF8A1F"></span>Live · a simulated city, central Delhi</p>
+<h1 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-weight: 700; font-size: clamp(52px, 7.4vw, 104px); line-height: 0.98; letter-spacing: -0.04em">Every order.<br>Every rider.<br><span style="color: #FF8A1F">Live.</span></h1>
+<p style="margin: 28px auto 0; max-width: 620px; font-size: 21px; line-height: 1.45; color: #A1A7AE">Dispatchly sends each order to the nearest free rider and follows it to the door, in real time.</p>
+<div style="margin-top: 36px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap">
+<a href="Dashboard.dc.html" style="background: #FF8A1F; color: #0B0C0E; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 24px; border-radius: 999px">Open live dashboard</a>
+<a href="Tracking.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #F5F6F7; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16)">Track a demo order<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+</div>
+
+<div style="position: relative; height: 560px; margin-top: 64px; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #121418">
+<dc-import name="Map" theme="dark" view-box="300 150 700 327" label-size="7" hint-size="100%,560px"></dc-import>
+<svg viewBox="300 150 700 327" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Riders moving across central Delhi on a live map" style="position: absolute; inset: 0; width: 100%; height: 100%">
+<g fill="none" stroke="#FF8A1F" stroke-width="2" stroke-linecap="round" stroke-opacity="0.35">
+<path d="M540 380 C520 405 500 430 470 480"></path>
+<path d="M830 470 C826 500 822 530 820 560"></path>
+<path d="M650 360 C680 340 705 320 740 300"></path>
+<path d="M470 300 C440 290 410 276 380 262"></path>
+</g>
+<circle cx="760" cy="330" r="15" fill="#FF8A1F" fill-opacity="0.14"></circle>
+<path d="M760 330 C800 322 832 322 868 356" fill="none" stroke="#FF8A1F" stroke-width="3" stroke-linecap="round"></path>
+<circle cx="868" cy="356" r="4.5" fill="#121418" stroke="#F5F6F7" stroke-width="2"></circle>
+<g fill="#E8EAED" stroke="#121418" stroke-width="1.5">
+<rect x="616" y="426" width="8" height="8" rx="2"></rect>
+<rect x="571" y="314" width="8" height="8" rx="2"></rect>
+<rect x="451" y="232" width="8" height="8" rx="2"></rect>
+<rect x="736" y="296" width="8" height="8" rx="2"></rect>
+</g>
+<g fill="#5B9BFF" stroke="#121418" stroke-width="1.5">
+<circle cx="590" cy="300" r="4"></circle>
+<circle cx="515" cy="245" r="4"></circle>
+<circle cx="700" cy="270" r="4"></circle>
+<circle cx="850" cy="380" r="4"></circle>
+<circle cx="380" cy="360" r="4"></circle>
+<circle cx="450" cy="450" r="4"></circle>
+<circle cx="905" cy="250" r="4"></circle>
+</g>
+<g fill="#FF8A1F" stroke="#121418" stroke-width="1.5">
+<g transform="translate(540 380) rotate(215)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(470 300) rotate(250)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(610 220) rotate(15)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(760 330) rotate(103)"><circle r="5.6"></circle><path d="M0 -10.5L3.2 -5.8H-3.2Z" stroke="none"></path></g>
+<g transform="translate(830 470) rotate(186)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(720 410) rotate(300)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(650 360) rotate(56)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+<g transform="translate(400 420) rotate(140)"><circle r="4.8"></circle><path d="M0 -9.5L2.9 -5.2H-2.9Z" stroke="none"></path></g>
+</g>
+<g transform="translate(800 210)"><circle r="8" fill="none" stroke="#FF5A5F" stroke-opacity="0.5" stroke-width="1.5"></circle><circle r="4.4" fill="#FF5A5F" stroke="#121418" stroke-width="1.5"></circle></g>
+</svg>
+
+<div style="position: absolute; top: 20px; left: 20px; background: rgba(18,20,24,0.92); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px 16px; text-align: left">
+<div style="font-size: 12px; color: #A1A7AE; display: flex; align-items: center; gap: 6px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FF8A1F"></span>Live now</div>
+<div style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; font-variant-numeric: tabular-nums">142 riders</div>
+<div style="font-size: 13px; color: #A1A7AE; margin-top: 2px">84 free · 58 on a delivery</div>
+</div>
+
+<div style="position: absolute; left: 20px; bottom: 20px; display: flex; align-items: center; gap: 10px; background: rgba(18,20,24,0.92); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px 14px; font-size: 14px; text-align: left">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #FF8A1F; box-shadow: 0 0 0 4px rgba(255,138,31,0.2)"></span>
+<span><strong style="font-weight: 600">New order #DL-4823</strong><span style="color: #A1A7AE"> · finding the nearest rider</span></span>
+</div>
+
+<div style="position: absolute; right: 20px; bottom: 20px; width: 290px; background: #FFFFFF; color: #0B0C0E; border-radius: 20px; padding: 16px 18px; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.35)">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #555B62"><span>Order #DL-4817</span><span style="font-variant-numeric: tabular-nums">8:05 PM</span></div>
+<div style="display: flex; align-items: baseline; gap: 8px; margin-top: 6px"><span style="font-size: 14px; color: #555B62">Arriving in</span><span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">8 min</span></div>
+<div style="display: flex; gap: 4px; margin-top: 12px">
+<span style="flex: 1; height: 5px; border-radius: 3px; background: #FF8A1F"></span>
+<span style="flex: 1; height: 5px; border-radius: 3px; background: #FF8A1F"></span>
+<span style="flex: 1; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #FF8A1F 55%, #E6E8EB 55%)"></span>
+<span style="flex: 1; height: 5px; border-radius: 3px; background: #E6E8EB"></span>
+</div>
+<div style="font-size: 13px; color: #555B62; margin-top: 10px">Aman is on Mathura Road with your order</div>
+</div>
+</div>
+</section>
+
+<section aria-label="Live numbers" style="max-width: 1200px; margin: 0 auto; padding: 56px 24px 104px">
+<div style="display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 220px; padding: 20px 24px 20px 0; border-top: 1px solid rgba(255,255,255,0.1)"><div style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 44px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">142</div><div style="font-size: 15px; color: #A1A7AE; margin-top: 4px">Riders online</div></div>
+<div style="flex: 1 1 220px; padding: 20px 24px 20px 0; border-top: 1px solid rgba(255,255,255,0.1)"><div style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 44px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">60</div><div style="font-size: 15px; color: #A1A7AE; margin-top: 4px">Orders on the move</div></div>
+<div style="flex: 1 1 220px; padding: 20px 24px 20px 0; border-top: 1px solid rgba(255,255,255,0.1)"><div style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 44px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">24 min</div><div style="font-size: 15px; color: #A1A7AE; margin-top: 4px">Average delivery</div></div>
+<div style="flex: 1 1 220px; padding: 20px 24px 20px 0; border-top: 1px solid rgba(255,255,255,0.1)"><div style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 44px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">1,208</div><div style="font-size: 15px; color: #A1A7AE; margin-top: 4px">Delivered today</div></div>
+</div>
+<p style="margin: 20px 0 0; font-size: 13px; color: #7B828A">Numbers from the running city simulation, refreshed every 2 seconds.</p>
+</section>
+
+<section id="how" style="background: #FFFFFF; color: #0B0C0E; padding: 112px 24px">
+<div style="max-width: 1200px; margin: 0 auto">
+<p style="margin: 0; font-size: 15px; font-weight: 600; color: #B54708">How it works</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 700">From tap to door<br>in four moves.</h2>
+<ol style="list-style: none; margin: 64px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 40px 32px">
+
+<li style="flex: 1 1 230px; min-width: 0">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #0B0C0E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; box-sizing: border-box">1</span><span style="flex: 1; height: 1px; background: #E3E5E8"></span></div>
+<h3 style="margin: 24px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; letter-spacing: -0.02em; font-weight: 700">Placed</h3>
+<p style="margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #555B62">The customer drops a pin and orders. The restaurant sees it the same second.</p>
+<div style="margin-top: 20px; background: #F4F5F7; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 14px"><span><span style="display: block; font-weight: 600">Saffron &amp; Smoke</span><span style="color: #555B62; font-size: 13px">2 items · Khan Market</span></span><span style="font-weight: 600; font-variant-numeric: tabular-nums">₹640</span></div>
+</li>
+
+<li style="flex: 1 1 230px; min-width: 0">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #0B0C0E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; box-sizing: border-box">2</span><span style="flex: 1; height: 1px; background: #E3E5E8"></span></div>
+<h3 style="margin: 24px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; letter-spacing: -0.02em; font-weight: 700">Assigned</h3>
+<p style="margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #555B62">The nearest free rider gets the job. One rider, one order, never two.</p>
+<div style="margin-top: 20px; background: #F4F5F7; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 14px"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #2F6FDE"></span><span><span style="display: block; font-weight: 600">Aman Verma</span><span style="color: #555B62; font-size: 13px">Nearest of 4 free riders</span></span></span><span style="font-weight: 600; font-variant-numeric: tabular-nums">0.6 km</span></div>
+</li>
+
+<li style="flex: 1 1 230px; min-width: 0">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #0B0C0E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; box-sizing: border-box">3</span><span style="flex: 1; height: 1px; background: #E3E5E8"></span></div>
+<h3 style="margin: 24px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; letter-spacing: -0.02em; font-weight: 700">Picked up</h3>
+<p style="margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #555B62">At the counter, the rider slides to confirm. The customer’s map comes alive.</p>
+<div style="margin-top: 20px; background: #0B0C0E; border-radius: 999px; padding: 6px; display: flex; align-items: center; gap: 12px; color: #F5F6F7; font-size: 14px; font-weight: 600"><span style="width: 46px; height: 46px; border-radius: 50%; background: #FF8A1F; color: #0B0C0E; display: flex; align-items: center; justify-content: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>Slide to confirm pickup</div>
+</li>
+
+<li style="flex: 1 1 230px; min-width: 0">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #0B0C0E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; box-sizing: border-box">4</span><span style="flex: 1; height: 1px; background: #E3E5E8"></span></div>
+<h3 style="margin: 24px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; letter-spacing: -0.02em; font-weight: 700">Delivered</h3>
+<p style="margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #555B62">A live ETA all the way to the door, and a code to hand over safely.</p>
+<div style="margin-top: 20px; background: #F4F5F7; border-radius: 16px; padding: 12px 16px"><div style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-size: 13px; color: #555B62">Arriving in</span><span style="font-family: 'Inter Tight', Inter, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">8 min</span></div><div style="display: flex; gap: 4px; margin-top: 8px"><span style="flex: 1; height: 5px; border-radius: 3px; background: #FF8A1F"></span><span style="flex: 1; height: 5px; border-radius: 3px; background: #FF8A1F"></span><span style="flex: 1; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #FF8A1F 55%, #DFE2E6 55%)"></span><span style="flex: 1; height: 5px; border-radius: 3px; background: #DFE2E6"></span></div></div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="assign" style="background: #F4F5F7; color: #0B0C0E; padding: 112px 24px">
+<div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 1 1 380px; min-width: 0">
+<p style="margin: 0; font-size: 15px; font-weight: 600; color: #B54708">Smart assignment</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 700">The nearest free rider.<br>Every time.</h2>
+<p style="margin: 20px 0 0; font-size: 18px; line-height: 1.55; color: #555B62">When an order lands, Dispatchly searches outward from the restaurant, picks the closest rider who is free and locks them in.</p>
+<dl style="margin: 36px 0 0">
+<div style="padding: 18px 0; border-top: 1px solid #DADDE1"><dt style="font-weight: 600; font-size: 16px">Real distance, fast</dt><dd style="margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: #555B62">PostGIS searches a spatial index instead of checking every rider one by one.</dd></div>
+<div style="padding: 18px 0; border-top: 1px solid #DADDE1"><dt style="font-weight: 600; font-size: 16px">One rider, one order</dt><dd style="margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: #555B62">Row-level locking means two orders landing at the same moment can’t grab the same person.</dd></div>
+<div style="padding: 18px 0; border-top: 1px solid #DADDE1; border-bottom: 1px solid #DADDE1"><dt style="font-weight: 600; font-size: 16px">Automatic reassignment</dt><dd style="margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: #555B62">If a rider declines or drops offline, the order goes straight to the next nearest.</dd></div>
+</dl>
+</div>
+
+<div style="flex: 1 1 520px; min-width: 0; position: relative; height: 520px; border-radius: 28px; overflow: hidden; border: 1px solid #E3E5E8; background: #E8EAED">
+<dc-import name="Map" theme="light" view-box="470 296 300 269" label-size="5.5" hint-size="100%,520px"></dc-import>
+<svg viewBox="470 296 300 269" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A new order at Saffron and Smoke with four free riders nearby; the nearest, 0.6 km away, is assigned" style="position: absolute; inset: 0; width: 100%; height: 100%">
+<g fill="none" stroke="#8C939A" stroke-width="0.7" stroke-dasharray="2 3">
+<circle cx="620" cy="430" r="32"></circle>
+<circle cx="620" cy="430" r="68"></circle>
+<circle cx="620" cy="430" r="108"></circle>
+</g>
+<path d="M620 430 L640 452" stroke="#F57A12" stroke-width="2.2" stroke-linecap="round"></path>
+<g fill="#A3A9B0" stroke="#FFFFFF" stroke-width="1.2">
+<circle cx="560" cy="410" r="3.2"></circle>
+<circle cx="690" cy="520" r="3.2"></circle>
+<circle cx="702" cy="438" r="3.2"></circle>
+</g>
+<g fill="#2F6FDE" stroke="#FFFFFF" stroke-width="1.4">
+<circle cx="585" cy="485" r="4.2"></circle>
+<circle cx="700" cy="360" r="4.2"></circle>
+<circle cx="548" cy="372" r="4.2"></circle>
+</g>
+<g transform="translate(640 452)"><circle r="10" fill="#F57A12" fill-opacity="0.18"></circle><circle r="5.2" fill="#F57A12" stroke="#FFFFFF" stroke-width="1.6"></circle></g>
+<g transform="translate(620 430)"><rect x="-6" y="-6" width="12" height="12" rx="3.5" fill="#0B0C0E" stroke="#FFFFFF" stroke-width="1.5"></rect><circle r="1.6" fill="#FFFFFF"></circle></g>
+<g font-size="6" font-weight="600" text-anchor="middle" font-family="Inter, system-ui, sans-serif">
+<rect x="585" y="409" width="70" height="12" rx="6" fill="#FFFFFF" stroke="#D3D7DC" stroke-width="0.6"></rect>
+<text x="620" y="417.2" fill="#1F2328">Saffron &amp; Smoke</text>
+<rect x="648" y="446" width="60" height="12" rx="6" fill="#0B0C0E"></rect>
+<text x="678" y="454.2" fill="#FFFFFF">0.6 km · assigned</text>
+<rect x="545" y="492" width="30" height="12" rx="6" fill="#FFFFFF" stroke="#D3D7DC" stroke-width="0.6"></rect>
+<text x="560" y="500.2" fill="#1F2328">1.4 km</text>
+<rect x="708" y="354" width="30" height="12" rx="6" fill="#FFFFFF" stroke="#D3D7DC" stroke-width="0.6"></rect>
+<text x="723" y="362.2" fill="#1F2328">2.3 km</text>
+<rect x="503" y="358" width="30" height="12" rx="6" fill="#FFFFFF" stroke="#D3D7DC" stroke-width="0.6"></rect>
+<text x="518" y="366.2" fill="#1F2328">2.0 km</text>
+</g>
+</svg>
+<div style="position: absolute; left: 16px; bottom: 16px; display: flex; align-items: center; gap: 10px; background: #FFFFFF; border-radius: 14px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); font-size: 14px">
+<span style="width: 28px; height: 28px; border-radius: 50%; background: #FFE7D1; color: #B54708; display: flex; align-items: center; justify-content: center; flex: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>
+<span><strong style="font-weight: 600">Assigned to Aman Verma</strong><span style="color: #555B62"> · 0.6 km away, nearest of 4 free riders</span></span>
+</div>
+</div>
+</div>
+</section>
+
+<section id="views" style="background: #FFFFFF; color: #0B0C0E; padding: 112px 24px 120px">
+<div style="max-width: 1200px; margin: 0 auto">
+<p style="margin: 0; font-size: 15px; font-weight: 600; color: #B54708">Three views, one live system</p>
+<h2 style="margin: 12px 0 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 700">Built for both ends<br>of the ride.</h2>
+<div style="margin-top: 64px; display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: flex-end">
+<figure style="margin: 0; max-width: 100%">
+<div style="position: relative; width: 648px; height: 405px; max-width: 100%; overflow: hidden; border-radius: 16px; border: 1px solid #E3E5E8; box-shadow: 0 30px 60px -28px rgba(11,12,14,0.45)">
+<div style="width: 1440px; height: 900px; transform: scale(0.45); transform-origin: 0 0"><dc-import name="Dashboard" hint-size="1440px,900px"></dc-import></div>
+</div>
+<figcaption style="margin-top: 14px; font-size: 14px; color: #555B62; text-align: center">Dispatcher · live map</figcaption>
+</figure>
+<figure style="margin: 0">
+<div style="padding: 7px; background: #0B0C0E; border-radius: 38px; box-shadow: 0 30px 60px -28px rgba(11,12,14,0.55)">
+<div style="position: relative; width: 203px; height: 439px; overflow: hidden; border-radius: 31px">
+<div style="width: 390px; height: 844px; transform: scale(0.52); transform-origin: 0 0"><dc-import name="Tracking" hint-size="390px,844px"></dc-import></div>
+</div>
+</div>
+<figcaption style="margin-top: 14px; font-size: 14px; color: #555B62; text-align: center">Customer · live tracking</figcaption>
+</figure>
+<figure style="margin: 0">
+<div style="padding: 7px; background: #0B0C0E; border-radius: 38px; box-shadow: 0 30px 60px -28px rgba(11,12,14,0.55)">
+<div style="position: relative; width: 203px; height: 439px; overflow: hidden; border-radius: 31px">
+<div style="width: 390px; height: 844px; transform: scale(0.52); transform-origin: 0 0"><dc-import name="Rider" hint-size="390px,844px"></dc-import></div>
+</div>
+</div>
+<figcaption style="margin-top: 14px; font-size: 14px; color: #555B62; text-align: center">Rider · pickup and drop</figcaption>
+</figure>
+</div>
+</div>
+</section>
+
+<section id="specs" style="background: #F4F5F7; color: #0B0C0E; padding: 112px 24px">
+<div style="max-width: 1200px; margin: 0 auto">
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 700">Tech specs</h2>
+<dl style="margin: 48px 0 0">
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Backend</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">ASP.NET Core Web API on .NET 10, C#, Entity Framework Core</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Frontend</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">Angular 22, TypeScript, MapLibre GL vector maps</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Database</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">PostgreSQL 17 with PostGIS for spatial search</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Real time</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">SignalR pushes every rider’s position every 2 seconds</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Live state</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">Redis holds the latest position of every rider</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Routing</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">OSRM on OpenStreetMap roads for routes and ETAs</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Quality</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">xUnit tests, GitHub Actions CI, k6 load tests</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 24px; padding: 22px 0; border-top: 1px solid #DADDE1; border-bottom: 1px solid #DADDE1"><dt style="flex: 0 0 240px; font-size: 17px; font-weight: 600">Runs on</dt><dd style="flex: 1 1 320px; margin: 0; font-size: 17px; line-height: 1.5; color: #3A3F45">Docker Compose: API, web app, database, cache and router</dd></div>
+</dl>
+</div>
+</section>
+
+<section style="padding: 140px 24px; text-align: center">
+<h2 style="margin: 0; font-family: 'Inter Tight', Inter, sans-serif; font-size: clamp(48px, 6vw, 88px); line-height: 1; letter-spacing: -0.04em; font-weight: 700">See it move.</h2>
+<p style="margin: 20px auto 0; max-width: 520px; font-size: 19px; line-height: 1.5; color: #A1A7AE">The city is running right now. Open the dashboard and watch the next order find its rider.</p>
+<div style="margin-top: 32px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap">
+<a href="Dashboard.dc.html" style="background: #FF8A1F; color: #0B0C0E; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 24px; border-radius: 999px">Open live dashboard</a>
+<a href="#" style="color: #F5F6F7; text-decoration: none; font-size: 16px; font-weight: 600; padding: 14px 22px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16)">View source on GitHub</a>
+</div>
+</section>
+
+<footer style="border-top: 1px solid rgba(255,255,255,0.08)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; align-items: center">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#F5F6F7" stroke-width="2"></circle><circle cx="18" cy="6" r="3.4" fill="#FF8A1F" stroke="#0B0C0E" stroke-width="1.6"></circle></svg>
+<span style="font-size: 13px; color: #A1A7AE">A portfolio project by Swastik Singh. Riders, restaurants and orders are simulated.</span>
+</div>
+<nav aria-label="Footer" style="display: flex; gap: 24px; font-size: 13px">
+<a href="#" style="color: #A1A7AE; text-decoration: none">GitHub</a>
+<a href="#" style="color: #A1A7AE; text-decoration: none">LinkedIn</a>
+<a href="#" style="color: #A1A7AE; text-decoration: none">Portfolio</a>
+</nav>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
