@@ -1,1 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles. Every value comes from design-tokens.json through styles/tokens.css. */
+@import 'tailwindcss';
+@import './styles/tokens.css';
+@import './styles/theme.css';
+@import './styles/base.css';

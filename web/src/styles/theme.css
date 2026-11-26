@@ -1,0 +1,141 @@
+/*
+ * Dark and light are themes on the same tokens (PLAN.md §4.1): components only use these
+ * semantic --ui-* roles, and each theme maps the roles to tokens from tokens.css.
+ * Dark: dispatch, rider and landing. Light: tracking and order.
+ * Put .theme-dark or .theme-light on a route's root; the document defaults to dark.
+ */
+
+:root,
+.theme-dark {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --ui-canvas: var(--color-dark-canvas);
+  --ui-surface: var(--color-dark-panel-solid);
+  --ui-surface-floating: var(--color-dark-panel-opaque);
+  --ui-surface-border: var(--color-dark-panel-border);
+  --ui-surface-shadow: var(--shadow-panel-on-map);
+  --ui-sheet-border: var(--color-dark-sheet-border);
+  --ui-sheet-shadow: none;
+  --ui-floating-shadow: none;
+  --ui-raised: var(--color-dark-raised);
+  --ui-raised-soft: var(--color-dark-raised-soft);
+  --ui-raised-strong: var(--color-dark-raised-strong);
+  --ui-selected: var(--color-dark-selected);
+  --ui-input: var(--color-dark-input);
+  --ui-input-border: var(--color-dark-input-border);
+  --ui-kbd-border: var(--color-dark-kbd-border);
+  --ui-outline: var(--color-dark-outline-button-border);
+  --ui-divider: var(--color-dark-divider);
+  --ui-track: var(--color-dark-track);
+  --ui-grabber: var(--color-dark-grabber);
+  --ui-timeline-line: var(--color-dark-timeline-line);
+  --ui-timeline-pending: var(--color-dark-timeline-pending);
+
+  /* Hover: a slightly lighter surface only (PLAN.md §6.1) */
+  --ui-hover: var(--color-dark-raised-soft);
+  --ui-raised-hover: var(--color-dark-selected);
+  --ui-selected-hover: var(--color-dark-track);
+
+  /* Text */
+  --ui-text-primary: var(--color-dark-text-primary);
+  --ui-text-secondary: var(--color-dark-text-secondary);
+  --ui-text-muted: var(--color-dark-text-muted);
+  --ui-text-body: var(--color-dark-text-body);
+  --ui-text-disabled: var(--color-dark-text-tertiary);
+  --ui-icon: var(--color-dark-text-body);
+  --ui-map-control-icon: var(--color-dark-map-control-icon);
+
+  /* Accent and status */
+  --ui-accent: var(--color-accent-orange);
+  --ui-accent-text: var(--color-accent-orange-text-on-dark);
+  --ui-accent-tint: var(--color-accent-orange-tint-dark);
+  --ui-accent-ring: var(--color-accent-orange-ring);
+  --ui-on-accent: var(--color-ink);
+  --ui-available: var(--color-status-available);
+  --ui-available-text: var(--color-status-available-text);
+  --ui-available-tint: var(--color-status-available-tint);
+  --ui-late: var(--color-status-late);
+  --ui-late-text: var(--color-status-late-text);
+  --ui-late-tint: var(--color-status-late-tint);
+  --ui-restaurant: var(--color-status-restaurant-pin);
+}
+
+.theme-light {
+  color-scheme: light;
+
+  --ui-canvas: var(--color-light-surface);
+  --ui-surface: var(--color-light-surface);
+  --ui-surface-floating: var(--color-light-surface);
+  --ui-surface-border: var(--color-light-border);
+  --ui-surface-shadow: var(--shadow-chip-light);
+  --ui-sheet-border: transparent;
+  --ui-sheet-shadow: var(--shadow-sheet-light);
+  --ui-floating-shadow: var(--shadow-floating-light);
+  --ui-raised: var(--color-light-surface-alt);
+  --ui-raised-soft: var(--color-light-surface-alt);
+  --ui-raised-strong: var(--color-light-surface-alt);
+  --ui-selected: var(--color-light-surface-alt);
+  --ui-input: var(--color-light-surface-alt);
+  --ui-input-border: var(--color-light-border);
+  --ui-kbd-border: var(--color-light-divider);
+  --ui-outline: var(--color-light-border);
+  --ui-divider: var(--color-light-border);
+  --ui-track: var(--color-light-track);
+  --ui-grabber: var(--color-light-grabber);
+  --ui-timeline-line: var(--color-light-divider);
+  --ui-timeline-pending: var(--color-light-grabber);
+
+  --ui-hover: var(--color-light-surface-alt);
+  --ui-raised-hover: var(--color-light-track);
+  --ui-selected-hover: var(--color-light-track);
+
+  --ui-text-primary: var(--color-light-text-primary);
+  --ui-text-secondary: var(--color-light-text-secondary-app);
+  --ui-text-muted: var(--color-light-text-secondary-app);
+  --ui-text-body: var(--color-light-text-body);
+  --ui-text-disabled: var(--color-status-busy-on-light);
+  --ui-icon: var(--color-light-text-primary);
+  --ui-map-control-icon: var(--color-light-text-primary);
+
+  --ui-accent: var(--color-accent-orange-on-light);
+  --ui-accent-text: var(--color-accent-orange-text-on-light);
+  --ui-accent-tint: var(--color-accent-orange-tint-light);
+  --ui-accent-ring: var(--color-accent-orange-ring);
+  --ui-on-accent: var(--color-ink);
+  --ui-available: var(--color-status-available-on-light);
+  --ui-available-text: var(--color-status-available-on-light);
+  --ui-available-tint: var(--color-status-available-tint);
+  --ui-late: var(--color-status-late);
+  --ui-late-text: var(--color-status-late);
+  --ui-late-tint: var(--color-status-late-tint);
+  --ui-restaurant: var(--color-ink);
+}
+
+/* The roles as Tailwind colours (bg-surface, text-secondary, border-divider, ...) for screens. */
+@theme inline {
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-surface-floating: var(--ui-surface-floating);
+  --color-surface-border: var(--ui-surface-border);
+  --color-raised: var(--ui-raised);
+  --color-raised-soft: var(--ui-raised-soft);
+  --color-raised-strong: var(--ui-raised-strong);
+  --color-selected: var(--ui-selected);
+  --color-input: var(--ui-input);
+  --color-input-border: var(--ui-input-border);
+  --color-outline: var(--ui-outline);
+  --color-divider: var(--ui-divider);
+  --color-track: var(--ui-track);
+  --color-primary: var(--ui-text-primary);
+  --color-secondary: var(--ui-text-secondary);
+  --color-muted: var(--ui-text-muted);
+  --color-body: var(--ui-text-body);
+  --color-accent: var(--ui-accent);
+  --color-accent-text: var(--ui-accent-text);
+  --color-accent-tint: var(--ui-accent-tint);
+  --color-on-accent: var(--ui-on-accent);
+  --color-available: var(--ui-available);
+  --color-late: var(--ui-late);
+  --color-late-text: var(--ui-late-text);
+}

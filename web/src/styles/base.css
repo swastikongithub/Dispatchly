@@ -1,0 +1,39 @@
+@layer base {
+  html {
+    font-family: var(--font-text);
+    background: var(--ui-canvas);
+    color: var(--ui-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .theme-dark,
+  .theme-light {
+    color: var(--ui-text-primary);
+  }
+
+  /* Display headings never leave one word alone on a line (PLAN.md §11.4). */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /* Focus: a 2px orange outline with a 2px offset on every interactive element (PLAN.md §6.1). */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* Reduced motion: state changes still happen, they just don't move (PLAN.md §6.1). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0s !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

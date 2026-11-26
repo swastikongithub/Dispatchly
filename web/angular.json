@@ -24,7 +24,12 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": [
+              "@fontsource-variable/inter/wght.css",
+              "@fontsource-variable/inter/wght-italic.css",
+              "@fontsource-variable/inter-tight/wght.css",
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
