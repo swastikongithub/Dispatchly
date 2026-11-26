@@ -1,3 +1,4 @@
+using Dispatchly.Application.Live;
 using Dispatchly.Application.Orders;
 using Dispatchly.Domain.Dispatch;
 using Dispatchly.Infrastructure;
@@ -35,6 +36,40 @@ internal sealed class AssignmentRetryWorker(
             }
         }
     }
+}
+
+/// <summary>The live tick (PLAN.md §3.6): rider positions, ETAs and stats every 2 s.</summary>
+internal sealed class LiveBroadcastWorker(
+    IServiceScopeFactory scopes,
+    LiveOptions options,
+    ILogger<LiveBroadcastWorker> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var timer = new PeriodicTimer(options.BatchInterval);
+        while (await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            try
+            {
+                await using var scope = scopes.CreateAsyncScope();
+                await scope.ServiceProvider.GetRequiredService<LiveBroadcaster>().TickAsync(stoppingToken);
+            }
+            catch (Exception e) when (e is not OperationCanceledException)
+            {
+                // A missed tick is caught up by the next one.
+                logger.LogError(e, "Live tick failed");
+            }
+        }
+    }
+}
+
+/// <summary>Live settings ("Live").</summary>
+public sealed class LiveOptions
+{
+    public const string Section = "Live";
+
+    /// <summary>How often <c>riders:batch</c> and the other per-tick messages go out.</summary>
+    public TimeSpan BatchInterval { get; init; } = TimeSpan.FromSeconds(2);
 }
 
 internal sealed class DatabaseHealthCheck(IServiceScopeFactory scopes) : IHealthCheck

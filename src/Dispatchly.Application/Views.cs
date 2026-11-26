@@ -79,6 +79,25 @@ internal static class Views
         rider.Location.ToPosition(),
         rider.Bearing);
 
+    public static LiveRider ToLive(this Rider rider, string? orderCode) => new(
+        rider.Id,
+        rider.Name,
+        rider.Vehicle,
+        rider.Plate,
+        rider.Phone,
+        rider.Status,
+        rider.Location.ToPosition(),
+        rider.Bearing,
+        orderCode,
+        rider.OnlineSince);
+
+    public static RiderPoint ToPoint(this Rider rider) => new(
+        rider.Id,
+        Math.Round(rider.Location.Lat, 5),
+        Math.Round(rider.Location.Lng, 5),
+        (int)Math.Round(rider.Bearing) % 360,
+        rider.Status);
+
     public static NearbyRestaurant ToNearby(this Restaurant restaurant, double distanceMeters) => new(
         restaurant.Id,
         restaurant.Name,
@@ -118,7 +137,7 @@ internal static class Views
         e.Data.PreviousRiderId,
         e.Data.PreviousRiderName);
 
-    private static double? RemainingMeters(this Order order)
+    public static double? RemainingMeters(this Order order)
     {
         if (!order.IsActive || order.Rider is not { } rider)
         {

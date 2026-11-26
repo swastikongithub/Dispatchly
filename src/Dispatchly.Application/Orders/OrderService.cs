@@ -76,12 +76,15 @@ public sealed class OrderService(
     public async Task<IReadOnlyList<OrderSummary>> QueueAsync(OrderStatus? status, bool? late, CancellationToken ct)
     {
         var orders = await reader.ActiveOrdersAsync(status, late, ct);
-        return
-        [
-            .. orders
-                .OrderBy(o => o.Status == OrderStatus.Searching ? 0 : o.IsLate ? 1 : 2)
-                .ThenBy(o => o.Status == OrderStatus.Searching ? o.CreatedAt : o.EstimatedDeliveryAt)
-                .Select(o => o.ToSummary()),
-        ];
+        return [.. OrderQueue.Sort(orders).Select(o => o.ToSummary())];
     }
+}
+
+internal static class OrderQueue
+{
+    /// <summary>Queue order (PLAN.md §5.2): Needs rider first, then Running late, then by ETA.</summary>
+    public static IEnumerable<Order> Sort(IEnumerable<Order> orders) =>
+        orders
+            .OrderBy(o => o.Status == OrderStatus.Searching ? 0 : o.IsLate ? 1 : 2)
+            .ThenBy(o => o.Status == OrderStatus.Searching ? o.CreatedAt : o.EstimatedDeliveryAt);
 }

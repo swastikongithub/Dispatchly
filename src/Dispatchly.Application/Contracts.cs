@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using Dispatchly.Application.Live;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Riders;
 
@@ -166,11 +168,75 @@ public sealed record LocationUpdate(
 
 // ---- Stats ----------------------------------------------------------------------------------
 
-/// <summary>The dashboard's top-bar stats.</summary>
+/// <summary>
+/// The dashboard's top-bar stats and the landing page's live numbers. Aggregates only, so the
+/// public group gets them too.
+/// </summary>
 public sealed record LiveStats(
     int RidersOnline,
     int ActiveOrders,
     /// <summary>Average placed-to-delivered time over the last hour; null when nothing was delivered.</summary>
     int? AverageDeliveryMinutes,
     int RunningLate,
-    int NeedsRider);
+    int NeedsRider,
+    /// <summary>Online and without a task ("84 free").</summary>
+    int RidersFree,
+    /// <summary>Online and on a task, from assignment to delivery ("58 on a delivery").</summary>
+    int RidersOnDelivery,
+    /// <summary>Delivered since midnight in Delhi.</summary>
+    int DeliveredToday);
+
+// ---- Live: the snapshots, and the SignalR messages (docs/realtime.md) ------------------------
+
+/// <summary>
+/// One rider on the map. Sent as the array <c>[id, lat, lng, bearing, status]</c> so a batch of
+/// hundreds of riders stays small. Positions are rounded to 5 decimals (about 1 m).
+/// </summary>
+[JsonConverter(typeof(RiderPointJsonConverter))]
+public readonly record struct RiderPoint(int Id, double Lat, double Lng, int Bearing, RiderStatus Status);
+
+/// <summary><c>riders:batch</c>: every rider on shift, once per tick. A rider missing from it is offline.</summary>
+public sealed record RidersBatch(DateTimeOffset At, IReadOnlyList<RiderPoint> Riders);
+
+/// <summary><c>rider:position</c>: where the customer's rider is, once per tick.</summary>
+public sealed record RiderPosition(
+    DateTimeOffset At,
+    string Code,
+    int RiderId,
+    Position Location,
+    double Bearing,
+    /// <summary>Straight-line distance the rider still has to cover, via the restaurant before pickup.</summary>
+    double? RemainingMeters);
+
+/// <summary><c>eta:changed</c>: the shown arrival time moved to another minute, or lateness changed.</summary>
+public sealed record EtaChanged(
+    DateTimeOffset At,
+    string Code,
+    DateTimeOffset EstimatedDeliveryAt,
+    bool IsLate,
+    int MinutesLate);
+
+/// <summary>The dashboard's first paint: <c>GET /live/snapshot</c>.</summary>
+public sealed record LiveSnapshot(
+    DateTimeOffset At,
+    IReadOnlyList<LiveRider> Riders,
+    /// <summary>The order queue, in queue order.</summary>
+    IReadOnlyList<OrderSummary> Orders,
+    LiveStats Stats);
+
+/// <summary>A rider on shift, as the dispatcher sees them.</summary>
+public sealed record LiveRider(
+    int Id,
+    string Name,
+    string Vehicle,
+    string Plate,
+    string Phone,
+    RiderStatus Status,
+    Position Location,
+    double Bearing,
+    /// <summary>Their active order, if any.</summary>
+    string? OrderCode,
+    DateTimeOffset? OnlineSince);
+
+/// <summary>The landing page's live city: <c>GET /live/public</c>. No names, no orders.</summary>
+public sealed record PublicSnapshot(DateTimeOffset At, IReadOnlyList<RiderPoint> Riders, LiveStats Stats);

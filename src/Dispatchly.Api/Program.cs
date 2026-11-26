@@ -2,12 +2,15 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dispatchly.Api;
 using Dispatchly.Api.Auth;
+using Dispatchly.Api.Live;
 using Dispatchly.Application;
 using Dispatchly.Application.Abstractions;
+using Dispatchly.Application.Live;
 using Dispatchly.Application.Orders;
 using Dispatchly.Application.Riders;
 using Dispatchly.Domain.Dispatch;
 using Dispatchly.Infrastructure;
+using Dispatchly.Simulator;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -24,7 +27,15 @@ builder.Services.AddInfrastructure(connectionString);
 
 builder.Services.AddSingleton(configuration.GetSection("Dispatch").Get<DispatchPolicy>() ?? new DispatchPolicy());
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton<ILiveEvents, NoLiveEvents>();
+// Live (PLAN.md §3.6): use cases publish through ILiveEvents after they commit.
+builder.Services.AddSignalR().AddJsonProtocol(o => Json(o.PayloadSerializerOptions));
+builder.Services.AddSingleton<ILiveHub, SignalRLiveHub>();
+builder.Services.AddScoped<LivePublisher>();
+builder.Services.AddScoped<ILiveEvents, SafeLiveEvents>();
+builder.Services.AddScoped<LiveQueries>();
+builder.Services.AddScoped<LiveBroadcaster>();
+builder.Services.AddSingleton<LiveBroadcastState>();
+builder.Services.AddSingleton(configuration.GetSection(LiveOptions.Section).Get<LiveOptions>() ?? new LiveOptions());
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RiderService>();
@@ -34,6 +45,12 @@ if (configuration.GetValue("Workers:AssignmentRetry", defaultValue: true))
 {
     builder.Services.AddHostedService<AssignmentRetryWorker>();
 }
+if (configuration.GetValue("Workers:LiveBroadcast", defaultValue: true))
+{
+    builder.Services.AddHostedService<LiveBroadcastWorker>();
+}
+// The city simulator (PLAN.md §3.7). Run it on one instance only: each one would add its own orders.
+builder.Services.AddCitySimulator(configuration.GetSection(SimulatorOptions.Section));
 
 builder.Services.AddDemoAuth(configuration);
 
@@ -62,6 +79,7 @@ if (!app.Environment.IsProduction())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<LiveHub>(LiveHub.Path, o => o.CloseOnAuthenticationExpiration = true);
 app.MapHealthChecks("/health");
 
 await app.RunAsync();
