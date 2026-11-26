@@ -22,13 +22,28 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "style-*.json",
+                "input": "src/app/map",
+                "output": "map"
+              },
+              {
+                "glob": "maplibre-gl-worker.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
               }
             ],
             "styles": [
               "@fontsource-variable/inter/wght.css",
               "@fontsource-variable/inter/wght-italic.css",
               "@fontsource-variable/inter-tight/wght.css",
-              "src/styles.css"
+              "src/styles.css",
+              {
+                "input": "node_modules/maplibre-gl/dist/maplibre-gl.css",
+                "bundleName": "maplibre",
+                "inject": false
+              }
             ]
           },
           "configurations": {
