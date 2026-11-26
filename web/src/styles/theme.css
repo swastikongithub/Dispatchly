@@ -18,6 +18,7 @@
   --ui-sheet-border: var(--color-dark-sheet-border);
   --ui-sheet-shadow: none;
   --ui-floating-shadow: none;
+  --ui-floating-border: var(--color-dark-panel-border);
   --ui-raised: var(--color-dark-raised);
   --ui-raised-soft: var(--color-dark-raised-soft);
   --ui-raised-strong: var(--color-dark-raised-strong);
@@ -28,9 +29,11 @@
   --ui-outline: var(--color-dark-outline-button-border);
   --ui-divider: var(--color-dark-divider);
   --ui-track: var(--color-dark-track);
+  --ui-segment-active: var(--color-dark-track);
   --ui-grabber: var(--color-dark-grabber);
   --ui-timeline-line: var(--color-dark-timeline-line);
   --ui-timeline-pending: var(--color-dark-timeline-pending);
+  --ui-slide-hint: var(--color-dark-slide-hint);
 
   /* Hover: a slightly lighter surface only (PLAN.md §6.1) */
   --ui-hover: var(--color-dark-raised-soft);
@@ -72,6 +75,7 @@
   --ui-sheet-border: transparent;
   --ui-sheet-shadow: var(--shadow-sheet-light);
   --ui-floating-shadow: var(--shadow-floating-light);
+  --ui-floating-border: transparent;
   --ui-raised: var(--color-light-surface-alt);
   --ui-raised-soft: var(--color-light-surface-alt);
   --ui-raised-strong: var(--color-light-surface-alt);
@@ -82,9 +86,11 @@
   --ui-outline: var(--color-light-border);
   --ui-divider: var(--color-light-border);
   --ui-track: var(--color-light-track);
+  --ui-segment-active: var(--color-light-surface);
   --ui-grabber: var(--color-light-grabber);
   --ui-timeline-line: var(--color-light-divider);
   --ui-timeline-pending: var(--color-light-grabber);
+  --ui-slide-hint: var(--color-status-busy-on-light);
 
   --ui-hover: var(--color-light-surface-alt);
   --ui-raised-hover: var(--color-light-track);

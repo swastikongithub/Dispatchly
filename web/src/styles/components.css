@@ -1,0 +1,33 @@
+/* Shared component classes that wrap projected content, so they can't live in a component's own styles. */
+@layer components {
+  .ui-panel {
+    box-sizing: border-box;
+    background: var(--ui-surface-floating);
+    border: var(--border-width-hairline) solid var(--ui-surface-border);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--ui-surface-shadow);
+  }
+
+  /*
+   * Loading placeholders. The placeholder text sets the size, so skeletons match the real
+   * content without new dimensions. Static on purpose: the needs-rider pulse is the only
+   * infinite animation (PLAN.md §6.3).
+   */
+  .ui-skeleton {
+    color: transparent !important;
+    background: var(--ui-raised);
+    border-radius: var(--radius-bar);
+    user-select: none;
+  }
+  .ui-skeleton * {
+    visibility: hidden;
+  }
+}
+
+/* Styleguide only: show the focus ring without moving focus. */
+@layer components {
+  [data-state='focus'] {
+    outline: var(--focus-width) solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+  }
+}
