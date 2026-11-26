@@ -212,7 +212,7 @@
       "progress": "600ms", "headlineReveal": "600ms", "holdToConfirm": "600ms", "maxExtrapolation": "1000ms", "rowHighlight": "1200ms",
       "renderDelay": "2000ms", "needsRiderPulse": "2000ms", "deliveredFadeDelay": "3000ms", "toastDismiss": "4000ms",
       "reconnectingAfter": "5000ms", "cameraReframeMin": "5000ms", "markersDimAfter": "10000ms" },
-    "scale": { "mapFrameEnter": 0.96 },
+    "scale": { "mapFrameEnter": 0.96, "press": 0.98 },
     "threshold": { "slideToConfirm": 0.85 },
     "frameRate": { "target": 60, "nonSelectedFallback": 30 },
     "toast": { "maxVisible": 2 },
