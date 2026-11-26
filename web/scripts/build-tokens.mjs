@@ -70,6 +70,8 @@ for (const w of weights) v(`font-weight-${weightNames[w]}`, w);
 // (the 17–19px wordmark, the zoom-dependent map label) are only exported to TypeScript.
 const typeUtilities = [];
 for (const [key, style] of Object.entries(tokens.type)) {
+  // Every style's tracking is also a `tracking-*` value, including the wordmark and map label.
+  if (style.tracking !== undefined) v(`tracking-${kebab(key)}`, style.tracking);
   if (!style.size || !/^(clamp\(.*\)|\d+px)$/.test(style.size)) continue;
   const n = kebab(key);
   v(`text-${n}`, style.size);
@@ -95,8 +97,13 @@ section('Spacing (→ space, size, layout)');
 for (const n of tokens.space) v(`spacing-${n}`, `${n}px`);
 for (const [path, value] of leaves(tokens.size)) v(`spacing-${name(path)}`, value);
 for (const [path, value] of leaves(tokens.layout)) {
-  if (path[0] === 'breakpoints' || !px(value)) continue;
-  v(`spacing-${name(path)}`, value);
+  if (path[0] === 'breakpoints') continue;
+  // "390x844" design sizes become a -width and a -height.
+  const wh = typeof value === 'string' && value.match(/^(\d+)x(\d+)$/);
+  if (wh) {
+    v(`spacing-${name(path)}-width`, `${wh[1]}px`);
+    v(`spacing-${name(path)}-height`, `${wh[2]}px`);
+  } else if (px(value)) v(`spacing-${name(path)}`, value);
 }
 
 // Breakpoints: `min` and `max` are the supported width range (360–1920), not breakpoints.
