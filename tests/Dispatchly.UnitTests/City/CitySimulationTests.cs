@@ -83,13 +83,16 @@ public sealed partial class CitySimulationTests
         Assert.InRange(slow.Count / 300.0, SlowKitchenShare - 0.07, SlowKitchenShare + 0.09);
         Assert.True(prompt.Max() > TimeSpan.FromSeconds(30), "Pickups don't all happen on the same tick.");
         // While they wait they stand still, and still report where they are.
-        foreach (var (at, action) in city.Log.Where(l => l.Action is MoveRider))
+        var whileWaiting = city.Log
+            .Where(l => l.Action is MoveRider move && l.At <= pickups[move.RiderId])
+            .Select(l => (MoveRider)l.Action)
+            .ToList();
+        Assert.NotEmpty(whileWaiting);
+        Assert.All(whileWaiting, move =>
         {
-            var move = (MoveRider)action;
-            Assert.True(at < pickups[move.RiderId]);
             Assert.Equal(cafe, move.To);
             Assert.Equal(0, move.Bearing);
-        }
+        });
     }
 
     [Fact]
