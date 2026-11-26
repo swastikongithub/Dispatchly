@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- City simulator (BackgroundService, 2 s tick), hosted by the Api.
+       It only calls Application use cases, never the database directly,
+       so it exercises the same assignment logic as real users. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dispatchly.Application\Dispatchly.Application.csproj" />
+  </ItemGroup>
+
+</Project>

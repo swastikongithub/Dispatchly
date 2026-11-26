@@ -3,5 +3,6 @@
     <Project Path="src/Dispatchly.Application/Dispatchly.Application.csproj" />
     <Project Path="src/Dispatchly.Domain/Dispatchly.Domain.csproj" />
     <Project Path="src/Dispatchly.Infrastructure/Dispatchly.Infrastructure.csproj" />
+    <Project Path="src/Dispatchly.Simulator/Dispatchly.Simulator.csproj" />
   </Folder>
 </Solution>
