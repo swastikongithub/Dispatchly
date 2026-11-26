@@ -13,25 +13,37 @@ import { spring, springs } from './motion';
 export type SheetSnap = 'peek' | 'half' | 'full';
 
 const interactive = 'button, a, input, select, textarea, [role="slider"], [contenteditable]';
+/**
+ * Pointer travel (px) under which a press on the grabber is a tap, not a drag: an input
+ * threshold like the platforms' touch slop, not a visual value.
+ */
+const tapSlop = 8;
 
 /**
  * Bottom sheet: 28px top radius, grabber, drag to snap (peek / half / full) on the sheet spring.
  * Place it in a positioned container; it sits on the container's bottom edge. Mark the element
- * that should stay visible in the peek state with `uiSheetPeek`. Moving keyboard focus into the
- * sheet opens it fully, so focused content is never off screen.
+ * that should stay visible in the peek state with `uiSheetPeek`. The grabber is a button that
+ * toggles peek and full ("Show more" / "Show less" for screen readers), and moving keyboard
+ * focus into the content opens the sheet fully, so focused content is never off screen.
  */
 @Component({
   selector: 'section[uiBottomSheet]',
   template: `
-    <div class="handle" (pointerdown)="startDrag($event, true)">
-      <span class="grabber" aria-hidden="true"></span>
-    </div>
+    <button
+      type="button"
+      class="handle"
+      [attr.aria-label]="snap() === 'full' ? 'Show less' : 'Show more'"
+      (pointerdown)="startDrag($event, true)"
+      (click)="keyToggle($event)"
+    >
+      <span class="grabber"></span>
+    </button>
     <ng-content />
   `,
   host: {
     '[attr.data-snap]': 'snap()',
     '(pointerdown)': 'startDrag($event, false)',
-    '(focusin)': 'snap.set("full")',
+    '(focusin)': 'focusIn($event)',
   },
   styles: `
     :host {
@@ -58,10 +70,21 @@ const interactive = 'button, a, input, select, textarea, [role="slider"], [conte
     }
     .handle {
       flex: none;
+      display: block;
       margin: calc(var(--spacing-10) * -1) calc(var(--spacing-20) * -1) calc(var(--spacing-16) * -1);
       padding: var(--spacing-10) var(--spacing-20) var(--spacing-16);
+      border: 0;
+      background: transparent;
       touch-action: none;
       cursor: grab;
+    }
+    /* The sheet clips anything outside it, so the focus ring goes around the grabber itself. */
+    .handle:focus-visible {
+      outline: none;
+    }
+    .handle:focus-visible .grabber {
+      outline: var(--focus-width) solid var(--ui-focus);
+      outline-offset: var(--focus-offset);
     }
     .grabber {
       display: block;
@@ -138,6 +161,23 @@ export class BottomSheet {
     });
   }
 
+  /** Focus moving into the content opens the sheet; focusing the grabber itself doesn't. */
+  protected focusIn(event: FocusEvent): void {
+    if (!(event.target as Element).closest('.handle')) this.snap.set('full');
+  }
+
+  /**
+   * Keyboard and assistive-technology activation of the grabber (click with detail 0).
+   * Pointer taps are handled at the end of the drag, so a drag never also toggles.
+   */
+  protected keyToggle(event: MouseEvent): void {
+    if (event.detail === 0) this.toggle();
+  }
+
+  private toggle(): void {
+    this.snap.set(this.snap() === 'full' ? 'peek' : 'full');
+  }
+
   protected startDrag(event: PointerEvent, fromHandle: boolean): void {
     if (event.button !== 0 || this.dragging) return;
     if (!fromHandle && (this.snap() === 'full' || (event.target as Element).closest(interactive))) {
@@ -151,9 +191,12 @@ export class BottomSheet {
     let lastY = startY;
     let lastTime = event.timeStamp;
     let velocity = 0;
+    let moved = false;
     this.el.setPointerCapture(event.pointerId);
 
     const move = (e: PointerEvent) => {
+      // A few pixels of finger wobble is still a tap.
+      if (Math.abs(e.clientY - startY) > tapSlop) moved = true;
       this.offset = Math.min(positions.peek, Math.max(0, startOffset + e.clientY - startY));
       this.apply();
       const dt = (e.timeStamp - lastTime) / 1000;
@@ -166,6 +209,12 @@ export class BottomSheet {
       this.el.removeEventListener('pointerup', end);
       this.el.removeEventListener('pointercancel', end);
       this.dragging = false;
+      if (fromHandle && !moved) {
+        this.offset = startOffset;
+        this.apply();
+        this.toggle();
+        return;
+      }
       const nearest = (Object.keys(positions) as SheetSnap[]).reduce((a, b) =>
         Math.abs(positions[a] - this.offset) <= Math.abs(positions[b] - this.offset) ? a : b,
       );
