@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Entities, enums and domain rules. No EF Core, no HTTP, no other Dispatchly layers. -->
+
+</Project>

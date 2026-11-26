@@ -1,2 +1,5 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dispatchly.Domain/Dispatchly.Domain.csproj" />
+  </Folder>
 </Solution>
