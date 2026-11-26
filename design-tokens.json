@@ -36,7 +36,8 @@
       "slideHint": "#5F666E",
       "sheetBorder": "rgba(255,255,255,0.06)",
       "statDivider": "rgba(255,255,255,0.1)",
-      "mapChip": "rgba(18,20,24,0.92)"
+      "mapChip": "rgba(18,20,24,0.92)",
+      "panelOpaque": "rgba(23,25,29,0.97)"
     },
 
     "light": {
@@ -145,7 +146,9 @@
 
   "borderWidth": { "hairline": "1px", "stepBadge": "1.5px", "timelinePending": "2px", "timelineCurrent": "3px" },
 
-  "opacity": { "linkHover": 0.85, "timelineDone": 0.5 },
+  "opacity": { "linkHover": 0.85, "timelineDone": 0.5, "markersDisconnected": 0.5 },
+
+  "focus": { "width": "2px", "offset": "2px", "color": "accent.orange" },
 
   "size": {
     "$note": "Component dimensions. Square unless the name says width or height.",
@@ -176,9 +179,11 @@
     "searchMaxWidth": "420px",
     "phoneOverlayInset": "16px",
     "trackingRecenterTop": "270px",
+    "trackingDesktopSheetWidth": "400px",
+    "breakpoints": { "min": "360px", "phoneMax": "430px", "landingPhonesOnly": "480px", "landingCompact": "768px", "dashboardDrawer": "1024px", "dashboardFull": "1280px", "max": "1920px" },
     "landing": {
       "leadMaxWidth": "620px", "ctaLeadMaxWidth": "520px",
-      "heroMapHeight": "560px", "heroChipInset": "20px", "heroTrackingCardWidth": "290px",
+      "heroMapHeight": "560px", "heroMapHeightCompact": "420px", "heroChipInset": "20px", "heroTrackingCardWidth": "290px",
       "statFlexBasis": "220px", "stepFlexBasis": "230px",
       "assignTextFlexBasis": "380px", "assignMapFlexBasis": "520px", "assignMapHeight": "520px", "assignToastInset": "16px",
       "specLabelWidth": "240px", "specValueFlexBasis": "320px",
