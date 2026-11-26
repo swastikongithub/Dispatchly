@@ -27,6 +27,9 @@ jobs:
       - name: Restore
         run: dotnet restore Dispatchly.slnx
 
+      - name: Check formatting
+        run: dotnet format Dispatchly.slnx --verify-no-changes --no-restore
+
       - name: Build
         run: dotnet build Dispatchly.slnx --configuration Release --no-restore
 
@@ -51,6 +54,9 @@ jobs:
 
       - name: Install
         run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
 
       - name: Build
         run: npm run build
