@@ -153,3 +153,12 @@ figcaption {
   line-height: var(--text-body-small--line-height);
   color: var(--ui-text-body);
 }
+
+.map {
+  display: block;
+  width: 100%;
+  max-width: var(--spacing-map-design-size-width);
+  height: var(--spacing-map-design-size-height);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}

@@ -7,6 +7,22 @@
     >
       <h1 class="theme-title">{{ theme === 'dark' ? 'Dark' : 'Light' }}</h1>
 
+      <!-- Map style -->
+      <section class="group">
+        <h2>Map style</h2>
+        @defer (on viewport) {
+          <app-map-view
+            class="map"
+            [theme]="theme"
+            [zoom]="theme === 'dark' ? 13.4 : 14.2"
+            [center]="theme === 'dark' ? [77.2245, 28.6075] : [77.2275, 28.6088]"
+            (ready)="showMarkers($event, theme)"
+          />
+        } @placeholder {
+          <div class="map"></div>
+        }
+      </section>
+
       <!-- Wordmark -->
       <section class="group">
         <h2>Wordmark</h2>
