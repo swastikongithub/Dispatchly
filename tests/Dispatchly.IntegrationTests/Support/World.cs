@@ -35,9 +35,9 @@ public sealed class World(TestApp app)
     }
 
     /// <summary>A rider <paramref name="meters"/> from <paramref name="from"/>, online unless told otherwise.</summary>
-    public async Task<Rider> RiderAsync(GeoPoint from, double meters, double bearing = 0, bool online = true)
+    public async Task<Rider> RiderAsync(GeoPoint from, double meters, double bearing = 0, bool online = true, string? name = null)
     {
-        var rider = NewRider(from.Move(bearing, meters), online);
+        var rider = NewRider(from.Move(bearing, meters), online, name);
         await AddAsync(rider);
         return rider;
     }
@@ -71,11 +71,11 @@ public sealed class World(TestApp app)
             PaymentMethod.Online);
     }
 
-    private Rider NewRider(GeoPoint at, bool online)
+    private Rider NewRider(GeoPoint at, bool online, string? name = null)
     {
         var now = TimeProvider.System.GetUtcNow();
         var number = Interlocked.Increment(ref _riders);
-        var rider = new Rider($"Rider {number}", $"+91 00000 {30_000 + number}", "Honda Activa", $"DL 3S CK {1_000 + number}", at, now);
+        var rider = new Rider(name ?? $"Rider {number}", $"+91 00000 {30_000 + number}", "Honda Activa", $"DL 3S CK {1_000 + number}", at, now);
         if (online)
         {
             rider.GoOnline(now);

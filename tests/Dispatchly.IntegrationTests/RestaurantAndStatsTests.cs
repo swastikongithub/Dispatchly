@@ -1,10 +1,12 @@
 using System.Net;
 using Dispatchly.Application;
+using Dispatchly.Domain.Dispatch;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Riders;
 using Dispatchly.IntegrationTests.Support;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dispatchly.IntegrationTests;
 
@@ -67,7 +69,7 @@ public sealed class RestaurantAndStatsTests(PostgisServer postgis)
 
         var stats = await app.Dispatcher().GetJsonAsync<LiveStats>("/api/v1/stats/live");
 
-        var online = await app.QueryAsync(db => db.Riders.CountAsync(r => r.Status != RiderStatus.Offline, Ct));
+        var riders = await app.QueryAsync(db => db.Riders.Select(r => r.Status).ToListAsync(Ct));
         var active = await app.QueryAsync(db => db.Orders
             .Where(o => o.Status != OrderStatus.Delivered && o.Status != OrderStatus.Cancelled)
             .ToListAsync(Ct));
@@ -76,7 +78,13 @@ public sealed class RestaurantAndStatsTests(PostgisServer postgis)
             .Where(o => o.Status == OrderStatus.Delivered && o.DeliveredAt >= since)
             .Select(o => new { o.CreatedAt, o.DeliveredAt })
             .ToListAsync(Ct));
-        Assert.Equal(online, stats.RidersOnline);
+        var today = app.Services.GetRequiredService<DispatchPolicy>().StartOfCityDay(DateTimeOffset.UtcNow);
+        var deliveredToday = await app.QueryAsync(db => db.Orders.CountAsync(o => o.Status == OrderStatus.Delivered && o.DeliveredAt >= today, Ct));
+        Assert.Equal(riders.Count(s => s != RiderStatus.Offline), stats.RidersOnline);
+        Assert.Equal(riders.Count(s => s == RiderStatus.Available), stats.RidersFree);
+        Assert.Equal(riders.Count(s => s is RiderStatus.Assigned or RiderStatus.AtRestaurant or RiderStatus.Delivering), stats.RidersOnDelivery);
+        Assert.True(stats.RidersFree > 0 && stats.RidersOnDelivery > 0);
+        Assert.Equal(deliveredToday, stats.DeliveredToday);
         Assert.Equal(active.Count, stats.ActiveOrders);
         Assert.Equal(active.Count(o => o.Status == OrderStatus.Searching), stats.NeedsRider);
         Assert.Equal(active.Count(o => o.IsLate), stats.RunningLate);
@@ -95,13 +103,13 @@ public sealed class RestaurantAndStatsTests(PostgisServer postgis)
         await world.RiderAsync(restaurant.Location, 300);
         await world.RiderAsync(restaurant.Location, 300, online: false);
         var dispatcher = app.Dispatcher();
-        Assert.Equal(new LiveStats(1, 0, null, 0, 0), await dispatcher.GetJsonAsync<LiveStats>("/api/v1/stats/live"));
+        Assert.Equal(new LiveStats(1, 0, null, 0, 0, RidersFree: 1, RidersOnDelivery: 0, DeliveredToday: 0), await dispatcher.GetJsonAsync<LiveStats>("/api/v1/stats/live"));
 
         var client = app.Customer(customer.Id);
         await (await client.PostJsonAsync("/api/v1/orders", World.OrderFrom(restaurant))).ReadAsync<OrderDetails>(HttpStatusCode.Created);
         await (await client.PostJsonAsync("/api/v1/orders", World.OrderFrom(restaurant))).ReadAsync<OrderDetails>(HttpStatusCode.Created);
 
         // One assigned (the rider stays online, now busy) and one needing a rider.
-        Assert.Equal(new LiveStats(1, 2, null, 0, 1), await dispatcher.GetJsonAsync<LiveStats>("/api/v1/stats/live"));
+        Assert.Equal(new LiveStats(1, 2, null, 0, 1, RidersFree: 0, RidersOnDelivery: 1, DeliveredToday: 0), await dispatcher.GetJsonAsync<LiveStats>("/api/v1/stats/live"));
     }
 }
