@@ -1,18 +1,21 @@
 // Generates the web theme from ../design-tokens.json, the single source of truth (PLAN.md §4.1):
 //   src/styles/tokens.css  Tailwind v4 `@theme`, with the default palette and scales removed
-//   src/app/tokens.ts      the same tokens for TypeScript (map styles, markers, motion)
+//   src/app/tokens.ts      the same tokens for TypeScript (markers, motion)
+//   src/app/map/style-dark.json, style-light.json   the MapLibre styles (scripts/map-style.mjs)
 //
-//   node scripts/build-tokens.mjs           write both files
-//   node scripts/build-tokens.mjs --check   fail if either file is out of date (CI)
+//   node scripts/build-tokens.mjs           write every output
+//   node scripts/build-tokens.mjs --check   fail if any output is out of date (CI)
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as prettier from 'prettier';
+import { mapStyle } from './map-style.mjs';
 
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = resolve(web, '../design-tokens.json');
 const cssOut = resolve(web, 'src/styles/tokens.css');
 const tsOut = resolve(web, 'src/app/tokens.ts');
+const mapOut = (theme) => resolve(web, `src/app/map/style-${theme}.json`);
 const check = process.argv.includes('--check');
 
 const tokens = JSON.parse(readFileSync(source, 'utf8'));
@@ -176,6 +179,7 @@ const ts = [
 const outputs = [
   [cssOut, css],
   [tsOut, ts],
+  ...['dark', 'light'].map((theme) => [mapOut(theme), JSON.stringify(mapStyle(tokens, theme))]),
 ];
 let stale = 0;
 for (const [file, raw] of outputs) {
