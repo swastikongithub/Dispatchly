@@ -1,0 +1,445 @@
+<main class="page">
+  @for (theme of themes; track theme) {
+    <div
+      class="theme"
+      [class.theme-dark]="theme === 'dark'"
+      [class.theme-light]="theme === 'light'"
+    >
+      <h1 class="theme-title">{{ theme === 'dark' ? 'Dark' : 'Light' }}</h1>
+
+      <!-- Wordmark -->
+      <section class="group">
+        <h2>Wordmark</h2>
+        <div class="cells">
+          <figure>
+            <figcaption>Dashboard</figcaption>
+            <ui-wordmark />
+          </figure>
+          <figure>
+            <figcaption>Landing header</figcaption>
+            <ui-wordmark size="landing-header" />
+          </figure>
+          <figure>
+            <figcaption>Landing footer</figcaption>
+            <ui-wordmark size="landing-footer" [markOnly]="true" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Buttons -->
+      <section class="group">
+        <h2>Buttons</h2>
+        @for (
+          variant of ['primary', 'contrast', 'outline', 'secondary', 'secondary-lg', 'menu'];
+          track variant
+        ) {
+          <h3>{{ variant }}</h3>
+          <div class="cells">
+            @for (state of states; track state) {
+              <figure>
+                <figcaption>{{ state }}</figcaption>
+                <button
+                  type="button"
+                  [uiButton]="variant === 'secondary-lg' ? 'secondary' : $any(variant)"
+                  [size]="variant === 'secondary-lg' ? 'lg' : 'md'"
+                  [attr.data-state]="
+                    state === 'hover' || state === 'pressed' || state === 'focus' ? state : null
+                  "
+                  [disabled]="state === 'disabled'"
+                  [loading]="state === 'loading'"
+                >
+                  @switch (variant) {
+                    @case ('primary') {
+                      Open live dashboard
+                    }
+                    @case ('contrast') {
+                      Open dashboard
+                    }
+                    @case ('outline') {
+                      Track a demo order<svg lucideArrowRight aria-hidden="true"></svg>
+                    }
+                    @case ('secondary') {
+                      <svg lucidePhone aria-hidden="true"></svg>Call rider
+                    }
+                    @case ('secondary-lg') {
+                      <svg lucideNavigation2 aria-hidden="true"></svg>Navigate
+                    }
+                    @case ('menu') {
+                      Central Delhi<svg lucideChevronDown aria-hidden="true"></svg>
+                    }
+                  }
+                </button>
+              </figure>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Icon buttons -->
+      <section class="group">
+        <h2>Icon buttons</h2>
+        @for (variant of ['raised', 'raised-square', 'floating', 'outline', 'map']; track variant) {
+          <h3>{{ variant }}</h3>
+          <div class="cells">
+            @for (state of states; track state) {
+              <figure>
+                <figcaption>{{ state }}</figcaption>
+                <button
+                  type="button"
+                  [uiIconButton]="variant === 'raised-square' ? 'raised' : $any(variant)"
+                  [shape]="variant === 'raised-square' ? 'square' : 'round'"
+                  [attr.data-state]="
+                    state === 'hover' || state === 'pressed' || state === 'focus' ? state : null
+                  "
+                  [disabled]="state === 'disabled'"
+                  [loading]="state === 'loading'"
+                  [attr.aria-label]="
+                    {
+                      raised: 'Close rider details',
+                      'raised-square': 'Filter orders',
+                      floating: 'Back',
+                      outline: 'Call Aman',
+                      map: 'Map layers',
+                    }[variant]
+                  "
+                >
+                  @switch (variant) {
+                    @case ('raised') {
+                      <svg lucideX aria-hidden="true"></svg>
+                    }
+                    @case ('raised-square') {
+                      <svg lucideListFilter aria-hidden="true"></svg>
+                    }
+                    @case ('floating') {
+                      <svg lucideChevronLeft aria-hidden="true"></svg>
+                    }
+                    @case ('outline') {
+                      <svg lucidePhone aria-hidden="true"></svg>
+                    }
+                    @case ('map') {
+                      <svg lucideLayers2 aria-hidden="true"></svg>
+                    }
+                  }
+                </button>
+              </figure>
+            }
+          </div>
+        }
+        <h3>avatar button</h3>
+        <div class="cells">
+          @for (state of ['default', 'hover', 'pressed', 'focus']; track state) {
+            <figure>
+              <figcaption>{{ state }}</figcaption>
+              <button
+                type="button"
+                uiAvatar
+                name="Ananya K."
+                size="button"
+                aria-label="Account: Ananya K., dispatcher"
+                [attr.data-state]="state === 'default' ? null : state"
+              ></button>
+            </figure>
+          }
+        </div>
+      </section>
+
+      <!-- Chips and avatars -->
+      <section class="group">
+        <h2>Status chips</h2>
+        <div class="cells">
+          <figure>
+            <figcaption>needs rider</figcaption>
+            <ui-chip tone="needs-rider">Needs rider</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>accent</figcaption>
+            <ui-chip>On the way</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>accent</figcaption>
+            <ui-chip>Picked up</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>available</figcaption>
+            <ui-chip tone="available">Assigned</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>late</figcaption>
+            <ui-chip tone="late">Running late</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>md</figcaption>
+            <ui-chip size="md">On the way</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>lg strong</figcaption>
+            <ui-chip size="lg" [strong]="true">Pick up</ui-chip>
+          </figure>
+          <figure>
+            <figcaption>lg</figcaption>
+            <ui-chip size="lg" tone="available">Ready in 2 min</ui-chip>
+          </figure>
+        </div>
+        <h2>Avatars</h2>
+        <div class="cells">
+          <figure>
+            <figcaption>default</figcaption>
+            <ui-avatar name="Aman Verma" />
+          </figure>
+          <figure>
+            <figcaption>small</figcaption>
+            <ui-avatar name="Aman Verma" size="sm" />
+          </figure>
+          <figure>
+            <figcaption>loading</figcaption>
+            <ui-avatar name="Aman Verma" [loading]="true" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Segmented control and search -->
+      <section class="group">
+        <h2>Segmented control</h2>
+        <div class="cells">
+          @for (state of ['default', 'hover', 'pressed', 'focus', 'disabled']; track state) {
+            <figure class="wide">
+              <figcaption>{{ state }}</figcaption>
+              <ui-segmented
+                label="Filter orders"
+                [options]="filters"
+                [(value)]="filter"
+                [disabled]="state === 'disabled'"
+                [forceState]="
+                  state === 'default' || state === 'disabled' ? {} : { 'needs-rider': state }
+                "
+              />
+            </figure>
+          }
+        </div>
+        <h2>Search field</h2>
+        <div class="cells">
+          @for (state of ['default', 'hover', 'focus', 'disabled']; track state) {
+            <figure class="wide">
+              <figcaption>{{ state }}</figcaption>
+              <ui-search-field
+                [disabled]="state === 'disabled'"
+                [state]="state === 'hover' || state === 'focus' ? state : null"
+              />
+            </figure>
+          }
+          <figure class="wide">
+            <figcaption>with text</figcaption>
+            <ui-search-field value="Aman" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Panel with order rows -->
+      <section class="group">
+        <h2>Panel and order rows</h2>
+        <div class="cells top">
+          <section uiPanel class="orders" aria-label="Orders">
+            <div class="orders-head">
+              <h2 class="panel-title">Orders <span>60 active</span></h2>
+              <button type="button" uiIconButton shape="square" aria-label="Filter orders">
+                <svg lucideListFilter aria-hidden="true"></svg>
+              </button>
+            </div>
+            <ui-segmented
+              class="orders-filter"
+              label="Filter orders"
+              [options]="filters"
+              [(value)]="filter"
+            />
+            <ul class="rows">
+              <li
+                uiOrderRow
+                orderId="#DL-4823"
+                chipTone="needs-rider"
+                chipLabel="Needs rider"
+                from="Tiffin Theory, Sundar Nagar"
+                to="Nizamuddin East"
+                metaStart="Searching within 1.5 km"
+                metaEnd="waiting 0:12"
+                metaEndTone="muted"
+                [highlight]="true"
+              ></li>
+              <li
+                uiOrderRow
+                orderId="#DL-4817"
+                chipTone="accent"
+                chipLabel="On the way"
+                from="Saffron & Smoke, Khan Market"
+                to="Lajpat Nagar II"
+                metaStart="Aman Verma"
+                metaEnd="8 min"
+                [selected]="true"
+              ></li>
+              <li
+                uiOrderRow
+                orderId="#DL-4812"
+                chipTone="late"
+                chipLabel="Running late"
+                from="Lahori Gate Kitchen, Daryaganj"
+                to="ITO"
+                metaStart="Imran Ali"
+                metaEnd="12 min · +5"
+                metaEndTone="late"
+              ></li>
+              <li
+                uiOrderRow
+                orderId="#DL-4810"
+                chipTone="available"
+                chipLabel="Assigned"
+                from="Second Pour Café, Paharganj"
+                to="Karol Bagh"
+                metaStart="Neha Gupta"
+                metaEnd="15 min"
+              ></li>
+            </ul>
+          </section>
+
+          <section uiPanel class="orders" aria-label="Order row states">
+            <ul class="rows">
+              @for (state of ['hover', 'pressed', 'focus', 'disabled', 'loading']; track state) {
+                <li
+                  uiOrderRow
+                  orderId="#DL-4815"
+                  chipTone="accent"
+                  chipLabel="Picked up"
+                  from="Kulfi & Co., Connaught Place"
+                  to="Gole Market"
+                  [metaStart]="state"
+                  metaEnd="4 min"
+                  [state]="
+                    state === 'hover' || state === 'pressed' || state === 'focus' ? state : null
+                  "
+                  [disabled]="state === 'disabled'"
+                  [loading]="state === 'loading'"
+                ></li>
+              }
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <!-- Rider card -->
+      <section class="group">
+        <h2>Rider card, ETA, progress and timeline</h2>
+        <div class="cells top">
+          <figure>
+            <figcaption>default</figcaption>
+            <ui-rider-card class="rider" [rider]="rider" />
+          </figure>
+          <figure>
+            <figcaption>reassigning</figcaption>
+            <ui-rider-card class="rider" [rider]="rider" [reassigning]="true" />
+          </figure>
+          <figure>
+            <figcaption>loading</figcaption>
+            <ui-rider-card class="rider" [rider]="rider" [loading]="true" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Stats, legend, map controls -->
+      <section class="group">
+        <h2>Stats</h2>
+        <div class="cells">
+          <ui-stat [value]="stats().riders" label="Riders online" />
+          <ui-stat [value]="stats().orders" label="Active orders" />
+          <ui-stat [value]="stats().avg + ' min'" label="Avg. delivery" />
+          <ui-stat [value]="stats().late" label="Running late" tone="late" />
+          <ui-stat value="0" label="Riders online" [loading]="true" />
+          <button type="button" uiButton="menu" (click)="roll()">Change the numbers</button>
+        </div>
+        <div class="cells stats-landing">
+          <ui-stat variant="landing" [value]="stats().riders" label="Riders online" />
+          <ui-stat variant="landing" [value]="stats().orders" label="Orders on the move" />
+          <ui-stat variant="landing" [value]="stats().avg + ' min'" label="Average delivery" />
+          <ui-stat variant="landing" value="1,208" label="Delivered today" />
+        </div>
+        <h2>Legend</h2>
+        <div class="cells">
+          <ui-legend [items]="legend" />
+          <ui-legend [items]="legend" [loading]="true" />
+        </div>
+        <h2>Map controls</h2>
+        <div class="cells">
+          <figure>
+            <figcaption>default</figcaption>
+            <ui-map-controls />
+          </figure>
+          <figure>
+            <figcaption>disabled</figcaption>
+            <ui-map-controls [disabled]="true" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- Slide to confirm -->
+      <section class="group">
+        <h2>Slide to confirm</h2>
+        <div class="cells">
+          @for (state of states; track state) {
+            <figure class="slide">
+              <figcaption>{{ state }}</figcaption>
+              <ui-slide-to-confirm
+                label="Slide to confirm pickup"
+                [state]="
+                  state === 'hover' || state === 'pressed' || state === 'focus' ? state : null
+                "
+                [disabled]="state === 'disabled'"
+                [loading]="state === 'loading'"
+              />
+            </figure>
+          }
+          <figure class="slide">
+            <figcaption>try it (confirmed {{ confirmed() }}×)</figcaption>
+            <ui-slide-to-confirm
+              #slide
+              label="Slide to confirm pickup"
+              (confirm)="confirmed.set(confirmed() + 1)"
+            />
+            <button type="button" uiButton="menu" class="reset" (click)="slide.reset()">
+              Reset
+            </button>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Bottom sheet -->
+      <section class="group">
+        <h2>Bottom sheet</h2>
+        <ui-segmented class="snaps" label="Sheet position" [options]="snaps" [(value)]="snapName" />
+        <div class="phone">
+          <section
+            uiBottomSheet
+            aria-label="Delivery status"
+            [snap]="$any(snapName())"
+            (snapChange)="snapName.set($event)"
+          >
+            <ui-eta
+              uiSheetPeek
+              variant="hero"
+              [value]="stats().eta + ' min'"
+              time="8:05 PM"
+              distance="3.1 km away"
+            />
+            <ui-segmented-progress
+              label="Order progress"
+              [steps]="['Placed', 'Picked up', 'On the way', 'Delivered']"
+              [current]="2"
+              [partial]="0.55"
+            />
+            <p class="message">
+              Aman picked up your order at 7:51 PM and is riding down Mathura Road.
+            </p>
+            <ui-progress [value]="0.55" label="Delivery progress" />
+            <ui-slide-to-confirm label="Slide to confirm pickup" />
+          </section>
+        </div>
+      </section>
+    </div>
+  }
+</main>
