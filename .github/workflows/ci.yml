@@ -58,6 +58,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Check generated tokens
+        run: npm run tokens:check
+
       - name: Build
         run: npm run build
 

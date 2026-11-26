@@ -8,6 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "icons": "node scripts/build-icons.mjs",
+    "tokens": "node scripts/build-tokens.mjs",
+    "tokens:check": "node scripts/build-tokens.mjs --check",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

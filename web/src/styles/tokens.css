@@ -1,0 +1,508 @@
+/* Generated from design-tokens.json by scripts/build-tokens.mjs. Do not edit. */
+
+/* `static` keeps every variable in the output, so component styles can use them all. */
+@theme static {
+  /* No default Tailwind palette, scales or fonts: only the approved tokens exist. */
+  --*: initial;
+
+  /* Colour (design-tokens.json → color) */
+  --color-ink: #0b0c0e;
+  --color-dark-canvas: #121418;
+  --color-dark-landing-canvas: #0b0c0e;
+  --color-dark-panel: rgba(23, 25, 29, 0.94);
+  --color-dark-panel-solid: #17191d;
+  --color-dark-panel-border: rgba(255, 255, 255, 0.07);
+  --color-dark-raised: #22252a;
+  --color-dark-raised-strong: #24282d;
+  --color-dark-selected: #262a30;
+  --color-dark-input: #0f1114;
+  --color-dark-input-border: #2a2e34;
+  --color-dark-kbd-border: #2f343a;
+  --color-dark-divider: #24282d;
+  --color-dark-track: #2a2e34;
+  --color-dark-text-primary: #f2f3f5;
+  --color-dark-text-primary-landing: #f5f6f7;
+  --color-dark-text-secondary: #9aa1a9;
+  --color-dark-text-secondary-alt: #a1a7ae;
+  --color-dark-text-tertiary: #7b828a;
+  --color-dark-text-body: #c9cdd2;
+  --color-dark-hairline: rgba(255, 255, 255, 0.08);
+  --color-dark-outline-button-border: rgba(255, 255, 255, 0.16);
+  --color-dark-text-muted: #a3a9b0;
+  --color-dark-map-control-icon: #e1e4e7;
+  --color-dark-raised-soft: #1f2226;
+  --color-dark-grabber: #3a3f46;
+  --color-dark-timeline-line: #3a3f46;
+  --color-dark-timeline-pending: #4a5058;
+  --color-dark-slide-hint: #5f666e;
+  --color-dark-sheet-border: rgba(255, 255, 255, 0.06);
+  --color-dark-stat-divider: rgba(255, 255, 255, 0.1);
+  --color-dark-map-chip: rgba(18, 20, 24, 0.92);
+  --color-dark-panel-opaque: rgba(23, 25, 29, 0.97);
+  --color-light-surface: #ffffff;
+  --color-light-surface-alt: #f4f5f7;
+  --color-light-border: #e3e5e8;
+  --color-light-divider: #dadde1;
+  --color-light-track: #e6e8eb;
+  --color-light-grabber: #d5d8dc;
+  --color-light-text-primary: #0b0c0e;
+  --color-light-text-secondary: #555b62;
+  --color-light-text-secondary-app: #5e646c;
+  --color-light-text-body: #3a3f45;
+  --color-light-text-on-pill: #1f2328;
+  --color-light-track-on-surface-alt: #dfe2e6;
+  --color-accent-orange: #ff8a1f;
+  --color-accent-orange-on-light: #f57a12;
+  --color-accent-orange-text-on-dark: #ffb26b;
+  --color-accent-orange-text-on-light: #b54708;
+  --color-accent-orange-tint-dark: rgba(255, 138, 31, 0.16);
+  --color-accent-orange-tint-light: #ffe7d1;
+  --color-accent-orange-ring: rgba(255, 138, 31, 0.18);
+  --color-accent-orange-ring-strong: rgba(255, 138, 31, 0.2);
+  --color-accent-orange-tint-pill: rgba(255, 138, 31, 0.1);
+  --color-accent-orange-outline: rgba(255, 138, 31, 0.45);
+  --color-status-available: #5b9bff;
+  --color-status-available-on-light: #2f6fde;
+  --color-status-available-text: #9ec3ff;
+  --color-status-available-tint: rgba(91, 155, 255, 0.14);
+  --color-status-on-delivery: #ff8a1f;
+  --color-status-late: #ff5a5f;
+  --color-status-late-text: #ff8f92;
+  --color-status-late-tint: rgba(255, 90, 95, 0.14);
+  --color-status-busy-on-light: #a3a9b0;
+  --color-status-restaurant-pin: #e8eaed;
+  --color-status-late-ring: rgba(255, 90, 95, 0.3);
+  --color-map-dark-land: #121418;
+  --color-map-dark-street: #1c1f24;
+  --color-map-dark-park: #142119;
+  --color-map-dark-central-park: #18291e;
+  --color-map-dark-water: #0c1a24;
+  --color-map-dark-road: #2b3037;
+  --color-map-dark-ring-road: #363c45;
+  --color-map-dark-casing: #0d0f12;
+  --color-map-dark-label: #7d858e;
+  --color-map-dark-water-label: #6a8da6;
+  --color-map-light-land: #e8eaed;
+  --color-map-light-street: #f6f7f8;
+  --color-map-light-park: #d5e6d2;
+  --color-map-light-central-park: #cbe0c7;
+  --color-map-light-water: #bfd6e8;
+  --color-map-light-road: #ffffff;
+  --color-map-light-ring-road: #ffffff;
+  --color-map-light-casing: #d3d7dc;
+  --color-map-light-label: #5e646c;
+  --color-map-light-water-label: #355a76;
+  --color-marker-dark-route-travelled: #6b727a;
+  --color-marker-dark-other-drop-stroke: #a3a9b0;
+  --color-marker-dark-pill: #f2f3f5;
+  --color-marker-dark-pill-text: #121418;
+  --color-marker-light-route-travelled: #8c939a;
+  --color-marker-light-search-rings: #8c939a;
+  --color-marker-light-route-casing: #ffffff;
+  --color-marker-light-pin-stroke: #ffffff;
+  --color-marker-light-pill: #ffffff;
+  --color-marker-light-pill-border: #d3d7dc;
+  --color-marker-light-pill-text: #1f2328;
+  --color-marker-light-pill-ink: #0b0c0e;
+  --color-marker-light-pill-ink-text: #ffffff;
+
+  /* Type (→ font, type) */
+  --font-display:
+    'Inter Tight Variable', 'Inter Tight', 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-text: 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --text-hero-display: clamp(52px, 7.4vw, 104px);
+  --text-hero-display--line-height: 0.98;
+  --text-hero-display--letter-spacing: -0.04em;
+  --text-hero-display--font-weight: 700;
+  --text-cta-display: clamp(48px, 6vw, 88px);
+  --text-cta-display--line-height: 1;
+  --text-cta-display--letter-spacing: -0.04em;
+  --text-cta-display--font-weight: 700;
+  --text-section-title: clamp(40px, 4.6vw, 64px);
+  --text-section-title--line-height: 1.02;
+  --text-section-title--letter-spacing: -0.035em;
+  --text-section-title--font-weight: 700;
+  --text-eta-hero: 56px;
+  --text-eta-hero--line-height: 1;
+  --text-eta-hero--letter-spacing: -0.035em;
+  --text-eta-hero--font-weight: 700;
+  --text-eta-panel: 44px;
+  --text-eta-panel--line-height: 1;
+  --text-eta-panel--letter-spacing: -0.03em;
+  --text-eta-panel--font-weight: 700;
+  --text-stat-large: 44px;
+  --text-stat-large--letter-spacing: -0.03em;
+  --text-stat-large--font-weight: 700;
+  --text-card-eta: 34px;
+  --text-card-eta--letter-spacing: -0.03em;
+  --text-card-eta--font-weight: 700;
+  --text-hero-chip-stat: 30px;
+  --text-hero-chip-stat--letter-spacing: -0.02em;
+  --text-hero-chip-stat--font-weight: 700;
+  --text-screen-title: 28px;
+  --text-screen-title--letter-spacing: -0.02em;
+  --text-screen-title--font-weight: 700;
+  --text-delivery-code: 26px;
+  --text-delivery-code--letter-spacing: 0.16em;
+  --text-delivery-code--font-weight: 700;
+  --text-step-title: 24px;
+  --text-step-title--letter-spacing: -0.02em;
+  --text-step-title--font-weight: 700;
+  --text-panel-title: 19px;
+  --text-panel-title--letter-spacing: -0.01em;
+  --text-panel-title--font-weight: 700;
+  --text-lead: 21px;
+  --text-lead--line-height: 1.45;
+  --text-cta-lead: 19px;
+  --text-cta-lead--line-height: 1.5;
+  --text-body-large: 18px;
+  --text-body-large--line-height: 1.55;
+  --text-spec: 17px;
+  --text-spec--line-height: 1.5;
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body-small: 15px;
+  --text-body-small--line-height: 1.45;
+  --text-ui: 14px;
+  --text-meta: 13px;
+  --text-caption: 12px;
+
+  /* Radius (→ radius) */
+  --radius-pill: 999px;
+  --radius-sheet: 28px;
+  --radius-hero-card: 28px;
+  --radius-phone-bezel: 38px;
+  --radius-card: 20px;
+  --radius-panel: 18px;
+  --radius-card-small: 16px;
+  --radius-item: 14px;
+  --radius-control: 12px;
+  --radius-small-control: 10px;
+  --radius-tab: 8px;
+  --radius-circle: 50%;
+  --radius-slide-track: 32px;
+  --radius-phone-screen: 31px;
+  --radius-segmented-track: 11px;
+  --radius-filter-button: 9px;
+  --radius-kbd: 6px;
+  --radius-bar: 3px;
+
+  /* Spacing (→ space, size, layout) */
+  --spacing-2: 2px;
+  --spacing-3: 3px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-7: 7px;
+  --spacing-8: 8px;
+  --spacing-9: 9px;
+  --spacing-10: 10px;
+  --spacing-11: 11px;
+  --spacing-12: 12px;
+  --spacing-14: 14px;
+  --spacing-16: 16px;
+  --spacing-18: 18px;
+  --spacing-20: 20px;
+  --spacing-22: 22px;
+  --spacing-24: 24px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-36: 36px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-56: 56px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-104: 104px;
+  --spacing-112: 112px;
+  --spacing-120: 120px;
+  --spacing-140: 140px;
+  --spacing-dot-chip: 6px;
+  --spacing-dot-live: 8px;
+  --spacing-dot-legend: 10px;
+  --spacing-dot-timeline: 10px;
+  --spacing-dot-timeline-current: 12px;
+  --spacing-timeline-line: 2px;
+  --spacing-timeline-step-min-height: 26px;
+  --spacing-divider: 1px;
+  --spacing-progress-bar: 6px;
+  --spacing-progress-bar-card: 5px;
+  --spacing-grabber-width: 36px;
+  --spacing-grabber-height: 5px;
+  --spacing-avatar-small: 28px;
+  --spacing-icon-button-small: 32px;
+  --spacing-step-badge: 32px;
+  --spacing-avatar-button: 36px;
+  --spacing-row-icon: 38px;
+  --spacing-search-field: 40px;
+  --spacing-map-control: 42px;
+  --spacing-avatar: 44px;
+  --spacing-floating-button: 44px;
+  --spacing-action-button: 44px;
+  --spacing-action-button-tall: 48px;
+  --spacing-toggle-track-width: 46px;
+  --spacing-toggle-track-height: 28px;
+  --spacing-toggle-thumb: 22px;
+  --spacing-toggle-thumb-inset: 3px;
+  --spacing-slide-track: 64px;
+  --spacing-slide-thumb: 54px;
+  --spacing-slide-thumb-inset: 4px;
+  --spacing-slide-thumb-step: 46px;
+  --spacing-slide-hint-width: 28px;
+  --spacing-slide-hint-height: 16px;
+  --spacing-slide-hint-right: 22px;
+  --spacing-slide-hint-top: 24px;
+  --spacing-content-max-width: 1200px;
+  --spacing-page-gutter: 24px;
+  --spacing-section-padding-y: 112px;
+  --spacing-dashboard-padding: 16px;
+  --spacing-orders-panel-width: 372px;
+  --spacing-rider-card-width: 348px;
+  --spacing-min-touch-target: 44px;
+  --spacing-panel-min-width: 300px;
+  --spacing-panel-spacer-flex-basis: 120px;
+  --spacing-search-flex-basis: 260px;
+  --spacing-search-max-width: 420px;
+  --spacing-phone-overlay-inset: 16px;
+  --spacing-tracking-recenter-top: 270px;
+  --spacing-tracking-desktop-sheet-width: 400px;
+  --spacing-landing-lead-max-width: 620px;
+  --spacing-landing-cta-lead-max-width: 520px;
+  --spacing-landing-hero-map-height: 560px;
+  --spacing-landing-hero-map-height-compact: 420px;
+  --spacing-landing-hero-chip-inset: 20px;
+  --spacing-landing-hero-tracking-card-width: 290px;
+  --spacing-landing-stat-flex-basis: 220px;
+  --spacing-landing-step-flex-basis: 230px;
+  --spacing-landing-assign-text-flex-basis: 380px;
+  --spacing-landing-assign-map-flex-basis: 520px;
+  --spacing-landing-assign-map-height: 520px;
+  --spacing-landing-assign-toast-inset: 16px;
+  --spacing-landing-spec-label-width: 240px;
+  --spacing-landing-spec-value-flex-basis: 320px;
+  --spacing-landing-phone-bezel-padding: 7px;
+
+  /* Breakpoints (→ layout.breakpoints) */
+  --breakpoint-phone-max: 430px;
+  --breakpoint-landing-phones-only: 480px;
+  --breakpoint-landing-compact: 768px;
+  --breakpoint-dashboard-drawer: 1024px;
+  --breakpoint-dashboard-full: 1280px;
+
+  /* Shadow (→ shadow) */
+  --shadow-panel-on-map: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --shadow-floating-light: 0 4px 14px rgba(0, 0, 0, 0.12);
+  --shadow-sheet-light: 0 -8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-card-on-dark: 0 20px 40px rgba(0, 0, 0, 0.35);
+  --shadow-chip-light: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-device: 0 30px 60px -28px rgba(11, 12, 14, 0.45);
+  --shadow-device-phone: 0 30px 60px -28px rgba(11, 12, 14, 0.55);
+  --shadow-live-ring: 0 0 0 4px rgba(255, 138, 31, 0.18);
+  --shadow-live-ring-strong: 0 0 0 4px rgba(255, 138, 31, 0.2);
+  --shadow-late-ring: 0 0 0 3px rgba(255, 90, 95, 0.3);
+
+  /* Motion (→ motion) */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-linear: linear;
+  --duration-instant: 100ms;
+  --duration-fast: 160ms;
+  --duration-base: 220ms;
+  --duration-panel: 280ms;
+  --duration-sheet: 360ms;
+  --duration-camera: 800ms;
+  --duration-rider-update-interval: 2000ms;
+  --duration-headline-stagger: 60ms;
+  --duration-bearing: 300ms;
+  --duration-success-check: 300ms;
+  --duration-code-shake: 300ms;
+  --duration-digit-roll: 400ms;
+  --duration-progress: 600ms;
+  --duration-headline-reveal: 600ms;
+  --duration-hold-to-confirm: 600ms;
+  --duration-max-extrapolation: 1000ms;
+  --duration-row-highlight: 1200ms;
+  --duration-render-delay: 2000ms;
+  --duration-needs-rider-pulse: 2000ms;
+  --duration-delivered-fade-delay: 3000ms;
+  --duration-toast-dismiss: 4000ms;
+  --duration-reconnecting-after: 5000ms;
+  --duration-camera-reframe-min: 5000ms;
+  --duration-markers-dim-after: 10000ms;
+  --scale-map-frame-enter: 0.96;
+  --scale-press: 0.98;
+
+  /* Borders, opacity and focus (→ borderWidth, opacity, focus) */
+  --border-width-hairline: 1px;
+  --border-width-step-badge: 1.5px;
+  --border-width-timeline-pending: 2px;
+  --border-width-timeline-current: 3px;
+  --opacity-link-hover: 0.85;
+  --opacity-timeline-done: 0.5;
+  --opacity-markers-disconnected: 0.5;
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --focus-color: var(--color-accent-orange);
+
+  /* Icons and brand (→ icon, brand) */
+  --icon-stroke: 2;
+  --icon-stroke-emphasis: 2.2;
+  --icon-stroke-heavy: 2.4;
+  --icon-size-16: 16px;
+  --icon-size-17: 17px;
+  --icon-size-18: 18px;
+  --icon-size-20: 20px;
+  --icon-size-22: 22px;
+  --brand-mark-size-dashboard: 22px;
+  --brand-mark-size-landing-header: 24px;
+  --brand-mark-size-landing-footer: 20px;
+  --brand-gap-dashboard: 9px;
+  --brand-gap-landing-header: 10px;
+  --brand-gap-landing-footer: 12px;
+  --brand-wordmark-size-dashboard: 17px;
+  --brand-wordmark-size-landing: 19px;
+}
+
+@utility type-hero-display {
+  font-family: var(--font-display);
+  font-size: var(--text-hero-display);
+  line-height: var(--text-hero-display--line-height);
+  letter-spacing: var(--text-hero-display--letter-spacing);
+  font-weight: var(--text-hero-display--font-weight);
+}
+
+@utility type-cta-display {
+  font-family: var(--font-display);
+  font-size: var(--text-cta-display);
+  line-height: var(--text-cta-display--line-height);
+  letter-spacing: var(--text-cta-display--letter-spacing);
+  font-weight: var(--text-cta-display--font-weight);
+}
+
+@utility type-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: var(--text-section-title--line-height);
+  letter-spacing: var(--text-section-title--letter-spacing);
+  font-weight: var(--text-section-title--font-weight);
+}
+
+@utility type-eta-hero {
+  font-family: var(--font-display);
+  font-size: var(--text-eta-hero);
+  line-height: var(--text-eta-hero--line-height);
+  letter-spacing: var(--text-eta-hero--letter-spacing);
+  font-weight: var(--text-eta-hero--font-weight);
+}
+
+@utility type-eta-panel {
+  font-family: var(--font-display);
+  font-size: var(--text-eta-panel);
+  line-height: var(--text-eta-panel--line-height);
+  letter-spacing: var(--text-eta-panel--letter-spacing);
+  font-weight: var(--text-eta-panel--font-weight);
+}
+
+@utility type-stat-large {
+  font-family: var(--font-display);
+  font-size: var(--text-stat-large);
+  letter-spacing: var(--text-stat-large--letter-spacing);
+  font-weight: var(--text-stat-large--font-weight);
+}
+
+@utility type-card-eta {
+  font-family: var(--font-display);
+  font-size: var(--text-card-eta);
+  letter-spacing: var(--text-card-eta--letter-spacing);
+  font-weight: var(--text-card-eta--font-weight);
+}
+
+@utility type-hero-chip-stat {
+  font-family: var(--font-display);
+  font-size: var(--text-hero-chip-stat);
+  letter-spacing: var(--text-hero-chip-stat--letter-spacing);
+  font-weight: var(--text-hero-chip-stat--font-weight);
+}
+
+@utility type-screen-title {
+  font-family: var(--font-display);
+  font-size: var(--text-screen-title);
+  letter-spacing: var(--text-screen-title--letter-spacing);
+  font-weight: var(--text-screen-title--font-weight);
+}
+
+@utility type-delivery-code {
+  font-family: var(--font-display);
+  font-size: var(--text-delivery-code);
+  letter-spacing: var(--text-delivery-code--letter-spacing);
+  font-weight: var(--text-delivery-code--font-weight);
+}
+
+@utility type-step-title {
+  font-family: var(--font-display);
+  font-size: var(--text-step-title);
+  letter-spacing: var(--text-step-title--letter-spacing);
+  font-weight: var(--text-step-title--font-weight);
+}
+
+@utility type-panel-title {
+  font-family: var(--font-display);
+  font-size: var(--text-panel-title);
+  letter-spacing: var(--text-panel-title--letter-spacing);
+  font-weight: var(--text-panel-title--font-weight);
+}
+
+@utility type-lead {
+  font-family: var(--font-text);
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+}
+
+@utility type-cta-lead {
+  font-family: var(--font-text);
+  font-size: var(--text-cta-lead);
+  line-height: var(--text-cta-lead--line-height);
+}
+
+@utility type-body-large {
+  font-family: var(--font-text);
+  font-size: var(--text-body-large);
+  line-height: var(--text-body-large--line-height);
+}
+
+@utility type-spec {
+  font-family: var(--font-text);
+  font-size: var(--text-spec);
+  line-height: var(--text-spec--line-height);
+}
+
+@utility type-body {
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+@utility type-body-small {
+  font-family: var(--font-text);
+  font-size: var(--text-body-small);
+  line-height: var(--text-body-small--line-height);
+}
+
+@utility type-ui {
+  font-family: var(--font-text);
+  font-size: var(--text-ui);
+}
+
+@utility type-meta {
+  font-family: var(--font-text);
+  font-size: var(--text-meta);
+}
+
+@utility type-caption {
+  font-family: var(--font-text);
+  font-size: var(--text-caption);
+}
