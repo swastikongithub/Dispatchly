@@ -23,7 +23,7 @@ SignalR hub: **`/hubs/live`**, served by the API (for example `http://localhost:
 
 ```ts
 const connection = new HubConnectionBuilder()
-  .withUrl('/hubs/live', { accessTokenFactory: () => token })
+  .withUrl("/hubs/live", { accessTokenFactory: () => token })
   .withAutomaticReconnect([0, 2_000, 5_000, 10_000, 30_000])
   .build();
 ```
@@ -42,10 +42,10 @@ Joining is a call from the client to the server. A new connection is in no group
 
 A refused join fails the call with a `HubException`. The client's error message ends with the reason:
 
-| Reason         | Meaning                                                                   |
-| -------------- | ------------------------------------------------------------------------- |
-| `unauthorized` | No valid token. Sign in (again) and reconnect.                            |
-| `forbidden`    | Signed in, but this group is for another role.                            |
+| Reason         | Meaning                                                                     |
+| -------------- | --------------------------------------------------------------------------- |
+| `unauthorized` | No valid token. Sign in (again) and reconnect.                              |
+| `forbidden`    | Signed in, but this group is for another role.                              |
 | `not_found`    | `JoinOrder` only: no such order, or not yours. These look alike on purpose. |
 
 The JS client rejects with an `Error` whose message reads `An unexpected error occurred invoking 'JoinOrder' on the server. HubException: not_found`. Check the end of the message with `message.endsWith('HubException: not_found')`.
@@ -59,16 +59,16 @@ All messages go from the server to the client.
   - Messages whose payload is a REST record carry it as a second argument. Their handler takes `(payload, at)`.
 - Send times are approximate. "Every 2 s" means one message per tick for the whole group, never one per rider.
 
-| Message          | Group          | Arguments                     | When                                                                                    |
-| ---------------- | -------------- | ----------------------------- | --------------------------------------------------------------------------------------- |
-| `riders:batch`   | `dispatch`, `public` | `RidersBatch`           | Every 2 s, with every rider on shift.                                                   |
-| `stats:changed`  | `dispatch`, `public` | `LiveStats`, `at`       | When any number changes. Checked every 2 s.                                             |
-| `order:changed`  | `dispatch`     | `OrderSummary`, `at`          | When an order is placed, assigned, reassigned, picked up, on the way or delivered, or its shown ETA minute or lateness changes. |
-| `order:changed`  | `order:{code}` | `OrderDetails`, `at`          | When the order is assigned, reassigned, picked up, on the way or delivered. Includes `deliveryCode`. |
-| `rider:position` | `order:{code}` | `RiderPosition`               | Every 2 s while the order has a rider.                                                  |
-| `eta:changed`    | `order:{code}` | `EtaChanged`                  | When the ETA moves to another minute, or lateness changes. Also sent the first time an order is seen after a restart. |
-| `task:assigned`  | `rider:{id}`   | `RiderTaskView`, `at`         | When the rider gets a new order, by assignment or reassignment.                         |
-| `task:changed`   | `rider:{id}`   | `RiderTaskView`, `at`         | When the rider's task changes. `task` is `null` when it was delivered or reassigned away. |
+| Message          | Group                | Arguments             | When                                                                                                                            |
+| ---------------- | -------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `riders:batch`   | `dispatch`, `public` | `RidersBatch`         | Every 2 s, with every rider on shift.                                                                                           |
+| `stats:changed`  | `dispatch`, `public` | `LiveStats`, `at`     | When any number changes. Checked every 2 s.                                                                                     |
+| `order:changed`  | `dispatch`           | `OrderSummary`, `at`  | When an order is placed, assigned, reassigned, picked up, on the way or delivered, or its shown ETA minute or lateness changes. |
+| `order:changed`  | `order:{code}`       | `OrderDetails`, `at`  | When the order is assigned, reassigned, picked up, on the way or delivered. Includes `deliveryCode`.                            |
+| `rider:position` | `order:{code}`       | `RiderPosition`       | Every 2 s while the order has a rider.                                                                                          |
+| `eta:changed`    | `order:{code}`       | `EtaChanged`          | When the ETA moves to another minute, or lateness changes. Also sent the first time an order is seen after a restart.           |
+| `task:assigned`  | `rider:{id}`         | `RiderTaskView`, `at` | When the rider gets a new order, by assignment or reassignment.                                                                 |
+| `task:changed`   | `rider:{id}`         | `RiderTaskView`, `at` | When the rider's task changes. `task` is `null` when it was delivered or reassigned away.                                       |
 
 `OrderSummary`, `OrderDetails`, `RiderTaskView` and `LiveStats` are exactly what the REST API returns (`GET /orders`, `GET /orders/{code}`, `GET /rider/task`, `GET /stats/live`). The OpenAPI document has their schemas.
 
@@ -99,9 +99,14 @@ The `public` group never gets names, phone numbers, order codes or order details
 
 ```json
 {
-  "ridersOnline": 142, "ridersFree": 84, "ridersOnDelivery": 58,
-  "activeOrders": 61, "needsRider": 3, "runningLate": 4,
-  "averageDeliveryMinutes": 27, "deliveredToday": 412
+  "ridersOnline": 142,
+  "ridersFree": 84,
+  "ridersOnDelivery": 58,
+  "activeOrders": 61,
+  "needsRider": 3,
+  "runningLate": 4,
+  "averageDeliveryMinutes": 27,
+  "deliveredToday": 412
 }
 ```
 
@@ -140,10 +145,10 @@ The server decides the ETA and lateness. Show them as they come, and don't work 
 
 A client starts from a snapshot and then applies messages on top of it. Snapshots are REST calls under `/api/v1`.
 
-| Method | Path                    | Who        | Returns                                                            |
-| ------ | ----------------------- | ---------- | ------------------------------------------------------------------ |
+| Method | Path                    | Who        | Returns                                                                 |
+| ------ | ----------------------- | ---------- | ----------------------------------------------------------------------- |
 | GET    | `/api/v1/live/snapshot` | dispatcher | `{ at, riders: LiveRider[], orders: OrderSummary[], stats: LiveStats }` |
-| GET    | `/api/v1/live/public`   | anyone     | `{ at, riders: RiderPoint[], stats: LiveStats }`                   |
+| GET    | `/api/v1/live/public`   | anyone     | `{ at, riders: RiderPoint[], stats: LiveStats }`                        |
 
 - `GET /live/snapshot` returns:
   - every rider on shift, each with name, vehicle, plate, phone and status, plus `orderCode` when the rider is on an order
