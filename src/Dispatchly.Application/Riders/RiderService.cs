@@ -13,12 +13,8 @@ public sealed class RiderService(
     DispatchPolicy policy,
     TimeProvider clock)
 {
-    public async Task<RiderTaskView> GetTaskAsync(int riderId, CancellationToken ct)
-    {
-        var rider = await reader.RiderAsync(riderId, ct) ?? throw new NotFoundException($"Rider {riderId} not found.");
-        var task = await reader.RiderTaskAsync(riderId, ct);
-        return new RiderTaskView(await SelfAsync(rider, ct), task?.ToTask(policy));
-    }
+    public async Task<RiderTaskView> GetTaskAsync(int riderId, CancellationToken ct) =>
+        await RiderTaskViews.BuildAsync(reader, policy, clock, riderId, ct) ?? throw new NotFoundException($"Rider {riderId} not found.");
 
     public async Task<RiderTaskView> SetOnlineAsync(int riderId, bool online, CancellationToken ct)
     {
@@ -103,10 +99,21 @@ public sealed class RiderService(
 
     private async Task<(Domain.Riders.Rider Rider, Order? Task)> LockAsync(int riderId, CancellationToken ct) =>
         await store.LockRiderWithTaskAsync(riderId, ct) ?? throw new NotFoundException($"Rider {riderId} not found.");
+}
 
-    private async Task<RiderSelf> SelfAsync(Domain.Riders.Rider rider, CancellationToken ct)
+/// <summary>The rider app's view of a rider: for <c>GET /rider/task</c> and the rider's live messages.</summary>
+internal static class RiderTaskViews
+{
+    /// <summary>The rider's day and current task, or null when there's no such rider.</summary>
+    public static async Task<RiderTaskView?> BuildAsync(
+        IDispatchReader reader, DispatchPolicy policy, TimeProvider clock, int riderId, CancellationToken ct)
     {
-        var (trips, earned) = await reader.RiderEarningsAsync(rider.Id, policy.StartOfCityDay(clock.GetUtcNow()), ct);
-        return rider.ToSelf(trips, earned);
+        if (await reader.RiderAsync(riderId, ct) is not { } rider)
+        {
+            return null;
+        }
+        var task = await reader.RiderTaskAsync(riderId, ct);
+        var (trips, earned) = await reader.RiderEarningsAsync(riderId, policy.StartOfCityDay(clock.GetUtcNow()), ct);
+        return new RiderTaskView(rider.ToSelf(trips, earned), task?.ToTask(policy));
     }
 }

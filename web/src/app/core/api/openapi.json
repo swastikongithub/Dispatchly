@@ -45,6 +45,44 @@
         }
       }
     },
+    "/api/v1/live/snapshot": {
+      "get": {
+        "tags": [
+          "Live"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveSnapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/live/public": {
+      "get": {
+        "tags": [
+          "Live"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicSnapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/orders": {
       "get": {
         "tags": [
@@ -616,13 +654,132 @@
           }
         }
       },
+      "EtaChanged": {
+        "required": [
+          "at",
+          "code",
+          "estimatedDeliveryAt",
+          "isLate",
+          "minutesLate"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "estimatedDeliveryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isLate": {
+            "type": "boolean"
+          },
+          "minutesLate": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LiveRider": {
+        "required": [
+          "id",
+          "name",
+          "vehicle",
+          "plate",
+          "phone",
+          "status",
+          "location",
+          "bearing",
+          "orderCode",
+          "onlineSince"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "vehicle": {
+            "type": "string"
+          },
+          "plate": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiderStatus"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "bearing": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "onlineSince": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "LiveSnapshot": {
+        "required": [
+          "at",
+          "riders",
+          "orders",
+          "stats"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "riders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LiveRider"
+            }
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderSummary"
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/LiveStats"
+          }
+        }
+      },
       "LiveStats": {
         "required": [
           "ridersOnline",
           "activeOrders",
           "averageDeliveryMinutes",
           "runningLate",
-          "needsRider"
+          "needsRider",
+          "ridersFree",
+          "ridersOnDelivery",
+          "deliveredToday"
         ],
         "type": "object",
         "properties": {
@@ -646,6 +803,18 @@
             "format": "int32"
           },
           "needsRider": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ridersFree": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ridersOnDelivery": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deliveredToday": {
             "type": "integer",
             "format": "int32"
           }
@@ -1116,6 +1285,42 @@
           }
         }
       },
+      "PublicSnapshot": {
+        "required": [
+          "at",
+          "riders",
+          "stats"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "riders": {
+            "type": "array",
+            "items": {
+              "maxItems": 5,
+              "minItems": 5,
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "description": "A rider on the map: [id, lat, lng, bearing, status]. lat and lng to 5 decimals, bearing 0–359 clockwise from north, status a RiderStatus name."
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/LiveStats"
+          }
+        }
+      },
       "RestaurantStop": {
         "required": [
           "id",
@@ -1189,6 +1394,90 @@
           "bearing": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "RiderPosition": {
+        "required": [
+          "at",
+          "code",
+          "riderId",
+          "location",
+          "bearing",
+          "remainingMeters"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "riderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "location": {
+            "required": [
+              "lat",
+              "lng"
+            ],
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number",
+                "format": "double"
+              },
+              "lng": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "bearing": {
+            "type": "number",
+            "format": "double"
+          },
+          "remainingMeters": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "RidersBatch": {
+        "required": [
+          "at",
+          "riders"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "riders": {
+            "type": "array",
+            "items": {
+              "maxItems": 5,
+              "minItems": 5,
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "description": "A rider on the map: [id, lat, lng, bearing, status]. lat and lng to 5 decimals, bearing 0–359 clockwise from north, status a RiderStatus name."
+            }
           }
         }
       },
@@ -1421,6 +1710,9 @@
   "tags": [
     {
       "name": "Auth"
+    },
+    {
+      "name": "Live"
     },
     {
       "name": "Orders"

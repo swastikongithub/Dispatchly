@@ -40,6 +40,7 @@ public sealed class AssignmentService(IDispatchStore store, ILiveEvents live, Di
     public async Task ReassignAsync(string code, CancellationToken ct)
     {
         Order order;
+        int? previous;
         await using (var transaction = await store.BeginTransactionAsync(ct))
         {
             order = await store.LockOrderAsync(code, ct) ?? throw new NotFoundException($"Order {code} not found.");
@@ -49,22 +50,21 @@ public sealed class AssignmentService(IDispatchStore store, ILiveEvents live, Di
                     "order_not_reassignable",
                     $"Order {code} is {order.Status}; only an assigned order that hasn't been picked up can be reassigned.");
             }
-            var current = order.RiderId;
+            previous = order.RiderId;
             var near = order.Restaurant.Location;
-            var next = await store.LockNearestAvailableRiderAsync(near, policy.MaxRadius, current, ct)
+            var next = await store.LockNearestAvailableRiderAsync(near, policy.MaxRadius, previous, ct)
                 ?? throw new ConflictException("no_free_rider", $"No other free rider within {policy.MaxRadius / 1_000.0:0.#} km.");
-            var free = await store.CountAvailableRidersAsync(near, policy.MaxRadius, current, ct);
+            var free = await store.CountAvailableRidersAsync(near, policy.MaxRadius, previous, ct);
             order.Reassign(next.Rider, free, next.DistanceMeters, policy, clock.GetUtcNow());
             await store.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
         }
-        await live.OrderChangedAsync(order, ct);
+        await live.RiderAssignedAsync(order, previous, ct);
     }
 
     private async Task<bool> AttemptAsync(int orderId, bool isRetry, CancellationToken ct)
     {
         Order? order;
-        bool assigned;
         await using (var transaction = await store.BeginTransactionAsync(ct))
         {
             order = await store.LockOrderAsync(orderId, skipLocked: isRetry, ct);
@@ -99,9 +99,8 @@ public sealed class AssignmentService(IDispatchStore store, ILiveEvents live, Di
             order.Assign(candidate.Rider, free, candidate.DistanceMeters, policy, now);
             await store.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
-            assigned = true;
         }
-        await live.OrderChangedAsync(order, ct);
-        return assigned;
+        await live.RiderAssignedAsync(order, previousRiderId: null, ct);
+        return true;
     }
 }

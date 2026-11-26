@@ -73,7 +73,9 @@ curl -s -X POST localhost:5080/api/v1/auth/demo -H 'Content-Type: application/js
 | POST   | `/api/v1/orders`                   | customer             | Place an order; the nearest free rider is assigned straight away if there is one |
 | POST   | `/api/v1/orders/{code}/reassign`   | dispatcher           | Hand an order that hasn't been picked up to the next nearest free rider          |
 | GET    | `/api/v1/restaurants?near=lat,lng` | customer             | The 20 nearest restaurants with their menus                                      |
-| GET    | `/api/v1/stats/live`               | dispatcher           | Riders online, active orders, average delivery, running late, needs rider        |
+| GET    | `/api/v1/stats/live`               | dispatcher           | Riders online, free and on a delivery, active orders, average delivery and more  |
+| GET    | `/api/v1/live/snapshot`            | dispatcher           | The dashboard's first paint: riders on shift, the order queue and the stats      |
+| GET    | `/api/v1/live/public`              | anyone               | The landing page's map and numbers: positions and stats, no names or orders      |
 | PUT    | `/api/v1/rider/status`             | rider                | Go online or offline                                                             |
 | GET    | `/api/v1/rider/task`               | rider                | The rider's day and current task                                                 |
 | POST   | `/api/v1/rider/task/pickup`        | rider                | Picked up, start ride                                                            |
@@ -83,6 +85,41 @@ curl -s -X POST localhost:5080/api/v1/auth/demo -H 'Content-Type: application/js
 The web app's client is generated from the OpenAPI document: `web/src/app/core/api/openapi.json`
 is a copy of what the API serves, and `npm run api` (in `web/`) turns it into TypeScript types
 for `ApiClient`.
+
+## Real time
+
+The SignalR hub `/hubs/live` sends rider positions every 2 s, plus order, ETA, stats and task
+changes as they happen. Its groups, messages, payloads and the reconnect rule (join, GET the
+snapshot, then apply only newer messages) are in [docs/realtime.md](docs/realtime.md). The web
+app and the mobile app both depend on it.
+
+## City simulator
+
+The API runs a simulator that keeps the demo city alive (PLAN.md §3.7). It acts only through the
+same use cases as the apps:
+
+- Free riders drift between restaurants and go on and off shift.
+- New orders come in, busier at lunch and dinner.
+- Riders ride their routes to the restaurant and the door, then deliver with the code.
+- Some kitchens and some roads are slow, so orders do run late.
+
+The demo rider (Neha Gupta) rides by herself but waits for the visitor to slide "Picked up" and
+"Delivered". If nobody does, she slides after `DemoRiderPatience`.
+
+| Setting                       | Default    | What                                                                                             |
+| ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------ |
+| `Simulator:Enabled`           | `true`     | Run it. On one API instance only: each would add its own orders                                  |
+| `Simulator:SpeedMultiplier`   | `1`        | Riders move this many times faster, and its own waits are shorter. Kitchens keep their prep time |
+| `Simulator:OrdersPerMinute`   | `1.5`      | New orders a minute across the city, before the time-of-day curve                                |
+| `Simulator:RandomSeed`        | `4817`     | The same seed gives the same speeds, delays and orders                                           |
+| `Simulator:DemoRiderPatience` | `00:02:00` | How long the demo rider waits for the visitor at the café and the door                           |
+| `Simulator:TickInterval`      | `00:00:02` | How often it moves the city                                                                      |
+| `Live:BatchInterval`          | `00:00:02` | How often the hub sends positions                                                                |
+| `Workers:LiveBroadcast`       | `true`     | Send positions, ETAs and stats on that tick                                                      |
+
+Set them in `appsettings.Development.json`, with user-secrets, or as environment variables
+(`Simulator__SpeedMultiplier=10`). The simulator never writes to the database itself, so orders
+it places stay there like any other.
 
 ## Tests
 

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Dispatchly.Api.Live;
 using Dispatchly.Application;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -56,6 +57,20 @@ public static class DemoAuth
                     RoleClaimType = ClaimNames.Role,
                     NameClaimType = ClaimNames.Name,
                     ClockSkew = TimeSpan.FromSeconds(30),
+                };
+                // Browsers can't set headers on a WebSocket, so the live hub takes the token from
+                // ?access_token= (on the hub's path only).
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Query["access_token"].ToString();
+                        if (token.Length > 0 && context.Request.Path.StartsWithSegments(LiveHub.Path))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    },
                 };
             });
         services.AddAuthorization();

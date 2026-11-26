@@ -76,27 +76,50 @@ internal sealed class EfDispatchReader(DispatchlyDbContext db) : IDispatchReader
         return (pay.Count, pay.Sum());
     }
 
-    public async Task<LiveCounts> LiveCountsAsync(DateTimeOffset deliveredSince, CancellationToken ct)
+    public async Task<IReadOnlyList<Rider>> OnShiftRidersAsync(CancellationToken ct) =>
+        await db.Riders
+            .AsNoTracking()
+            .Where(r => r.Status != RiderStatus.Offline)
+            .OrderBy(r => r.Id)
+            .ToListAsync(ct);
+
+    public async Task<LiveCounts> LiveCountsAsync(DateTimeOffset averageSince, DateTimeOffset startOfDay, CancellationToken ct)
     {
-        var ridersOnline = await db.Riders.CountAsync(r => r.Status != RiderStatus.Offline, ct);
-        var byStatus = await Active
+        var riders = await db.Riders
+            .GroupBy(r => r.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var orders = await Active
             .GroupBy(o => new { o.Status, Late = o.EstimatedDeliveryAt > o.PromisedBy })
             .Select(g => new { g.Key.Status, g.Key.Late, Count = g.Count() })
             .ToListAsync(ct);
-        var averageMinutes = await db.Database
-            .SqlQueryRaw<double?>(
+        var delivered = await db.Database
+            .SqlQueryRaw<DeliveredCounts>(
                 """
-                SELECT avg(extract(epoch FROM delivered_at - created_at)) / 60 AS "Value"
-                FROM orders
-                WHERE status = 'Delivered' AND delivered_at >= {0}
+                SELECT
+                    (SELECT avg(extract(epoch FROM delivered_at - created_at)) / 60
+                     FROM orders WHERE status = 'Delivered' AND delivered_at >= {0}) AS "AverageMinutes",
+                    (SELECT count(*)::int
+                     FROM orders WHERE status = 'Delivered' AND delivered_at >= {1}) AS "Today"
                 """,
-                deliveredSince)
+                averageSince,
+                startOfDay)
             .SingleAsync(ct);
+        int RidersWhere(Func<RiderStatus, bool> status) => riders.Where(g => status(g.Status)).Sum(g => g.Count);
         return new LiveCounts(
-            ridersOnline,
-            byStatus.Sum(g => g.Count),
-            byStatus.Where(g => g.Status == OrderStatus.Searching).Sum(g => g.Count),
-            byStatus.Where(g => g.Late).Sum(g => g.Count),
-            averageMinutes);
+            RidersOnline: RidersWhere(s => s != RiderStatus.Offline),
+            RidersFree: RidersWhere(s => s == RiderStatus.Available),
+            RidersOnDelivery: RidersWhere(s => s is RiderStatus.Assigned or RiderStatus.AtRestaurant or RiderStatus.Delivering),
+            ActiveOrders: orders.Sum(g => g.Count),
+            NeedsRider: orders.Where(g => g.Status == OrderStatus.Searching).Sum(g => g.Count),
+            RunningLate: orders.Where(g => g.Late).Sum(g => g.Count),
+            AverageDeliveryMinutes: delivered.AverageMinutes,
+            DeliveredToday: delivered.Today);
+    }
+
+    private sealed class DeliveredCounts
+    {
+        public double? AverageMinutes { get; init; }
+        public int Today { get; init; }
     }
 }

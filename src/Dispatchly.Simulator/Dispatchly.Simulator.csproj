@@ -5,7 +5,16 @@
        so it exercises the same assignment logic as real users. -->
 
   <ItemGroup>
+    <!-- Hosting, DI, options and logging from the shared framework the Api already runs on (no NuGet package). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Dispatchly.Application\Dispatchly.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dispatchly.UnitTests" />
   </ItemGroup>
 
 </Project>

@@ -15,6 +15,7 @@ public static class InfrastructureServices
         services.AddScoped<IDispatchStore, EfDispatchStore>();
         services.AddScoped<IDispatchReader, EfDispatchReader>();
         services.AddScoped<IDemoAccounts, EfDemoAccounts>();
+        services.AddScoped<ISimulationReader, EfSimulationReader>();
         services.AddScoped<DemoSeeder>();
         return services;
     }

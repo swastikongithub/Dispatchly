@@ -25,12 +25,19 @@ public interface IDispatchReader
     /// <summary>Deliveries completed by the rider since <paramref name="since"/>, and what they earned.</summary>
     Task<(int Trips, int EarnedPaise)> RiderEarningsAsync(int riderId, DateTimeOffset since, CancellationToken ct);
 
-    Task<LiveCounts> LiveCountsAsync(DateTimeOffset deliveredSince, CancellationToken ct);
+    /// <summary>Every rider who isn't offline.</summary>
+    Task<IReadOnlyList<Rider>> OnShiftRidersAsync(CancellationToken ct);
+
+    /// <summary>The counts behind the live stats: the average over orders delivered since <paramref name="averageSince"/>.</summary>
+    Task<LiveCounts> LiveCountsAsync(DateTimeOffset averageSince, DateTimeOffset startOfDay, CancellationToken ct);
 }
 
 public sealed record LiveCounts(
     int RidersOnline,
+    int RidersFree,
+    int RidersOnDelivery,
     int ActiveOrders,
     int NeedsRider,
     int RunningLate,
-    double? AverageDeliveryMinutes);
+    double? AverageDeliveryMinutes,
+    int DeliveredToday);

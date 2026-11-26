@@ -12,8 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Dispatchly.IntegrationTests.Support;
 
 /// <summary>
-/// The real API in memory, on a database of its own. The retry worker is off unless a test turns
-/// it on, so what a test sees is what its own requests did.
+/// The real API in memory, on a database of its own. The retry worker, the live tick and the
+/// simulator are off unless a test turns them on, so what a test sees is what its own requests did.
 /// </summary>
 public sealed class TestApp : WebApplicationFactory<Program>
 {
@@ -51,6 +51,8 @@ public sealed class TestApp : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:Dispatchly", ConnectionString);
         builder.UseSetting("Jwt:SigningKey", Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)));
         builder.UseSetting("Workers:AssignmentRetry", "false");
+        builder.UseSetting("Workers:LiveBroadcast", "false");
+        builder.UseSetting("Simulator:Enabled", "false");
         foreach (var (key, value) in _settings)
         {
             builder.UseSetting(key, value);
