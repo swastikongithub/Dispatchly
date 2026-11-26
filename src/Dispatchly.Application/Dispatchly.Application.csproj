@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Use cases: PlaceOrder, AssignRider, ConfirmPickup... Depends only on Domain. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dispatchly.Domain\Dispatchly.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
