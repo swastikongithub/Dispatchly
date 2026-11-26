@@ -63,6 +63,9 @@ jobs:
       - name: Check generated tokens
         run: npm run tokens:check
 
+      - name: Check the generated API client
+        run: npm run api:check
+
       - name: Build
         run: npm run build
 
