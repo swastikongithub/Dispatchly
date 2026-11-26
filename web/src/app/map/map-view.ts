@@ -42,6 +42,46 @@ function loadStylesheet(): Promise<void> {
       overflow: hidden;
       background: var(--ui-canvas);
     }
+
+    /*
+     * The OpenStreetMap credit (required by its licence) in the theme's surface and text colours.
+     * maplibre.css loads after these styles, so each rule is one class more specific than its own.
+     */
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib {
+      background-color: var(--ui-surface-floating);
+      color: var(--ui-text-secondary);
+      font-family: var(--font-text);
+      font-size: var(--text-caption);
+    }
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib a {
+      color: var(--ui-text-secondary);
+    }
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib a:hover {
+      color: var(--ui-text-primary);
+    }
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button {
+      background: transparent;
+    }
+    /* MapLibre's own "i" icon, drawn in the text colour instead of black. */
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--ui-text-secondary);
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill-rule='evenodd' viewBox='0 0 20 20'%3E%3Cpath d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    }
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button:focus {
+      box-shadow: none;
+    }
+    :host
+      ::ng-deep
+      .maplibregl-ctrl.maplibregl-ctrl-attrib
+      .maplibregl-ctrl-attrib-button:focus-visible,
+    :host ::ng-deep .maplibregl-ctrl.maplibregl-ctrl-attrib a:focus-visible {
+      outline: var(--focus-width) solid var(--ui-focus);
+      outline-offset: var(--focus-offset);
+    }
   `,
 })
 export class MapView {
@@ -73,7 +113,9 @@ export class MapView {
         center: this.center(),
         zoom: this.zoom(),
         interactive: this.interactive(),
-        attributionControl: { compact: true },
+        // MapLibre's default: the full credit while it fits, collapsing to its "i" button on
+        // narrow maps once the map is moved.
+        attributionControl: {},
       });
       this.map.once('load', () => this.ready.emit(this.map!));
       destroyRef.onDestroy(() => this.map?.remove());
