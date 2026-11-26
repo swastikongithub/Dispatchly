@@ -1,3 +1,4 @@
+using Dispatchly.Application;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 
@@ -12,14 +13,22 @@ internal static class OpenApiSetup
     private const string Json = "application/json";
     private const string Problem = "application/problem+json";
 
+    private static readonly Type[] HubOnlyPayloads = [typeof(RidersBatch), typeof(RiderPosition), typeof(EtaChanged)];
+
     public static IServiceCollection AddDispatchlyOpenApi(this IServiceCollection services) =>
         services.AddOpenApi(options =>
         {
-            options.AddDocumentTransformer((document, _, _) =>
+            options.AddDocumentTransformer(async (document, context, ct) =>
             {
                 document.Info.Title = "Dispatchly API";
                 document.Info.Description = "REST API v1. The SignalR contract is in docs/realtime.md.";
-                return Task.CompletedTask;
+                // Payloads only the hub sends, so clients get types for them too.
+                document.Components ??= new OpenApiComponents();
+                document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>();
+                foreach (var type in HubOnlyPayloads)
+                {
+                    document.Components.Schemas.TryAdd(type.Name, await context.GetOrCreateSchemaAsync(type, null, ct));
+                }
             });
 
             // Clients send and get JSON; errors are RFC 9457 problem details.
@@ -59,9 +68,27 @@ internal static class OpenApiSetup
                         },
                     };
                 }
+                // RiderPointJsonConverter writes each one as an array, which the generator can't see.
+                if (context.JsonTypeInfo.Type == typeof(IReadOnlyList<RiderPoint>))
+                {
+                    schema.Items = RiderPointSchema();
+                }
                 return Task.CompletedTask;
             });
         });
+
+    /// <summary>[id, lat, lng, bearing, status]. OpenAPI 3.1's prefixItems isn't in Microsoft.OpenApi 2.x, so: five numbers or strings.</summary>
+    private static OpenApiSchema RiderPointSchema() => new()
+    {
+        Type = JsonSchemaType.Array,
+        Description = "A rider on the map: [id, lat, lng, bearing, status]. lat and lng to 5 decimals, bearing 0–359 clockwise from north, status a RiderStatus name.",
+        MinItems = 5,
+        MaxItems = 5,
+        Items = new OpenApiSchema
+        {
+            OneOf = [new OpenApiSchema { Type = JsonSchemaType.Number }, new OpenApiSchema { Type = JsonSchemaType.String }],
+        },
+    };
 
     private static void OnlyMediaType(IDictionary<string, OpenApiMediaType> content, string mediaType)
     {
