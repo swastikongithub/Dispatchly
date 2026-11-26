@@ -416,6 +416,7 @@ Each screen = its design + the behaviour below. Sample values in the designs (na
 | Slide to confirm | drag-follow, spring back (`spring.slideToConfirm`), success check 300 ms |
 | Toasts | slide up 220 ms, auto-dismiss 4 s, at most 2 on screen |
 | Needs-rider pulse | rings expand and fade, 2 s loop (the only infinite animation) |
+| Loading skeletons | opacity 1 → 0.5 → 1 over 1.2 s, only while loading (the one approved exception to the rule above); static under reduced motion |
 | Landing reveals | §5.1, GSAP, once per element |
 
 ## 6.4 Performance budgets
@@ -522,6 +523,12 @@ These come from reviewing the approved mockups. Fix them as described. Nothing e
 3. **Long text in tight rows:** the vehicle + plate line in the tracking rider card wraps to two lines at 390 px. Truncate with an ellipsis on one line, with the full text in `title` and `aria-label`.
 4. **Heading wraps:** use `text-wrap: balance` on all display headings (e.g. "The nearest free rider. / Every time." currently leaves "rider." alone on a line).
 5. **Hand-drawn map → real map:** the designs use a drawn map of Delhi. Production uses real OpenStreetMap vector tiles styled to the same colours and label treatment.
+6. **Approved at the end of W1 (2026-11-26):**
+   - **Light-theme contrast:** "Running late" text uses `status.lateTextOnLight` (#B42318) and "Assigned" text uses `status.availableTextOnLight` (#2463CF). The focus ring on light surfaces uses `accent.orangeTextOnLight` (`focus.colorOnLight`).
+   - **Bottom sheet:** the grabber is a `<button>` that toggles peek and full, with a screen-reader-only label ("Show more" / "Show less"). Focus moving into the sheet still opens it fully.
+   - **Order row arrow:** the → between restaurant and area is a Lucide `arrow-right` icon (14px, secondary text colour), because the self-hosted Inter has no → glyph. The ≈ glyph stays as text.
+   - **Map credit:** the OpenStreetMap attribution its licence requires, kept small and drawn in the theme's surface and text colours.
+   - **Light versions of dark-only components** (panels, segmented control, timeline, disabled text, slide hint), the hover, disabled and loading styles, and pill padding of (height − font size) ÷ 2, as shown on `/styleguide`.
 
 ---
 
