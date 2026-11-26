@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { LucideArrowRight } from '@lucide/angular';
 import { Chip, ChipTone } from './chip';
 
 /**
@@ -7,7 +8,7 @@ import { Chip, ChipTone } from './chip';
  */
 @Component({
   selector: 'li[uiOrderRow]',
-  imports: [Chip],
+  imports: [Chip, LucideArrowRight],
   template: `
     <button
       type="button"
@@ -26,7 +27,11 @@ import { Chip, ChipTone } from './chip';
         }
       </span>
       <span class="route" [class.ui-skeleton]="loading()" [attr.title]="from() + ' → ' + to()">
-        {{ from() }} <span class="to">→ {{ to() }}</span>
+        {{ from() }}
+        <span class="to"
+          ><svg lucideArrowRight class="arrow" aria-hidden="true"></svg
+          ><span class="sr-only">to</span> {{ to() }}</span
+        >
       </span>
       <span class="line meta">
         <span [class.ui-skeleton]="loading()">{{ metaStart() }}</span>
@@ -126,6 +131,13 @@ import { Chip, ChipTone } from './chip';
     }
     .to {
       color: var(--ui-text-secondary);
+    }
+    /* An icon, not the → glyph, which the self-hosted Inter doesn't include. */
+    .arrow {
+      display: inline-block;
+      width: var(--icon-size-14);
+      height: var(--icon-size-14);
+      vertical-align: middle;
     }
     .meta {
       font-size: var(--text-meta);
