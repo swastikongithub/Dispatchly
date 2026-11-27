@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  Injector,
   afterNextRender,
   computed,
   inject,
@@ -11,6 +12,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { ApiClient, problemOf, type Api } from '../core/api/api-client';
 import { Avatar, Button } from '../ui';
+import { prefersReducedMotion } from '../ui/motion';
 import { km } from './queue';
 
 type Candidate = Api['ReassignCandidate'];
@@ -157,6 +159,8 @@ const WIDEST_RADIUS_M = 5_000;
 })
 export class ReassignPopover {
   private readonly api = inject(ApiClient);
+  private readonly injector = inject(Injector);
+  private readonly host: HTMLElement = inject(ElementRef).nativeElement;
 
   readonly code = input.required<string>();
   readonly closed = output<void>();
@@ -176,9 +180,8 @@ export class ReassignPopover {
   });
 
   constructor() {
-    const host: HTMLElement = inject(ElementRef).nativeElement;
     afterNextRender(() => {
-      host.querySelector<HTMLElement>('button')?.focus();
+      this.host.querySelector<HTMLElement>('button')?.focus();
       void this.load();
     });
   }
@@ -218,6 +221,22 @@ export class ReassignPopover {
     } catch (error) {
       this.fail(error);
     }
+    this.reveal();
+  }
+
+  /**
+   * Brings the whole confirmation into view once it has its final height. In the phone sheet the
+   * loaded riders push the buttons down, below the fold.
+   */
+  private reveal(): void {
+    afterNextRender(
+      () =>
+        this.host.scrollIntoView({
+          block: 'nearest',
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        }),
+      { injector: this.injector },
+    );
   }
 
   private fail(error: unknown): void {
