@@ -14,9 +14,10 @@ import { MapView, centralDelhi } from '../map/map-view';
 import {
   addMarkers,
   dashboardRiderStyle,
-  selectedPillReach,
+  selectedRiderExtent,
   setMarkerData,
   type DashboardRiderStatus,
+  type MarkerExtent,
 } from '../map/markers';
 import { tokens } from '../tokens';
 import { prefersReducedMotion } from '../ui/motion';
@@ -116,7 +117,7 @@ export class LiveMap {
   private focusShown = false;
   private flownTo = '';
   /** The camera flight under way, if any. */
-  private flight: { center: LngLat; zoom: number; reach: number } | null = null;
+  private flight: { center: LngLat; zoom: number; extent: MarkerExtent | null } | null = null;
   private stopPulse = () => {};
 
   /** The selected order with its live state. */
@@ -237,40 +238,87 @@ export class LiveMap {
   }
 
   /**
-   * Flies to `center`. With `reach` (px), the point and what extends that far right of it (the
-   * selected rider's pill) are centred together, so the pill doesn't run off the visible map.
+   * Flies to `center`. With an `extent`, all that the marker there takes up (the selected rider
+   * with its pill) is centred, so the pill doesn't run off the visible map.
    */
   private fly(
     center: LngLat,
     zoom = Math.max(this.map?.getZoom() ?? 0, SELECTED_ZOOM),
-    reach = 0,
+    extent: MarkerExtent | null = null,
   ): void {
     if (!this.map) return;
     const padding = this.padding();
-    const offset: [number, number] = [-reach / 2, 0];
+    const offset: [number, number] = extent
+      ? [-(extent.left + extent.right) / 2, -(extent.top + extent.bottom) / 2]
+      : [0, 0];
     // (jumpTo has no offset; an ease that takes no time is the same jump.)
     if (this.reducedMotion) this.map.easeTo({ center, zoom, padding, offset, duration: 0 });
     else this.map.flyTo({ center, zoom, padding, offset, duration: CAMERA, essential: false });
     // Ending a flight (arriving, a drag, a new flight) fires moveend, which forgets it.
-    this.flight = this.map.isMoving() ? { center, zoom, reach } : null;
+    this.flight = this.map.isMoving() ? { center, zoom, extent } : null;
   }
 
   /**
    * New room around the map (a panel or the sheet opened). A flight under way takes it along;
-   * otherwise the map stays put on screen and only the centre it keeps moves, so nothing jumps.
+   * otherwise the map stays put on screen and only the centre it keeps moves, so nothing jumps,
+   * unless the panel now covers the selected rider (the sheet pulled up over them): then the
+   * camera brings them back into view.
    */
   private pad(padding: Required<PaddingOptions>): void {
     const map = this.map!;
     if (this.flight) {
-      this.fly(this.flight.center, this.flight.zoom, this.flight.reach);
+      this.fly(this.flight.center, this.flight.zoom, this.flight.extent);
       return;
     }
+    const before = map.getPadding();
+    const shown = this.selectionShown(before);
+    const closer = (['top', 'right', 'bottom', 'left'] as const).some(
+      (side) => padding[side] > (before[side] ?? 0),
+    );
     const { clientWidth: width, clientHeight: height } = map.getContainer();
     const center = map.unproject([
       (width + padding.left - padding.right) / 2,
       (height + padding.top - padding.bottom) / 2,
     ]);
     map.jumpTo({ center, padding });
+    // Only when a panel came closer over a rider who was in view: one panned away on purpose
+    // stays away, and more room (the sheet lowered) moves nothing.
+    if (shown && closer && !this.selectionShown(padding)) {
+      this.flyToSelection(this.store.selection()?.riderId ?? null);
+    }
+  }
+
+  /**
+   * Whether the selected rider, with their halo and pill, is in the map left clear by `padding`:
+   * all of them where they fit, or else their middle (where the camera puts them).
+   */
+  private selectionShown(padding: PaddingOptions): boolean {
+    const rider = this.selectedRider();
+    if (!rider) return false;
+    const map = this.map!;
+    const { x, y } = map.project([rider.lng, rider.lat]);
+    const { clientWidth: width, clientHeight: height } = map.getContainer();
+    const { left = 0, top = 0, right = 0, bottom = 0 } = padding;
+    const { extent } = rider;
+    const within = (from: number, to: number, start: number, end: number) =>
+      end - start <= to - from
+        ? start >= from && end <= to
+        : (start + end) / 2 >= from && (start + end) / 2 <= to;
+    return (
+      within(left, width - right, x + extent.left, x + extent.right) &&
+      within(top, height - bottom, y + extent.top, y + extent.bottom)
+    );
+  }
+
+  /** The selected rider where they are now, and how far they reach with their pill. */
+  private selectedRider(
+    riderId = this.store.selection()?.riderId ?? null,
+  ): { lng: number; lat: number; extent: MarkerExtent } | null {
+    const rider = riderId === null ? null : this.store.motion.sampleOne(riderId, performance.now());
+    if (!rider) return null;
+    const name = this.store.riders().get(riderId!)?.name;
+    const label = this.pillLabel(name, this.selectedOrder(), Date.now());
+    return { lng: rider.lng, lat: rider.lat, extent: selectedRiderExtent(label) };
   }
 
   /**
@@ -278,14 +326,12 @@ export class LiveMap {
    * order's restaurant. False when there's nowhere to go.
    */
   private flyToSelection(riderId: number | null): boolean {
-    const order = this.selectedOrder();
-    const rider = riderId === null ? null : this.store.motion.sampleOne(riderId, performance.now());
+    const rider = this.selectedRider(riderId);
     if (rider) {
-      const name = this.store.riders().get(riderId!)?.name;
-      const reach = selectedPillReach(this.pillLabel(name, order, Date.now()));
-      this.fly([rider.lng, rider.lat], undefined, reach);
+      this.fly([rider.lng, rider.lat], undefined, rider.extent);
       return true;
     }
+    const order = this.selectedOrder();
     if (!order) return false;
     this.fly(lngLat(order.restaurantLocation));
     return true;
