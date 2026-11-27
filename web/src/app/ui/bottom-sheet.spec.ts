@@ -67,6 +67,22 @@ describe('bottom sheet grabber', () => {
     fixture.detectChanges();
     expect(snap()).toBe('full');
   });
+
+  it("stays put when a tap focuses what it pressed (a row selects at the sheet's height)", () => {
+    const { fixture, el, click, snap } = render();
+    click(0);
+    const content = el.querySelector('.content')!;
+    // A tap: the press, the release, then the browser focuses what was pressed.
+    content.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    content.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    content.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    fixture.detectChanges();
+    expect(snap()).toBe('peek');
+    // Focus that the tap didn't give (keyboard, or moved by the content) still opens it.
+    content.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    fixture.detectChanges();
+    expect(snap()).toBe('full');
+  });
 });
 
 describe('bottom sheet scrolling', () => {
