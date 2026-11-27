@@ -1010,6 +1010,7 @@ export interface components {
             location: components["schemas"]["Position"];
             /** Format: double */
             bearing: number;
+            street: null | string;
         };
         RiderPosition: {
             /** Format: date-time */
@@ -1027,6 +1028,7 @@ export interface components {
             bearing: number;
             /** Format: double */
             remainingMeters: null | number;
+            street: null | string;
         };
         RidersBatch: {
             /** Format: date-time */
