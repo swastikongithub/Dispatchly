@@ -7,6 +7,11 @@ export const routes: Routes = [
     loadComponent: () => import('./dispatch/dispatch-page').then((m) => m.DispatchPage),
   },
   {
+    path: 'order',
+    title: 'New order · Dispatchly',
+    loadComponent: () => import('./order/order-page').then((m) => m.OrderPage),
+  },
+  {
     path: 'styleguide',
     title: 'Styleguide · Dispatchly',
     loadComponent: () => import('./styleguide/styleguide').then((m) => m.Styleguide),
