@@ -205,17 +205,21 @@ export class OrderPage {
     if (!restaurant || !address || !pin || this.count() === 0 || this.placing()) return;
     this.placing.set(true);
     this.placeFailed.set(false);
+    let code: string;
     try {
       const order = await firstValueFrom(
         this.api.post('/api/v1/orders', {
           body: placeRequest(restaurant, this.cart(), address, pin, this.payment()),
         }),
       );
-      await this.router.navigate(['/track', order.code]);
+      code = order.code;
     } catch {
       this.placeFailed.set(true);
       this.placing.set(false);
+      return;
     }
+    // Placed: from here on, only the tracking page.
+    await this.router.navigate(['/track', code]);
   }
 
   private go(step: OrderStep): void {
