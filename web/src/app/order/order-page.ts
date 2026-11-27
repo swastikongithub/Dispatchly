@@ -115,8 +115,18 @@ export class OrderPage {
     if (this.panel()) return { top, right: 0, bottom: 0, left: INSET + PANEL_WIDTH };
     return { top, right: 0, bottom: this.sheetRef()?.covers() ?? 0, left: 0 };
   });
-  /** The map credit sits above the sheet. */
-  protected readonly creditBottom = computed(() => (this.panel() ? 0 : this.padding().bottom));
+  private readonly screenHeight = signal(innerHeight);
+  /**
+   * The map credit rides above the sheet while there's room for it under the top bar; above
+   * that, it stays at the bottom behind the sheet rather than run into the top bar, as on the
+   * dashboard.
+   */
+  protected readonly creditBottom = computed(() => {
+    if (this.panel()) return 0;
+    const cover = this.padding().bottom;
+    const room = this.screenHeight() - cover - this.topBarBottom();
+    return room >= px(tokens.layout.minTouchTarget) ? cover : 0;
+  });
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -125,12 +135,15 @@ export class OrderPage {
     media.addEventListener('change', listener);
     destroyRef.onDestroy(() => media.removeEventListener('change', listener));
 
+    const host: HTMLElement = inject(ElementRef).nativeElement;
     afterNextRender(() => {
       const bar = this.topBar().nativeElement;
-      const observer = new ResizeObserver(() =>
-        this.topBarBottom.set(bar.getBoundingClientRect().bottom),
-      );
+      const observer = new ResizeObserver(() => {
+        this.topBarBottom.set(bar.getBoundingClientRect().bottom);
+        this.screenHeight.set(host.clientHeight);
+      });
       observer.observe(bar);
+      observer.observe(host);
       destroyRef.onDestroy(() => observer.disconnect());
     });
 
