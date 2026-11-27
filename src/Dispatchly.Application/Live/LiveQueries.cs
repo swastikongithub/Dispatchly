@@ -1,5 +1,6 @@
 using Dispatchly.Application.Abstractions;
 using Dispatchly.Application.Orders;
+using Dispatchly.Domain.Dispatch;
 
 namespace Dispatchly.Application.Live;
 
@@ -7,7 +8,7 @@ namespace Dispatchly.Application.Live;
 /// The snapshots clients start from, and come back to after a reconnect (PLAN.md §3.6). Each one's
 /// <c>At</c> is taken before reading, so any change it misses comes in a message newer than it.
 /// </summary>
-public sealed class LiveQueries(IDispatchReader reader, StatsQueries stats, TimeProvider clock)
+public sealed class LiveQueries(IDispatchReader reader, StatsQueries stats, DispatchPolicy policy, TimeProvider clock)
 {
     /// <summary><c>GET /live/snapshot</c>: the dashboard's riders, order queue and stats.</summary>
     public async Task<LiveSnapshot> SnapshotAsync(CancellationToken ct)
@@ -16,14 +17,17 @@ public sealed class LiveQueries(IDispatchReader reader, StatsQueries stats, Time
         var riders = await reader.OnShiftRidersAsync(ct);
         var orders = await reader.ActiveOrdersAsync(status: null, late: null, ct);
         var live = await stats.LiveAsync(ct);
+        var deliveries = await reader.DeliveriesByRiderAsync(policy.StartOfCityDay(at), ct);
+        var restaurants = await reader.RestaurantsAsync(ct);
         var tasks = orders
             .Where(o => o.RiderId is not null)
             .ToDictionary(o => o.RiderId!.Value, o => o.Code);
         return new LiveSnapshot(
             at,
-            [.. riders.Select(r => r.ToLive(tasks.GetValueOrDefault(r.Id)))],
+            [.. riders.Select(r => r.ToLive(tasks.GetValueOrDefault(r.Id), deliveries.GetValueOrDefault(r.Id)))],
             [.. OrderQueue.Sort(orders).Select(o => o.ToSummary())],
-            live);
+            live,
+            [.. restaurants.Select(r => r.ToPin())]);
     }
 
     /// <summary><c>GET /live/public</c>: rider positions and stats for the landing page. No names, no orders.</summary>
