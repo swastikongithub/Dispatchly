@@ -6,7 +6,7 @@
   [style.--credit-bottom.px]="creditBottom()"
 />
 
-<div class="overlay" [class.compact]="sheet()">
+<div class="overlay" [class.compact]="sheet()" [class.phone]="phone()">
   <header #topBar class="top-bar ui-panel">
     <a class="brand" href="/" aria-label="Dispatchly"><ui-wordmark [markOnly]="narrow()" /></a>
     <button type="button" uiButton="menu" class="city" (click)="map().goHome()">
