@@ -31,6 +31,7 @@ import { LiveHub } from '../core/live/live-hub';
 import { clockTime, etaMinutes } from '../dispatch/queue';
 import { tokens } from '../tokens';
 import { Avatar, BottomSheet, Button, Eta, IconButton, Panel, SegmentedProgress } from '../ui';
+import { prefersReducedMotion } from '../ui/motion';
 import {
   announcement,
   distanceAway,
@@ -118,6 +119,7 @@ export class TrackingPage {
   private readonly helpPanel = viewChild<ElementRef<HTMLElement>>('helpPanel');
   private readonly sheetRef = viewChild(BottomSheet);
   private readonly sheetEl = viewChild(BottomSheet, { read: ElementRef<HTMLElement> });
+  private readonly detailsEl = viewChild<ElementRef<HTMLElement>>('details');
   private readonly injector = inject(Injector);
   protected readonly map = viewChild.required(TrackingMap);
 
@@ -125,6 +127,8 @@ export class TrackingPage {
   protected readonly sheetSnap = signal<'peek' | 'half' | 'full'>('full');
   protected readonly helpOpen = signal(false);
   protected readonly detailsOpen = signal(false);
+  /** The sheet's height while Details is open, so it keeps its size and the map its room. */
+  protected readonly sheetLock = signal<number | null>(null);
   protected readonly rating = signal<number | null>(null);
   /** The last key change, for screen readers (PLAN.md §5.3). */
   protected readonly announced = signal('');
@@ -344,6 +348,25 @@ export class TrackingPage {
 
   protected retry(): void {
     void this.store.load(this.displayCode());
+  }
+
+  /**
+   * Details opens the order's lines under the summary. The sheet keeps its height, as the map
+   * keeps its room, and the lines scroll into view in it.
+   */
+  protected toggleDetails(): void {
+    const open = !this.detailsOpen();
+    this.sheetLock.set(open ? (this.sheetEl()?.nativeElement.offsetHeight ?? null) : null);
+    this.detailsOpen.set(open);
+    if (!open) return;
+    afterNextRender(
+      () =>
+        this.detailsEl()?.nativeElement.scrollIntoView({
+          block: 'nearest',
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        }),
+      { injector: this.injector },
+    );
   }
 
   protected toggleHelp(): void {
