@@ -19,6 +19,12 @@ const isApple =
         [attr.aria-label]="label()"
         [disabled]="disabled()"
         [value]="value()"
+        [attr.role]="combobox() ? 'combobox' : null"
+        [attr.aria-autocomplete]="combobox() ? 'list' : null"
+        [attr.aria-expanded]="combobox() ? expanded() : null"
+        [attr.aria-controls]="combobox() ? controls() : null"
+        [attr.aria-activedescendant]="combobox() ? activeDescendant() : null"
+        autocomplete="off"
         (input)="value.set(input.value)"
       />
       <kbd>{{ shortcut }}</kbd>
@@ -102,12 +108,21 @@ export class SearchField {
   readonly disabled = input(false);
   /** Styleguide only: force the hover or focus look. */
   readonly state = input<'hover' | 'focus' | null>(null);
+  /** As a combobox: the input owns a list of results (`controls`) and its active option. */
+  readonly combobox = input(false);
+  readonly expanded = input(false);
+  readonly controls = input<string | null>(null);
+  readonly activeDescendant = input<string | null>(null);
 
   protected readonly shortcut = isApple ? '⌘K' : 'Ctrl K';
   private readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
   focus(): void {
     this.input().nativeElement.focus();
+  }
+
+  blur(): void {
+    this.input().nativeElement.blur();
   }
 
   protected onShortcut(event: KeyboardEvent): void {
