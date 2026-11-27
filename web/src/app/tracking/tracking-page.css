@@ -86,7 +86,6 @@
   top: var(--spacing-phone-overlay-inset);
   left: var(--spacing-phone-overlay-inset);
   z-index: 2;
-  box-sizing: border-box;
   max-height: calc(100% - var(--spacing-phone-overlay-inset) * 2);
   width: var(--spacing-tracking-desktop-sheet-width);
   overflow-y: auto;
