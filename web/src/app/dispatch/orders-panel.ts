@@ -68,7 +68,8 @@ const EMPTY: Record<QueueTab, string> = {
       </p>
     }
     <ul #list class="rows" [class.expanded]="expanded()" aria-label="Order queue">
-      @if (loading()) {
+      <!-- A first load that failed shows only the retry, not rows still loading. -->
+      @if (loading() && !store.failed()) {
         @for (row of skeletonRows; track row) {
           <li
             uiOrderRow

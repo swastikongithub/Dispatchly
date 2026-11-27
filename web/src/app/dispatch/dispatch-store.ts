@@ -143,6 +143,8 @@ export class DispatchStore {
   async loadSnapshot(): Promise<void> {
     this.holdMessages();
     this.lastRefresh = performance.now();
+    // A new attempt: the panel shows it loading again rather than the last failure.
+    this.failed.set(false);
     try {
       this.applySnapshot(await firstValueFrom(this.api.get('/api/v1/live/snapshot')));
       this.failed.set(false);
