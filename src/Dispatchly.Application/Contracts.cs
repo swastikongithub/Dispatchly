@@ -80,11 +80,13 @@ public sealed record RiderCard(
     string Name,
     string Vehicle,
     string Plate,
-    /// <summary>Only for dispatchers ("Call rider").</summary>
+    /// <summary>For dispatchers ("Call rider") and the customer who placed the order ("Call Aman").</summary>
     string? Phone,
     RiderStatus Status,
     Position Location,
-    double Bearing);
+    double Bearing,
+    /// <summary>The named main road the rider is on (OpenStreetMap), or null when none is near.</summary>
+    string? Street);
 
 /// <summary>A free rider an order could be reassigned to, nearest first (the Reassign popover).</summary>
 public sealed record ReassignCandidate(int RiderId, string Name, string Vehicle, string Plate, double DistanceMeters);
@@ -222,7 +224,9 @@ public sealed record RiderPosition(
     Position Location,
     double Bearing,
     /// <summary>Straight-line distance the rider still has to cover, via the restaurant before pickup.</summary>
-    double? RemainingMeters);
+    double? RemainingMeters,
+    /// <summary>The named main road the rider is on (OpenStreetMap), or null when none is near.</summary>
+    string? Street);
 
 /// <summary><c>eta:changed</c>: the shown arrival time moved to another minute, or lateness changed.</summary>
 public sealed record EtaChanged(
