@@ -1,4 +1,8 @@
-<app-tracking-map class="map" [padding]="padding()" [style.--credit-bottom.px]="creditBottom()" />
+<app-tracking-map
+  class="map"
+  [padding]="mapPadding()"
+  [style.--credit-bottom.px]="creditBottom()"
+/>
 
 <div #topBar class="top-bar" [class.beside-panel]="panel()">
   <button type="button" uiIconButton="floating" aria-label="Back" (click)="back()">
