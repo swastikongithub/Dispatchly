@@ -4,7 +4,8 @@
   position: relative;
   display: block;
   height: 100dvh;
-  overflow: hidden;
+  /* Not a scroll container: focusing or scrolling to something under the sheet can't shift the page. */
+  overflow: clip;
   background: var(--ui-canvas);
   color: var(--ui-text-primary);
 }
@@ -12,6 +13,8 @@
 .map {
   position: absolute;
   inset: 0;
+  /* Its own layer, so map controls stay under the panels and the sheet. */
+  z-index: 0;
 }
 
 /* Everything over the map. The gaps between panels let clicks through to the map. */

@@ -66,13 +66,18 @@ interface Fade {
       position: absolute;
       inset: 0;
     }
+    /* The credit stays in view above a bottom sheet (--credit-bottom), moving as the sheet does. */
+    :host ::ng-deep .maplibregl-ctrl-bottom-right {
+      bottom: var(--credit-bottom, 0);
+      transition: bottom var(--duration-panel) var(--ease-standard);
+    }
   `,
 })
 export class LiveMap {
   private readonly store = inject(DispatchStore);
 
   /** Room the panels take on each side, so the camera centres things in the visible map. */
-  readonly padding = input<PaddingOptions>({ top: 0, right: 0, bottom: 0, left: 0 });
+  readonly padding = input<Required<PaddingOptions>>({ top: 0, right: 0, bottom: 0, left: 0 });
   /** Disconnected for a while: markers at 50% (PLAN.md §5.2). */
   readonly dimmed = input(false);
   /** Map layers off: riders only, without restaurants and other riders' routes and drops. */
@@ -91,6 +96,8 @@ export class LiveMap {
   private otherRoutes: Feature<LineString>[] = [];
   private otherRoutesAt = -Infinity;
   private flownTo = '';
+  /** The camera flight under way, if any. */
+  private flight: { center: LngLat; zoom: number } | null = null;
   private stopPulse = () => {};
 
   /** The selected order with its live state. */
@@ -132,7 +139,7 @@ export class LiveMap {
     effect(() => {
       if (!this.loaded()) return;
       const padding = this.padding();
-      untracked(() => this.map!.setPadding(padding));
+      untracked(() => this.pad(padding));
     });
 
     // Picking an order or rider flies the camera there (800 ms; a jump with reduced motion).
@@ -161,6 +168,7 @@ export class LiveMap {
   protected ready(map: MapLibreMap): void {
     this.map = map;
     this.stopPulse = addMarkers(map, 'dark', 'dashboard');
+    map.on('moveend', () => (this.flight = null));
     for (const layer of RIDER_LAYERS) {
       map.on('click', layer, (e) => this.pickRider(e));
       this.pointer(map, layer);
@@ -203,8 +211,29 @@ export class LiveMap {
 
   private fly(center: LngLat, zoom = Math.max(this.map?.getZoom() ?? 0, SELECTED_ZOOM)): void {
     if (!this.map) return;
-    if (this.reducedMotion) this.map.jumpTo({ center, zoom });
-    else this.map.flyTo({ center, zoom, duration: CAMERA, essential: false });
+    const padding = this.padding();
+    if (this.reducedMotion) this.map.jumpTo({ center, zoom, padding });
+    else this.map.flyTo({ center, zoom, padding, duration: CAMERA, essential: false });
+    // Ending a flight (arriving, a drag, a new flight) fires moveend, which forgets it.
+    this.flight = this.map.isMoving() ? { center, zoom } : null;
+  }
+
+  /**
+   * New room around the map (a panel or the sheet opened). A flight under way takes it along;
+   * otherwise the map stays put on screen and only the centre it keeps moves, so nothing jumps.
+   */
+  private pad(padding: Required<PaddingOptions>): void {
+    const map = this.map!;
+    if (this.flight) {
+      this.fly(this.flight.center, this.flight.zoom);
+      return;
+    }
+    const { clientWidth: width, clientHeight: height } = map.getContainer();
+    const center = map.unproject([
+      (width + padding.left - padding.right) / 2,
+      (height + padding.top - padding.bottom) / 2,
+    ]);
+    map.jumpTo({ center, padding });
   }
 
   private focusOf(riderId: number | null, order: OrderSummary | null): LngLat | null {

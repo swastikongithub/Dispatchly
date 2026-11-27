@@ -80,10 +80,18 @@ export class DispatchPage {
   private readonly search = viewChild.required(SearchPalette);
   private readonly toasts = viewChild.required(Toasts);
   private readonly topBar = viewChild.required<ElementRef<HTMLElement>>('topBar');
+  private readonly controls = viewChild.required<ElementRef<HTMLElement>>('controls');
+  private readonly bottomSheet = viewChild(BottomSheet);
+  private readonly host: HTMLElement = inject(ElementRef).nativeElement;
 
-  /** Where the top bar ends, and how much of the screen the sheet covers when peeking. */
+  /** The screen's height, where the top bar ends, and (small screens) where the map controls end. */
+  private readonly screenHeight = signal(innerHeight);
   private readonly topBarBottom = signal(0);
-  private readonly sheetTop = signal(0);
+  private readonly controlsBottom = signal(0);
+  /** Small screens: how much of the screen the bottom sheet covers where it rests. */
+  protected readonly sheetCover = computed(() =>
+    this.sheet() ? (this.bottomSheet()?.covers() ?? 0) : 0,
+  );
 
   protected readonly hubState = signal<HubState>('connecting');
   /** When the connection was lost, on the `performance.now()` clock. */
@@ -138,11 +146,25 @@ export class DispatchPage {
     ];
   });
 
+  /**
+   * The map credit rides above the sheet while there's room under the map controls; above
+   * that, it stays at the bottom behind the sheet rather than run into them.
+   */
+  protected readonly creditBottom = computed(() => {
+    const cover = this.sheetCover();
+    const room = this.screenHeight() - cover - this.controlsBottom();
+    return room >= px(tokens.layout.minTouchTarget) ? cover : 0;
+  });
+
   /** Room the panels take, so the camera centres a selection in the map that's visible. */
   protected readonly padding = computed(() => {
     const space = px(tokens.layout.dashboardPadding);
     const top = this.topBarBottom() + space;
-    if (this.sheet()) return { top, right: space, bottom: this.sheetTop(), left: space };
+    if (this.sheet()) {
+      // Never more than the screen below the top bar, so the map keeps a centre.
+      const bottom = Math.min(this.sheetCover() + space, this.screenHeight() - top - space);
+      return { top, right: space, bottom, left: space };
+    }
     const left = px(tokens.layout.ordersPanelWidth) + 2 * space;
     const right = this.hasSelection() ? px(tokens.layout.riderCardWidth) + 2 * space : space;
     return { top, right, bottom: space, left };
@@ -152,11 +174,13 @@ export class DispatchPage {
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
       const bar = this.topBar().nativeElement;
+      const controls = this.controls().nativeElement;
       const observer = new ResizeObserver(() => {
+        this.screenHeight.set(this.host.clientHeight);
         this.topBarBottom.set(bar.getBoundingClientRect().bottom);
-        this.sheetTop.set(innerHeight / 3);
+        this.controlsBottom.set(controls.getBoundingClientRect().bottom);
       });
-      observer.observe(bar);
+      for (const element of [this.host, bar, controls]) observer.observe(element);
       destroyRef.onDestroy(() => observer.disconnect());
     });
     for (const [query, target] of [

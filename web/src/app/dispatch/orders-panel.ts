@@ -51,7 +51,9 @@ const EMPTY: Record<QueueTab, string> = {
         <svg lucideListFilter aria-hidden="true"></svg>
       </button>
     </div>
+    <!-- In the bottom sheet, the peek shows down to the tabs. -->
     <ui-segmented
+      uiSheetPeek
       class="tabs"
       label="Filter orders"
       [options]="tabs()"

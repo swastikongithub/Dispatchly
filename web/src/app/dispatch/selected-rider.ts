@@ -37,6 +37,7 @@ type OrderDetails = Api['OrderDetails'];
   template: `
     @if (card(); as data) {
       <ui-rider-card
+        [class.bare]="popover() === 'inline'"
         [rider]="data"
         [loading]="loading()"
         [canReassign]="canReassign()"
@@ -61,6 +62,13 @@ type OrderDetails = Api['OrderDetails'];
     :host {
       position: relative;
       display: block;
+    }
+    /* In the bottom sheet, the sheet is the panel. */
+    .bare {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
     }
     /* Beside the card, level with its actions; in the bottom sheet, below them. */
     .popover[data-placement='side'] {

@@ -1,4 +1,10 @@
-<app-live-map class="map" [padding]="padding()" [dimmed]="dimmed()" [quiet]="quiet()" />
+<app-live-map
+  class="map"
+  [padding]="padding()"
+  [dimmed]="dimmed()"
+  [quiet]="quiet()"
+  [style.--credit-bottom.px]="creditBottom()"
+/>
 
 <div class="overlay" [class.compact]="sheet()">
   <header #topBar class="top-bar ui-panel">
@@ -66,7 +72,7 @@
     </div>
   }
 
-  <div class="bottom">
+  <div #controls class="bottom">
     @if (!sheet()) {
       <ui-legend [items]="legend()" [loading]="loading()" />
     }
