@@ -305,13 +305,14 @@
 .summary:active {
   transform: scale(var(--scale-press));
 }
+/* As in the design: the name on its own line, the line under it inline in the row's text. */
 .summary-text {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: block;
 }
 .summary-title {
+  display: block;
+  width: fit-content;
   font-size: var(--text-body-small);
   font-weight: var(--font-weight-semibold);
 }
