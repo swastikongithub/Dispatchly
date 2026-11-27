@@ -163,6 +163,12 @@ button.live {
 }
 .controls {
   margin-left: auto;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+/* Small screens: under the sheet, where it rests over them. */
+.controls.covered {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Below 1024 px: the orders become a bottom sheet over the full-screen map, and the stats open
