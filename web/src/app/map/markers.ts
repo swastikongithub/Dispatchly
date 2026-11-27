@@ -101,6 +101,8 @@ function pill(
     c.strokeStyle = border.color;
     c.stroke();
   }
+  // The text fits between the round ends, so each end pads the text by the pill's radius, as
+  // in the designs ("Home": 29.4px of text in a 52px pill of radius 11.5).
   const r = (height / 2) * ratio;
   if (map.hasImage(id)) map.removeImage(id);
   map.addImage(id, c.getImageData(0, 0, canvas.width, canvas.height), {
@@ -456,15 +458,16 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'text-font': [`${family} SemiBold`, family],
         'text-size': g.pill.fontSize * s,
         'text-anchor': 'left',
-        // The pill's left edge and vertical centre, from the design's offset.
+        // The pill's left edge and vertical centre, from the design's offset; the text starts
+        // one radius in, past the round end.
         'text-offset': [
-          (g.pill.offset[0] + (g.pill.height - g.pill.fontSize) / 2) / g.pill.fontSize,
+          (g.pill.offset[0] + g.pill.radius) / g.pill.fontSize,
           (g.pill.offset[1] + g.pill.height / 2) / g.pill.fontSize,
         ],
         'text-allow-overlap': true,
         'icon-image': 'marker-pill',
         'icon-text-fit': 'both',
-        'icon-text-fit-padding': [pillPadding, pillPadding, pillPadding, pillPadding],
+        'icon-text-fit-padding': [pillPadding, 0, pillPadding, 0],
         'icon-allow-overlap': true,
       },
       paint: { 'text-color': dark.pillText, 'text-opacity': opacity, 'icon-opacity': opacity },
@@ -526,7 +529,7 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
     'text-offset': [0, -above / (g.pill.fontSize * s)],
     'text-allow-overlap': true,
     'icon-text-fit': 'both',
-    'icon-text-fit-padding': [pillPadding, pillPadding, pillPadding, pillPadding],
+    'icon-text-fit-padding': [pillPadding, 0, pillPadding, 0],
     'icon-allow-overlap': true,
   });
 
