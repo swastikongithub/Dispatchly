@@ -107,8 +107,8 @@ export class DispatchPage {
   protected readonly statsOpen = signal(false);
   /** Map layers: just the riders, without restaurants and other riders' routes. */
   protected readonly quiet = signal(false);
-  /** The drawer starts below the top bar. */
-  protected readonly drawerTop = computed(() => this.topBarBottom());
+  /** Panels over the map (the drawer, the sheet fully open) stop below the top bar. */
+  protected readonly panelTop = computed(() => this.topBarBottom());
 
   protected readonly loading = computed(() => this.store.phase() === 'loading');
   protected readonly stats = computed<LiveStats | null>(() => this.store.stats());
@@ -170,12 +170,19 @@ export class DispatchPage {
   /** Room the panels take, so the camera centres a selection in the map that's visible. */
   protected readonly padding = computed(() => {
     const space = px(tokens.layout.dashboardPadding);
-    const top = this.topBarBottom() + space;
     if (this.sheet()) {
-      // Never more than the screen below the top bar, so the map keeps a centre.
-      const bottom = Math.min(this.sheetCover() + space, this.screenHeight() - top - space);
+      // Clear of the map controls under the top bar (unless the sheet is over them) and of the
+      // credit while it rides above the sheet, so a selection never lands behind either. Never
+      // more than the screen below the top, so the map keeps a centre.
+      const top = (this.controlsCovered() ? this.topBarBottom() : this.controlsBottom()) + space;
+      const credit = this.creditBottom() > 0 ? this.map().creditHeight() : 0;
+      const bottom = Math.min(
+        this.sheetCover() + credit + space,
+        this.screenHeight() - top - space,
+      );
       return { top, right: space, bottom, left: space };
     }
+    const top = this.topBarBottom() + space;
     const left = px(tokens.layout.ordersPanelWidth) + 2 * space;
     const right = this.hasSelection() ? px(tokens.layout.riderCardWidth) + 2 * space : space;
     return { top, right, bottom: space, left };
