@@ -14,6 +14,7 @@ import { MapView, centralDelhi } from '../map/map-view';
 import {
   addMarkers,
   dashboardRiderStyle,
+  selectedPillReach,
   setMarkerData,
   type DashboardRiderStatus,
 } from '../map/markers';
@@ -115,7 +116,7 @@ export class LiveMap {
   private focusShown = false;
   private flownTo = '';
   /** The camera flight under way, if any. */
-  private flight: { center: LngLat; zoom: number } | null = null;
+  private flight: { center: LngLat; zoom: number; reach: number } | null = null;
   private stopPulse = () => {};
 
   /** The selected order with its live state. */
@@ -169,10 +170,7 @@ export class LiveMap {
         return;
       }
       this.flownTo = key;
-      untracked(() => {
-        const target = this.focusOf(selection.riderId, this.selectedOrder());
-        if (target) this.fly(target);
-      });
+      untracked(() => this.flyToSelection(selection.riderId));
     });
 
     effect(() => {
@@ -230,9 +228,7 @@ export class LiveMap {
   /** Back to the selection, or to the city when nothing is selected. */
   recenter(): void {
     const selection = this.store.selection();
-    const target = selection ? this.focusOf(selection.riderId, this.selectedOrder()) : null;
-    if (target) this.fly(target);
-    else this.fly(this.home, HOME_ZOOM);
+    if (!selection || !this.flyToSelection(selection.riderId)) this.fly(this.home, HOME_ZOOM);
   }
 
   /** Flies to a place, e.g. a search result. */
@@ -240,13 +236,23 @@ export class LiveMap {
     this.fly(target, zoom);
   }
 
-  private fly(center: LngLat, zoom = Math.max(this.map?.getZoom() ?? 0, SELECTED_ZOOM)): void {
+  /**
+   * Flies to `center`. With `reach` (px), the point and what extends that far right of it (the
+   * selected rider's pill) are centred together, so the pill doesn't run off the visible map.
+   */
+  private fly(
+    center: LngLat,
+    zoom = Math.max(this.map?.getZoom() ?? 0, SELECTED_ZOOM),
+    reach = 0,
+  ): void {
     if (!this.map) return;
     const padding = this.padding();
-    if (this.reducedMotion) this.map.jumpTo({ center, zoom, padding });
-    else this.map.flyTo({ center, zoom, padding, duration: CAMERA, essential: false });
+    const offset: [number, number] = [-reach / 2, 0];
+    // (jumpTo has no offset; an ease that takes no time is the same jump.)
+    if (this.reducedMotion) this.map.easeTo({ center, zoom, padding, offset, duration: 0 });
+    else this.map.flyTo({ center, zoom, padding, offset, duration: CAMERA, essential: false });
     // Ending a flight (arriving, a drag, a new flight) fires moveend, which forgets it.
-    this.flight = this.map.isMoving() ? { center, zoom } : null;
+    this.flight = this.map.isMoving() ? { center, zoom, reach } : null;
   }
 
   /**
@@ -256,7 +262,7 @@ export class LiveMap {
   private pad(padding: Required<PaddingOptions>): void {
     const map = this.map!;
     if (this.flight) {
-      this.fly(this.flight.center, this.flight.zoom);
+      this.fly(this.flight.center, this.flight.zoom, this.flight.reach);
       return;
     }
     const { clientWidth: width, clientHeight: height } = map.getContainer();
@@ -267,10 +273,22 @@ export class LiveMap {
     map.jumpTo({ center, padding });
   }
 
-  private focusOf(riderId: number | null, order: OrderSummary | null): LngLat | null {
+  /**
+   * Flies to the selection: its rider, centred with the name/ETA pill beside them, or else its
+   * order's restaurant. False when there's nowhere to go.
+   */
+  private flyToSelection(riderId: number | null): boolean {
+    const order = this.selectedOrder();
     const rider = riderId === null ? null : this.store.motion.sampleOne(riderId, performance.now());
-    if (rider) return [rider.lng, rider.lat];
-    return order ? lngLat(order.restaurantLocation) : null;
+    if (rider) {
+      const name = this.store.riders().get(riderId!)?.name;
+      const reach = selectedPillReach(this.pillLabel(name, order, Date.now()));
+      this.fly([rider.lng, rider.lat], undefined, reach);
+      return true;
+    }
+    if (!order) return false;
+    this.fly(lngLat(order.restaurantLocation));
+    return true;
   }
 
   private pickRider(e: MapLayerMouseEvent): void {
