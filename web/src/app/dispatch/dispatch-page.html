@@ -8,7 +8,7 @@
 
 <div class="overlay" [class.compact]="sheet()">
   <header #topBar class="top-bar ui-panel">
-    <a class="brand" href="/" aria-label="Dispatchly"><ui-wordmark /></a>
+    <a class="brand" href="/" aria-label="Dispatchly"><ui-wordmark [markOnly]="narrow()" /></a>
     <button type="button" uiButton="menu" class="city" (click)="map().goHome()">
       Central Delhi<svg lucideChevronDown aria-hidden="true"></svg>
     </button>
