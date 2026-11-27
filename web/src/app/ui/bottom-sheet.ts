@@ -124,13 +124,19 @@ export function settleStop(stops: SheetStops, offset: number, direction: number)
     :host([data-snap='full']) {
       touch-action: pan-y;
     }
+    /* Stays at the top while the content scrolls under it, so the sheet keeps its edge and
+       grabber however far it's scrolled. Sticky offsets start inside the sheet's padding, so it
+       sticks that far up to sit on the edge. */
     .handle {
+      position: sticky;
+      top: calc(var(--spacing-10) * -1);
+      z-index: 1;
       flex: none;
       display: block;
       margin: calc(var(--spacing-10) * -1) calc(var(--spacing-20) * -1) calc(var(--spacing-16) * -1);
       padding: var(--spacing-10) var(--spacing-20) var(--spacing-16);
       border: 0;
-      background: transparent;
+      background: var(--ui-surface);
       touch-action: none;
       cursor: grab;
     }
