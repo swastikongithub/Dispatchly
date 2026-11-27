@@ -94,7 +94,7 @@
     [attr.aria-label]="hasSelection() ? 'Selected rider' : 'Orders'"
   >
     @if (hasSelection()) {
-      <app-selected-rider class="sheet-content" popover="inline" (closed)="close()" />
+      <app-selected-rider class="sheet-content" placement="inline" (closed)="close()" />
     } @else {
       <app-orders-panel class="sheet-content" (filter)="searchOrders()" />
     }
