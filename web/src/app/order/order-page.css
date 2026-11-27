@@ -1,0 +1,235 @@
+/*
+ * Order placement (PLAN.md §5.5): the tracking screen's light map, floating buttons and sheet
+ * (designs/html/tracking.html), built from the system. Values come from design-tokens.json.
+ */
+
+:host {
+  position: relative;
+  display: block;
+  height: 100dvh;
+  /* Not a scroll container: focusing something under the sheet can't shift the page. */
+  overflow: clip;
+  background: var(--ui-canvas);
+  color: var(--ui-text-primary);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Back, the order pill and (for balance) an empty slot, as tracking's back / pill / help. */
+.top-bar {
+  position: absolute;
+  top: var(--spacing-phone-overlay-inset);
+  left: var(--spacing-phone-overlay-inset);
+  right: var(--spacing-phone-overlay-inset);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.top-bar > * {
+  pointer-events: auto;
+}
+.top-bar.beside-panel {
+  left: calc(
+    var(--spacing-phone-overlay-inset) * 2 + var(--spacing-tracking-desktop-sheet-width)
+  );
+}
+.title-pill {
+  background: var(--ui-surface);
+  border-radius: var(--radius-pill);
+  padding: var(--spacing-9) var(--spacing-14);
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--ui-floating-shadow);
+  font-variant-numeric: tabular-nums;
+}
+.balance {
+  width: var(--spacing-floating-button);
+  pointer-events: none;
+}
+
+/* Phones: the sheet stops below the top bar. */
+.sheet {
+  z-index: 2;
+  max-height: calc(100% - var(--top-bar-bottom, 0px) - var(--spacing-12));
+}
+
+/* Desktop: a 400px panel floating on the left, over the full-width map (PLAN.md §5.3). */
+.panel {
+  position: absolute;
+  top: var(--spacing-phone-overlay-inset);
+  left: var(--spacing-phone-overlay-inset);
+  bottom: var(--spacing-phone-overlay-inset);
+  z-index: 2;
+  width: var(--spacing-tracking-desktop-sheet-width);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24) var(--spacing-20);
+  background: var(--ui-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--ui-floating-shadow);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-panel-title);
+  font-weight: var(--text-panel-title--font-weight);
+  letter-spacing: var(--text-panel-title--letter-spacing);
+  text-wrap: balance;
+}
+.sub {
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.sub.ui-skeleton {
+  align-self: flex-start;
+}
+
+.list,
+.menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.list {
+  margin: calc(var(--spacing-8) * -1) calc(var(--spacing-6) * -1) 0;
+}
+
+.notice,
+.quiet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--ui-text-secondary);
+}
+
+/* The saved address, in the delivery code card's frame. */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-width-hairline) solid var(--ui-surface-border);
+  border-radius: var(--radius-card-small);
+  padding: var(--spacing-12) var(--spacing-14);
+}
+.card-title {
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+}
+.card-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+
+.wide {
+  width: 100%;
+}
+
+/* Menu items: name and price, then − quantity + in tracking's 44px outline buttons. */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-10) 0;
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+}
+.item:first-child {
+  padding-top: 0;
+}
+.item-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.item-name {
+  font-size: var(--text-body-small);
+  font-weight: var(--font-weight-semibold);
+}
+.item-price {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.stepper {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.quantity {
+  min-width: var(--spacing-16);
+  text-align: center;
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* "Deliver to Home · Change ›", in the order summary row's style ("Details ›"). */
+.link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--duration-instant) var(--ease-standard);
+}
+.link-row:active {
+  transform: scale(var(--scale-press));
+}
+.link-title {
+  display: block;
+  font-size: var(--text-body-small);
+  font-weight: var(--font-weight-semibold);
+}
+.link-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+.link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--ui-accent-text);
+}
+.link svg {
+  width: var(--icon-size-16);
+  height: var(--icon-size-16);
+}
+
+.place {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.error {
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--ui-late-text);
+}
