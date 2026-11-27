@@ -58,6 +58,8 @@ const INSET = px(tokens.layout.phoneOverlayInset);
 const PANEL_WIDTH = px(tokens.layout.trackingDesktopSheetWidth);
 const RECENTER_TOP = px(tokens.layout.trackingRecenterTop);
 const BUTTON = px(tokens.size.floatingButton);
+/** Room kept for the map credit above the sheet: a touch target, as on the order page. */
+const CREDIT_ROW = px(tokens.layout.minTouchTarget);
 /** "Updating…" once the connection has been gone this long, as the dashboard's "Reconnecting…". */
 const UPDATING_AFTER = ms(tokens.motion.duration.reconnectingAfter);
 const STARS = [1, 2, 3, 4, 5] as const;
@@ -115,6 +117,7 @@ export class TrackingPage {
   private readonly helpButton = viewChild.required<ElementRef<HTMLElement>>('helpButton');
   private readonly helpPanel = viewChild<ElementRef<HTMLElement>>('helpPanel');
   private readonly sheetRef = viewChild(BottomSheet);
+  private readonly sheetEl = viewChild(BottomSheet, { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
   protected readonly map = viewChild.required(TrackingMap);
 
@@ -195,24 +198,31 @@ export class TrackingPage {
     return { top, right: 0, bottom: this.sheetRef()?.covers() ?? 0, left: 0 };
   });
   /**
-   * The map credit rides above the sheet while there's room for it under the top bar; above
-   * that, it stays at the bottom behind the sheet, as on the order page.
-   */
-  /**
-   * The recenter button sits where the design puts it, kept clear of the top bar above and of a
-   * sheet open past it below.
+   * The recenter button sits where the design puts it, kept clear of the top bar above, and below
+   * of a sheet open past it and of the map credit's row (a touch target tall) just above the sheet.
    */
   protected readonly recenterTop = computed(() => {
     const below = this.topBarBottom() + INSET;
     if (this.panel()) return below;
-    const above = this.screenHeight() - this.padding().bottom - INSET - BUTTON;
+    const above = this.screenHeight() - this.padding().bottom - CREDIT_ROW - INSET - BUTTON;
     return Math.max(below, Math.min(RECENTER_TOP, above));
   });
-  protected readonly creditBottom = computed(() => {
-    if (this.panel()) return 0;
-    const cover = this.padding().bottom;
-    const room = this.screenHeight() - cover - this.topBarBottom();
-    return room >= px(tokens.layout.minTouchTarget) ? cover : 0;
+  /**
+   * The map credit rides above the sheet while there's room for it under the top bar; above
+   * that, it stays at the bottom behind the sheet, as on the order page.
+   */
+  private readonly creditRides = computed(
+    () =>
+      !this.panel() &&
+      this.screenHeight() - this.padding().bottom - this.topBarBottom() >= CREDIT_ROW,
+  );
+  protected readonly creditBottom = computed(() =>
+    this.creditRides() ? this.padding().bottom : 0,
+  );
+  /** The map's padding: the camera keeps the pins clear of the credit's row too. */
+  protected readonly mapPadding = computed<Required<PaddingOptions>>(() => {
+    const padding = this.padding();
+    return this.creditRides() ? { ...padding, bottom: padding.bottom + CREDIT_ROW } : padding;
   });
 
   constructor() {
@@ -232,6 +242,23 @@ export class TrackingPage {
       observer.observe(bar);
       observer.observe(host);
       destroyRef.onDestroy(() => observer.disconnect());
+    });
+
+    // The sheet opens fully, as designed, where it then stays below the recenter button's place
+    // in the design. On a shorter phone that would leave little map, so it opens halfway, the
+    // rest a drag or a scroll away.
+    let opened = false;
+    effect(() => {
+      if (this.store.phase() !== 'ready' || opened) return;
+      opened = true;
+      afterNextRender(
+        () => {
+          const sheet = this.sheetEl()?.nativeElement;
+          const room = host.clientHeight - (RECENTER_TOP + BUTTON + INSET);
+          if (sheet && sheet.offsetHeight > room) this.sheetSnap.set('half');
+        },
+        { injector: this.injector },
+      );
     });
 
     // Join the order's group, then read the order (docs/realtime.md, "Recovery").
