@@ -36,56 +36,13 @@
 }
 
 @if (helpOpen()) {
-  <section #helpPanel uiPanel class="help" role="dialog" aria-labelledby="help-title">
-    <div class="help-head">
-      <h2 class="help-title" id="help-title">Get help</h2>
-      <button type="button" uiIconButton="raised" aria-label="Close help" (click)="closeHelp(true)">
-        <svg lucideX aria-hidden="true"></svg>
-      </button>
-    </div>
-    @if (order(); as order) {
-      <ul class="contacts">
-        @if (order.rider?.phone; as phone) {
-          <li>
-            <ui-avatar [name]="order.rider!.name" size="sm" aria-hidden="true" />
-            <span class="who">
-              <span class="who-name">{{ order.rider!.name }}</span>
-              <span class="who-sub">Your rider · {{ phone }}</span>
-            </span>
-            <a
-              uiIconButton="outline"
-              [href]="tel(phone)"
-              [attr.aria-label]="'Call ' + riderFirst()"
-            >
-              <svg lucidePhone aria-hidden="true"></svg>
-            </a>
-          </li>
-        }
-        <li>
-          <ui-avatar [name]="order.restaurant.name" size="sm" aria-hidden="true" />
-          <span class="who">
-            <span class="who-name">{{ order.restaurant.name }}</span>
-            <span class="who-sub">Restaurant · {{ order.restaurant.phone }}</span>
-          </span>
-          <a
-            uiIconButton="outline"
-            [href]="tel(order.restaurant.phone)"
-            [attr.aria-label]="'Call ' + order.restaurant.name"
-          >
-            <svg lucidePhone aria-hidden="true"></svg>
-          </a>
-        </li>
-      </ul>
-    } @else {
-      <p class="help-lead">
-        @if (store.phase() === 'not-found') {
-          There’s no order #{{ displayCode() }} to get help with.
-        } @else {
-          Your rider’s and the restaurant’s numbers show here once your order loads.
-        }
-      </p>
-    }
-  </section>
+  <app-tracking-help
+    class="help"
+    [order]="order()"
+    [code]="displayCode()"
+    [notFound]="store.phase() === 'not-found'"
+    (closed)="closeHelp(true)"
+  />
 }
 
 @if (panel()) {
@@ -139,10 +96,7 @@
             <div class="vehicle ui-skeleton">Honda Activa · DL 3S CK 2041</div>
           </div>
         </div>
-        <div class="summary-text" aria-hidden="true">
-          <span class="summary-title ui-skeleton">Saffron &amp; Smoke, Khan Market</span>
-          <span class="summary-sub ui-skeleton">2 items · ₹640 · Paid online</span>
-        </div>
+        <app-tracking-summary [order]="null" />
       }
     }
 
@@ -200,14 +154,14 @@
             @if (rider.phone; as phone) {
               <a
                 uiIconButton="outline"
-                [href]="tel(phone)"
+                [href]="callLink(phone)"
                 [attr.aria-label]="'Call ' + riderFirst()"
               >
                 <svg lucidePhone aria-hidden="true"></svg>
               </a>
               <a
                 uiIconButton="outline"
-                [href]="sms(phone)"
+                [href]="messageLink(phone)"
                 [attr.aria-label]="'Message ' + riderFirst()"
               >
                 <svg lucideMessageCircle aria-hidden="true"></svg>
@@ -259,35 +213,7 @@
           </div>
         }
 
-        <button
-          type="button"
-          class="summary"
-          aria-controls="order-details"
-          [attr.aria-expanded]="detailsOpen()"
-          (click)="toggleDetails()"
-        >
-          <span class="summary-text">
-            <span class="summary-title">{{ restaurant() }}</span>
-            <span class="summary-sub">{{ summary() }}</span>
-          </span>
-          <span class="link" [class.open]="detailsOpen()">
-            Details<svg lucideChevronRight aria-hidden="true"></svg>
-          </span>
-        </button>
-        <div #details id="order-details" class="details" [hidden]="!detailsOpen()">
-          <ul class="lines" aria-label="Items">
-            @for (line of order.items; track line.menuItemId) {
-              <li>
-                <span>{{ lineLabel(line).name }}</span>
-                <span class="price">{{ lineLabel(line).price }}</span>
-              </li>
-            }
-          </ul>
-          <div class="deliver-to">
-            <span class="deliver-title">Deliver to {{ order.drop.label ?? 'your door' }}</span>
-            <span class="deliver-sub">{{ order.drop.address }}</span>
-          </div>
-        </div>
+        <app-tracking-summary [order]="order" [open]="detailsOpen()" (toggled)="toggleDetails()" />
       }
     }
   }
