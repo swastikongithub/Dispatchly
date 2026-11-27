@@ -1,6 +1,8 @@
 import {
   Component,
+  DestroyRef,
   ElementRef,
+  afterNextRender,
   afterRenderEffect,
   computed,
   effect,
@@ -119,6 +121,7 @@ const EMPTY: Record<QueueTab, string> = {
     role: 'region',
     'aria-label': 'Orders',
     '[attr.aria-busy]': 'loading() || null',
+    '(window:resize)': 'fit()',
   },
   styles: `
     :host {
@@ -166,6 +169,10 @@ const EMPTY: Record<QueueTab, string> = {
     .rows.expanded {
       overflow-y: auto;
       overscroll-behavior: contain;
+    }
+    /* Collapsed, rows past the last one that fits whole (see fit). */
+    .rows > [data-clipped] {
+      visibility: hidden;
     }
     /* A delivered row fades before it goes (PLAN.md §6.3). */
     .rows > [data-state='leaving'] {
@@ -245,6 +252,7 @@ export class OrdersPanel {
   );
 
   private readonly list = viewChild<ElementRef<HTMLUListElement>>('list');
+  private readonly host: HTMLElement = inject(ElementRef).nativeElement;
   /** A new tab or the full list is a different view, not live movement: it doesn't animate. */
   private skipFlip = false;
 
@@ -260,6 +268,29 @@ export class OrdersPanel {
       this.visible();
       const before = first;
       untracked(() => this.play(before));
+    });
+
+    // Collapsed, the list shows only the rows that fit whole (see fit): measured again when the
+    // rows change, and when the room for them does.
+    afterRenderEffect(() => {
+      this.visible();
+      untracked(() => this.fit());
+    });
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      // On the next frame: fitting resizes what's observed, which mustn't happen mid-callback.
+      let frame = 0;
+      const observer = new ResizeObserver(() => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => this.fit());
+      });
+      const list = this.list()?.nativeElement;
+      if (list) observer.observe(list);
+      if (this.host.parentElement) observer.observe(this.host.parentElement);
+      destroyRef.onDestroy(() => {
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+      });
     });
   }
 
@@ -288,7 +319,9 @@ export class OrdersPanel {
 
   /** Moves keyboard focus to the next or previous row (↑ / ↓ on the dashboard). */
   focusRow(step: 1 | -1): void {
-    const buttons = [...(this.list()?.nativeElement.querySelectorAll('li > button') ?? [])];
+    const buttons = [
+      ...(this.list()?.nativeElement.querySelectorAll('li:not([data-clipped]) > button') ?? []),
+    ];
     if (!buttons.length) return;
     const current = buttons.indexOf(document.activeElement as Element);
     const next =
@@ -298,6 +331,32 @@ export class OrdersPanel {
           : buttons.length - 1
         : Math.max(0, Math.min(buttons.length - 1, current + step));
     (buttons[next] as HTMLElement).focus();
+  }
+
+  /**
+   * Collapsed, where the screen is too short for every row, the list ends at the last row that
+   * fits whole, with "Show all" right below it: a row cut through the middle reads as a list to
+   * scroll. It lets go of its height first, so it can tell when there's room for more.
+   */
+  protected fit(): void {
+    const list = this.list()?.nativeElement;
+    if (!list) return;
+    const rows = [...list.children] as HTMLElement[];
+    list.style.maxHeight = '';
+    for (const row of rows) delete row.dataset['clipped'];
+    if (this.expanded()) return;
+    const ring = parseFloat(getComputedStyle(list).paddingBottom);
+    const room = list.clientHeight - ring;
+    // Layout positions from the list's top edge (transforms left out, so rows gliding into
+    // place don't count).
+    const top = (row: HTMLElement) =>
+      row.offsetTop - (row.offsetParent === list ? 0 : list.offsetTop);
+    const cut = rows.findIndex((row) => top(row) + row.offsetHeight > room + 0.5);
+    if (cut === -1) return;
+    // Border-box: up to where the first row that doesn't fit starts, plus the ring's room.
+    list.style.maxHeight = `${top(rows[cut]!) + ring}px`;
+    // Hidden too: the room kept for the last row's focus ring would show the next one's top.
+    for (const row of rows.slice(cut)) row.dataset['clipped'] = '';
   }
 
   private rows(): HTMLElement[] {
