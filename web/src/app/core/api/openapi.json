@@ -1554,7 +1554,8 @@
           "phone",
           "status",
           "location",
-          "bearing"
+          "bearing",
+          "street"
         ],
         "type": "object",
         "properties": {
@@ -1586,6 +1587,12 @@
           "bearing": {
             "type": "number",
             "format": "double"
+          },
+          "street": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -1596,7 +1603,8 @@
           "riderId",
           "location",
           "bearing",
-          "remainingMeters"
+          "remainingMeters",
+          "street"
         ],
         "type": "object",
         "properties": {
@@ -1638,6 +1646,12 @@
               "number"
             ],
             "format": "double"
+          },
+          "street": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
