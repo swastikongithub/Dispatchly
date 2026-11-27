@@ -186,6 +186,11 @@ button.live {
   flex-basis: 100%;
   margin-left: 0;
 }
+/* Phones: the stats in two rows of two, rather than three and one left on a row alone. */
+.overlay.phone .stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
 .overlay.compact .city {
   display: none;
 }
