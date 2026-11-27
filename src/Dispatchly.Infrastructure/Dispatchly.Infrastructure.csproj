@@ -10,6 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Central Delhi's named main roads from OpenStreetMap (tools/fetch-delhi-streets.mjs). -->
+    <EmbeddedResource Include="Streets\delhi-streets.json" LogicalName="Dispatchly.Infrastructure.Streets.delhi-streets.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Dispatchly.Application\Dispatchly.Application.csproj" />
     <ProjectReference Include="..\Dispatchly.Domain\Dispatchly.Domain.csproj" />
   </ItemGroup>

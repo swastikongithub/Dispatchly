@@ -12,6 +12,7 @@ public sealed class LiveBroadcaster(
     IDispatchReader reader,
     StatsQueries stats,
     ILiveHub hub,
+    IStreetNames streets,
     LiveBroadcastState state,
     TimeProvider clock)
 {
@@ -28,7 +29,8 @@ public sealed class LiveBroadcaster(
         {
             if (order.Rider is { } rider)
             {
-                var position = new RiderPosition(at, order.Code, rider.Id, rider.Location.ToPosition(), rider.Bearing, order.RemainingMeters());
+                var position = new RiderPosition(
+                    at, order.Code, rider.Id, rider.Location.ToPosition(), rider.Bearing, order.RemainingMeters(), streets.Near(rider.Location));
                 await hub.SendAsync(LiveGroups.Order(order.Code), LiveMessages.RiderPosition, [position], ct);
             }
             if (state.EtaMoved(order))

@@ -37,7 +37,12 @@ public sealed record OrderSummary(
     int SearchRadiusMeters,
     DateTimeOffset CreatedAt,
     DateTimeOffset PromisedBy,
-    DateTimeOffset EstimatedDeliveryAt);
+    DateTimeOffset EstimatedDeliveryAt,
+    /// <summary>For the dashboard map: the restaurant's pin, the drop and the route between them.</summary>
+    int RestaurantId,
+    Position RestaurantLocation,
+    Position DropLocation,
+    IReadOnlyList<Position> Route);
 
 public sealed record OrderDetails(
     string Code,
@@ -75,11 +80,16 @@ public sealed record RiderCard(
     string Name,
     string Vehicle,
     string Plate,
-    /// <summary>Only for dispatchers ("Call rider").</summary>
+    /// <summary>For dispatchers ("Call rider") and the customer who placed the order ("Call Aman").</summary>
     string? Phone,
     RiderStatus Status,
     Position Location,
-    double Bearing);
+    double Bearing,
+    /// <summary>The named main road the rider is on (OpenStreetMap), or null when none is near.</summary>
+    string? Street);
+
+/// <summary>A free rider an order could be reassigned to, nearest first (the Reassign popover).</summary>
+public sealed record ReassignCandidate(int RiderId, string Name, string Vehicle, string Plate, double DistanceMeters);
 
 public sealed record OrderLine(string MenuItemId, string Name, int Quantity, int UnitPricePaise);
 
@@ -123,6 +133,14 @@ public sealed record NearbyRestaurant(
     IReadOnlyList<MenuEntry> Menu);
 
 public sealed record MenuEntry(string Id, string Name, int PricePaise);
+
+/// <summary>A restaurant on the dashboard map.</summary>
+public sealed record RestaurantPin(int Id, string Name, string Area, Position Location);
+
+// ---- Customer -------------------------------------------------------------------------------
+
+/// <summary>A saved delivery address ("Home"): where the order page starts and drops the pin.</summary>
+public sealed record CustomerAddress(string Label, string Address, string Area, Position Location);
 
 // ---- Rider app ------------------------------------------------------------------------------
 
@@ -206,7 +224,9 @@ public sealed record RiderPosition(
     Position Location,
     double Bearing,
     /// <summary>Straight-line distance the rider still has to cover, via the restaurant before pickup.</summary>
-    double? RemainingMeters);
+    double? RemainingMeters,
+    /// <summary>The named main road the rider is on (OpenStreetMap), or null when none is near.</summary>
+    string? Street);
 
 /// <summary><c>eta:changed</c>: the shown arrival time moved to another minute, or lateness changed.</summary>
 public sealed record EtaChanged(
@@ -222,7 +242,9 @@ public sealed record LiveSnapshot(
     IReadOnlyList<LiveRider> Riders,
     /// <summary>The order queue, in queue order.</summary>
     IReadOnlyList<OrderSummary> Orders,
-    LiveStats Stats);
+    LiveStats Stats,
+    /// <summary>Every restaurant, for the map.</summary>
+    IReadOnlyList<RestaurantPin> Restaurants);
 
 /// <summary>A rider on shift, as the dispatcher sees them.</summary>
 public sealed record LiveRider(
@@ -236,7 +258,9 @@ public sealed record LiveRider(
     double Bearing,
     /// <summary>Their active order, if any.</summary>
     string? OrderCode,
-    DateTimeOffset? OnlineSince);
+    DateTimeOffset? OnlineSince,
+    /// <summary>Deliveries completed since midnight in Delhi.</summary>
+    int DeliveriesToday);
 
 /// <summary>The landing page's live city: <c>GET /live/public</c>. No names, no orders.</summary>
 public sealed record PublicSnapshot(DateTimeOffset At, IReadOnlyList<RiderPoint> Riders, LiveStats Stats);

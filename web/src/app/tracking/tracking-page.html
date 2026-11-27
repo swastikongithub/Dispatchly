@@ -1,0 +1,176 @@
+<app-tracking-map
+  class="map"
+  [padding]="mapPadding()"
+  [style.--credit-bottom.px]="creditBottom()"
+/>
+
+<div #topBar class="top-bar" [class.beside-panel]="panel()">
+  <button type="button" uiIconButton="floating" aria-label="Back" (click)="back()">
+    <svg lucideChevronLeft aria-hidden="true"></svg>
+  </button>
+  <span class="title-pill">Order #{{ displayCode() }}</span>
+  <button
+    #helpButton
+    type="button"
+    uiIconButton="floating"
+    aria-label="Get help"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="helpOpen()"
+    (click)="toggleHelp()"
+  >
+    <svg lucideCircleQuestionMark aria-hidden="true"></svg>
+  </button>
+</div>
+
+@if (!map().following()) {
+  <div class="recenter" [style.--recenter-top.px]="recenterTop()">
+    <button
+      type="button"
+      uiIconButton="floating"
+      [attr.aria-label]="order()?.rider ? 'Recenter on rider' : 'Recenter map'"
+      (click)="map().recenter()"
+    >
+      <svg lucideLocateFixed aria-hidden="true"></svg>
+    </button>
+  </div>
+}
+
+@if (helpOpen()) {
+  <app-tracking-help
+    class="help"
+    [order]="order()"
+    [code]="displayCode()"
+    [notFound]="store.phase() === 'not-found'"
+    (closed)="closeHelp(true)"
+  />
+}
+
+@if (panel()) {
+  <section uiPanel class="panel" aria-label="Delivery status">
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+} @else {
+  <section
+    uiBottomSheet
+    class="sheet"
+    [(snap)]="sheetSnap"
+    [style.--sheet-lock.px]="sheetLock()"
+    aria-label="Delivery status"
+  >
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+}
+
+<p class="sr-only" aria-live="polite">{{ announced() }}</p>
+
+<ng-template #content>
+  @switch (store.phase()) {
+    @case ('not-found') {
+      <header class="head" uiSheetPeek>
+        <h1 class="title">Order not found</h1>
+        <p class="sub">
+          There’s no order #{{ displayCode() }} on your account. Check the link, or place a new
+          order.
+        </p>
+      </header>
+      <a uiButton class="wide" routerLink="/order">Place an order</a>
+    }
+
+    @case ('loading') {
+      @if (store.failed()) {
+        <p class="notice" role="alert" uiSheetPeek>
+          Couldn’t load your order.
+          <button type="button" uiButton="menu" (click)="retry()">Try again</button>
+        </p>
+      } @else {
+        <ui-eta uiSheetPeek variant="hero" [loading]="true" />
+        <!-- No step is current until the order is in. -->
+        <ui-segmented-progress label="Order progress" [steps]="steps" [current]="-1" />
+        <p class="sentence ui-skeleton" aria-hidden="true">
+          Aman picked up your order and is on the way.
+        </p>
+        <app-tracking-rider [rider]="null" />
+        <app-tracking-summary [order]="null" />
+      }
+    }
+
+    @case ('ready') {
+      @if (order(); as order) {
+        @if (outcome(); as outcome) {
+          <app-tracking-outcome uiSheetPeek [stage]="outcome" />
+        } @else {
+          <ui-eta
+            uiSheetPeek
+            variant="hero"
+            [value]="eta()"
+            [time]="arrival()"
+            [distance]="distance()"
+          />
+        }
+
+        @if (stage() !== 'cancelled') {
+          <ui-segmented-progress
+            label="Order progress"
+            [steps]="steps"
+            [current]="progress().current"
+            [partial]="progress().partial"
+          />
+        }
+
+        <!-- Cancelled says it all above. -->
+        @if (stage() !== 'cancelled') {
+          <p class="sentence">{{ sentence() }}</p>
+        }
+
+        @if (order.rider; as rider) {
+          <app-tracking-rider [rider]="rider" />
+        }
+
+        @if (order.deliveryCode && !done()) {
+          <div class="code-card">
+            <div>
+              <div class="code-title">Delivery code</div>
+              <div class="code-sub">
+                Share it with {{ riderFirst() || 'your rider' }} at the door
+              </div>
+            </div>
+            <div class="code" role="text" [attr.aria-label]="codeLabel()">
+              {{ order.deliveryCode }}
+            </div>
+          </div>
+        }
+
+        @if (stage() === 'delivered') {
+          <div class="rate">
+            <div>
+              <div class="rate-title" id="rate-title">Rate your delivery</div>
+              <div class="rate-sub" aria-live="polite">
+                @if (rating()) {
+                  Thanks for rating {{ riderFirst() || 'your rider' }}.
+                } @else {
+                  How did {{ riderFirst() || 'your rider' }} do?
+                }
+              </div>
+            </div>
+            <div class="stars" role="group" aria-labelledby="rate-title">
+              @for (star of stars; track star) {
+                <button
+                  type="button"
+                  uiIconButton="outline"
+                  [class.lit]="(rating() ?? 0) >= star"
+                  [attr.aria-label]="star === 1 ? '1 star' : star + ' stars'"
+                  [attr.aria-pressed]="rating() === star"
+                  (click)="rate(star)"
+                >
+                  <svg lucideStar aria-hidden="true"></svg>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <app-tracking-summary [order]="order" [open]="detailsOpen()" (toggled)="toggleDetails()" />
+      }
+    }
+  }
+</ng-template>

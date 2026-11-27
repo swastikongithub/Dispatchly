@@ -11,7 +11,7 @@ namespace Dispatchly.Application.Live;
 /// taken before that read: a client that applies only messages newer than its snapshot never
 /// applies anything older than what it already has (docs/realtime.md, "Recovery").
 /// </summary>
-public sealed class LivePublisher(IDispatchReader reader, ILiveHub hub, DispatchPolicy policy, TimeProvider clock) : ILiveEvents
+public sealed class LivePublisher(IDispatchReader reader, ILiveHub hub, IStreetNames streets, DispatchPolicy policy, TimeProvider clock) : ILiveEvents
 {
     public async Task OrderChangedAsync(Order order, CancellationToken ct)
     {
@@ -46,7 +46,7 @@ public sealed class LivePublisher(IDispatchReader reader, ILiveHub hub, Dispatch
         }
         await hub.SendAsync(LiveGroups.Dispatch, LiveMessages.OrderChanged, [order.ToSummary(), at], ct);
         var customer = new Viewer(Role.Customer, CustomerId: order.CustomerId);
-        await hub.SendAsync(LiveGroups.Order(order.Code), LiveMessages.OrderChanged, [order.ToDetails(customer), at], ct);
+        await hub.SendAsync(LiveGroups.Order(order.Code), LiveMessages.OrderChanged, [order.ToDetails(customer, streets), at], ct);
         return order;
     }
 

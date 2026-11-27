@@ -13,7 +13,8 @@ export interface RiderCardData {
   vehicle: string;
   chipTone: ChipTone;
   chipLabel: string;
-  orderId: string;
+  /** Null for a rider without an order: the card shows who they are, their day and Call rider. */
+  orderId: string | null;
   eta: string;
   destination: string;
   arrival: string;
@@ -68,18 +69,27 @@ export interface RiderCardData {
       } @else {
         <ui-chip [tone]="rider().chipTone" size="md">{{ rider().chipLabel }}</ui-chip>
       }
-      <span [class.ui-skeleton]="loading()">Order {{ rider().orderId }}</span>
+      @if (rider().orderId !== null) {
+        <span [class.ui-skeleton]="loading()">Order {{ rider().orderId }}</span>
+      }
     </div>
-    <ui-eta
-      variant="panel"
-      [value]="rider().eta"
-      [sub]="'to ' + rider().destination"
-      [time]="rider().arrival"
-      [distance]="rider().remaining"
-      [loading]="loading()"
-    />
-    <ui-progress [value]="loading() ? 0 : rider().progress" label="Delivery progress" />
-    <ui-timeline [steps]="rider().steps" [loading]="loading()" />
+    @if (rider().orderId !== null) {
+      <ui-eta
+        variant="panel"
+        [value]="rider().eta"
+        [sub]="'to ' + rider().destination"
+        [time]="rider().arrival"
+        [distance]="rider().remaining"
+        [loading]="loading()"
+      />
+      <!-- In a bottom sheet, the peek shows down to the progress bar. -->
+      <ui-progress
+        uiSheetPeek
+        [value]="loading() ? 0 : rider().progress"
+        label="Delivery progress"
+      />
+      <ui-timeline [steps]="rider().steps" [loading]="loading()" />
+    }
     <div class="stats">
       <span [class.ui-skeleton]="loading()">{{ rider().deliveriesToday }}</span>
       <span [class.ui-skeleton]="loading()">{{ rider().online }}</span>
@@ -88,14 +98,19 @@ export interface RiderCardData {
       <button type="button" uiButton="secondary" [loading]="loading()" (click)="call.emit()">
         <svg lucidePhone aria-hidden="true"></svg>Call rider
       </button>
-      <button
-        type="button"
-        uiButton="secondary"
-        [loading]="loading() || reassigning()"
-        (click)="reassign.emit()"
-      >
-        <svg lucideArrowLeftRight aria-hidden="true"></svg>Reassign
-      </button>
+      @if (rider().orderId !== null) {
+        <button
+          type="button"
+          uiButton="secondary"
+          [loading]="loading() || reassigning()"
+          [unavailable]="!canReassign()"
+          [attr.title]="reassignHint()"
+          [attr.aria-expanded]="reassignOpen() ?? null"
+          (click)="canReassign() && reassign.emit()"
+        >
+          <svg lucideArrowLeftRight aria-hidden="true"></svg>Reassign
+        </button>
+      }
     </div>
   `,
   host: {
@@ -169,6 +184,11 @@ export class RiderCard {
   readonly rider = input.required<RiderCardData>();
   readonly loading = input(false);
   readonly reassigning = input(false);
+  /** False once the order is picked up: the button stays, greyed, with `reassignHint` as its title. */
+  readonly canReassign = input(true);
+  readonly reassignHint = input<string | null>(null);
+  /** Whether the Reassign confirmation is open, for `aria-expanded`. */
+  readonly reassignOpen = input<boolean | null>(null);
   readonly close = output<void>();
   readonly call = output<void>();
   readonly reassign = output<void>();

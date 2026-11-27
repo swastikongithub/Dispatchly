@@ -15,11 +15,17 @@ import { tokens } from '../tokens';
  *
  * Sources: `dispatch-routes` (LineString, kind: active | travelled | other),
  * `dispatch-places` (Point, kind: restaurant | restaurant-active | drop | other-drop |
- * new-order | home, label?), `dispatch-riders` (Point, status: available | on-delivery | late,
- * bearing, selected?, label?).
+ * new-order | home, label?, searching?), `dispatch-riders` (Point, status: available |
+ * on-delivery | late, bearing, selected?, label?). On the tracking map a restaurant with
+ * `searching` gets the needs-rider rings, which `searchPulse` animates.
+ *
+ * Dashboard riders may also carry what a live map animates (each defaults to the static look):
+ * `color` and `radius` while the status cross-fades, `pointer` and `ring` (0-1) as the heading
+ * pointer and late ring fade in or out, and `opacity` (0-1) for fading in and dimming.
  */
 
 export type MarkerView = 'dashboard' | 'tracking';
+export type DashboardRiderStatus = 'available' | 'on-delivery' | 'late';
 type Theme = 'dark' | 'light';
 
 const geometry = tokens.marker.geometry;
@@ -39,6 +45,9 @@ const dash = (pattern: string, width: number) => pattern.split(' ').map((n) => N
 const kind = (k: string | string[]): ExpressionSpecification =>
   Array.isArray(k) ? ['match', ['get', 'kind'], k, true, false] : ['==', ['get', 'kind'], k];
 const notSelected: ExpressionSpecification = ['!=', ['get', 'selected'], true];
+/** A rider's `opacity` property, 1 when it has none. */
+const opacity: ExpressionSpecification = ['coalesce', ['get', 'opacity'], 1];
+const fraction = (name: string): ExpressionSpecification => ['coalesce', ['get', name], 1];
 const isSelected: ExpressionSpecification = ['==', ['get', 'selected'], true];
 
 /** Draws an image for MapLibre at device resolution. `draw` works in px from the centre. */
@@ -93,6 +102,8 @@ function pill(
     c.strokeStyle = border.color;
     c.stroke();
   }
+  // The text fits between the round ends, so each end pads the text by the pill's radius, as
+  // in the designs ("Home": 29.4px of text in a 52px pill of radius 11.5).
   const r = (height / 2) * ratio;
   if (map.hasImage(id)) map.removeImage(id);
   map.addImage(id, c.getImageData(0, 0, canvas.width, canvas.height), {
@@ -117,19 +128,29 @@ function emptyCollection(): FeatureCollection {
  * `setStyle`. Returns a function that stops the needs-rider pulse.
  */
 export function addMarkers(map: MapLibreMap, theme: Theme, view: MarkerView): () => void {
-  for (const id of ['dispatch-routes', 'dispatch-places', 'dispatch-riders']) {
+  // The dashboard draws the selected rider and its route from their own small sources
+  // (`focus`, `focus-route`), so the frames that move them don't re-send every rider and route.
+  for (const id of [
+    'dispatch-routes',
+    'dispatch-places',
+    'dispatch-riders',
+    'dispatch-focus',
+    'dispatch-focus-route',
+  ]) {
     if (!map.getSource(id)) map.addSource(id, { type: 'geojson', data: emptyCollection() });
   }
   const s = viewScale(view);
   const land = tokens.color.map[theme].land;
   const layers = view === 'dashboard' ? dashboardLayers(map, s, land) : trackingLayers(map, s);
   for (const layer of layers) if (!map.getLayer(layer.id)) map.addLayer(layer);
-  return view === 'dashboard' ? pulse(map) : () => {};
+  return view === 'dashboard' ? pulse(map, 'new-order-ring', 'new-order-ring-outer') : () => {};
 }
+
+export type MarkerSource = 'routes' | 'places' | 'riders' | 'focus' | 'focus-route';
 
 export function setMarkerData(
   map: MapLibreMap,
-  data: Partial<Record<'routes' | 'places' | 'riders', FeatureCollection>>,
+  data: Partial<Record<MarkerSource, FeatureCollection>>,
 ): void {
   for (const [key, collection] of Object.entries(data)) {
     (map.getSource(`dispatch-${key}`) as GeoJSONSource | undefined)?.setData(collection);
@@ -228,7 +249,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-travelled',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('travelled'),
       layout: line,
       paint: {
@@ -240,7 +261,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-glow',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('active'),
       layout: line,
       paint: {
@@ -252,7 +273,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-active',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('active'),
       layout: line,
       paint: { 'line-color': accent.orange, 'line-width': g.routeActive.width * s },
@@ -329,13 +350,17 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       id: 'riders-late-ring',
       type: 'circle',
       source: 'dispatch-riders',
-      filter: ['all', notSelected, ['==', ['get', 'status'], 'late']],
+      filter: [
+        'all',
+        notSelected,
+        ['any', ['==', ['get', 'status'], 'late'], ['>', ['coalesce', ['get', 'ring'], 0], 0]],
+      ],
       paint: {
         'circle-radius': g.late.ringR * s,
         'circle-color': 'transparent',
         'circle-stroke-width': g.late.ringStroke * s,
         'circle-stroke-color': status.late,
-        'circle-stroke-opacity': g.late.ringOpacity,
+        'circle-stroke-opacity': ['*', g.late.ringOpacity, fraction('ring'), opacity],
       },
     },
     {
@@ -344,11 +369,12 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       source: 'dispatch-riders',
       filter: notSelected,
       paint: {
-        'circle-radius': riderRadius,
-        'circle-color': riderColor,
+        'circle-radius': ['coalesce', ['get', 'radius'], riderRadius],
+        'circle-color': ['coalesce', ['get', 'color'], riderColor],
         'circle-stroke-width': g.available.stroke * s,
         'circle-stroke-color': land,
-        'circle-color-transition': { duration: parseFloat(tokens.motion.duration.base) },
+        'circle-opacity': opacity,
+        'circle-stroke-opacity': opacity,
       },
     },
     {
@@ -359,7 +385,11 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       layout: {
         'icon-image': [
           'case',
-          ['==', ['get', 'status'], 'on-delivery'],
+          [
+            'any',
+            ['==', ['get', 'status'], 'on-delivery'],
+            ['>', ['coalesce', ['get', 'pointer'], 0], 0],
+          ],
           'marker-pointer',
           'marker-blocker',
         ],
@@ -367,46 +397,49 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
       },
+      paint: { 'icon-opacity': ['*', fraction('pointer'), opacity] },
     },
     // Selected rider halo → selected rider → label pill
     {
       id: 'selected-halo-outer',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.outerHaloR * s,
         'circle-color': accent.orange,
-        'circle-opacity': g.selected.outerHaloOpacity,
+        'circle-opacity': ['*', g.selected.outerHaloOpacity, opacity],
       },
     },
     {
       id: 'selected-halo',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.haloR * s,
         'circle-color': accent.orange,
-        'circle-opacity': g.selected.haloOpacity,
+        'circle-opacity': ['*', g.selected.haloOpacity, opacity],
       },
     },
     {
       id: 'selected',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.r * s,
         'circle-color': accent.orange,
         'circle-stroke-width': g.selected.stroke * s,
         'circle-stroke-color': textPrimary,
+        'circle-opacity': opacity,
+        'circle-stroke-opacity': opacity,
       },
     },
     {
       id: 'selected-pointer',
       type: 'symbol',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       layout: {
         'icon-image': 'marker-pointer-selected',
@@ -414,31 +447,78 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
       },
+      paint: { 'icon-opacity': opacity },
     },
     {
       id: 'selected-pill',
       type: 'symbol',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: ['all', isSelected, ['has', 'label']],
       layout: {
         'text-field': ['get', 'label'],
         'text-font': [`${family} SemiBold`, family],
         'text-size': g.pill.fontSize * s,
         'text-anchor': 'left',
-        // The pill's left edge and vertical centre, from the design's offset.
+        // The pill's left edge and vertical centre, from the design's offset; the text starts
+        // one radius in, past the round end.
         'text-offset': [
-          (g.pill.offset[0] + (g.pill.height - g.pill.fontSize) / 2) / g.pill.fontSize,
+          (g.pill.offset[0] + g.pill.radius) / g.pill.fontSize,
           (g.pill.offset[1] + g.pill.height / 2) / g.pill.fontSize,
         ],
         'text-allow-overlap': true,
         'icon-image': 'marker-pill',
         'icon-text-fit': 'both',
-        'icon-text-fit-padding': [pillPadding, pillPadding, pillPadding, pillPadding],
+        'icon-text-fit-padding': [pillPadding, 0, pillPadding, 0],
         'icon-allow-overlap': true,
       },
-      paint: { 'text-color': dark.pillText },
+      paint: { 'text-color': dark.pillText, 'text-opacity': opacity, 'icon-opacity': opacity },
     },
   ];
+}
+
+/** How far (px) a marker reaches each way from the point it marks. */
+export interface MarkerExtent {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+/**
+ * How far the selected rider reaches on the map: its halo, and to the right its name/ETA pill
+ * (the design's offset, then the label between the pill's round ends, measured in the page's
+ * text font).
+ */
+export function selectedRiderExtent(label: string): MarkerExtent {
+  const { pill, selected } = geometry.dashboard;
+  const s = viewScale('dashboard');
+  let text = 0;
+  const context = document.createElement('canvas').getContext('2d');
+  if (context) {
+    const font = getComputedStyle(document.documentElement).getPropertyValue('--font-text');
+    context.font = `${pill.weight} ${pill.fontSize * s}px ${font || family}`;
+    text = context.measureText(label).width;
+  }
+  return {
+    left: -selected.haloR * s,
+    top: Math.min(pill.offset[1], -selected.haloR) * s,
+    right: Math.max((pill.offset[0] + 2 * pill.radius) * s + text, selected.haloR * s),
+    bottom: Math.max(pill.offset[1] + pill.height, selected.haloR) * s,
+  };
+}
+
+/** A rider's look for each dashboard status, in px: what `color` and `radius` fade between. */
+export function dashboardRiderStyle(): Record<
+  DashboardRiderStatus,
+  { color: string; radius: number }
+> {
+  const g = geometry.dashboard;
+  const s = viewScale('dashboard');
+  return {
+    available: { color: status.available, radius: g.available.r * s },
+    'on-delivery': { color: status.onDelivery, radius: g.onDelivery.r * s },
+    late: { color: status.late, radius: g.late.r * s },
+  };
 }
 
 function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
@@ -470,6 +550,31 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
     color: light.pillBorder,
   });
   pill(map, 'marker-pill-ink', g.pill.height * s, light.pillInk);
+  // While the order searches for a rider, the needs-rider rings ripple around the restaurant.
+  const n = geometry.dashboard.newOrder;
+  image(map, 'marker-ring-dashed', 2 * (n.outerRingR + n.ringStroke) * s, (c) => {
+    c.beginPath();
+    c.arc(0, 0, n.ringR * s, 0, Math.PI * 2);
+    c.setLineDash(n.ringDash.split(' ').map((d) => Number(d) * s));
+    c.lineWidth = n.ringStroke * s;
+    c.strokeStyle = orange;
+    c.stroke();
+  });
+  image(map, 'marker-ring', 2 * (n.outerRingR + n.outerRingStroke) * s, (c) => {
+    c.beginPath();
+    c.arc(0, 0, n.outerRingR * s, 0, Math.PI * 2);
+    c.lineWidth = n.outerRingStroke * s;
+    c.strokeStyle = orange;
+    c.stroke();
+  });
+  const ring = (id: string, icon: string, opacity: number): LayerSpecification => ({
+    id,
+    type: 'symbol',
+    source: 'dispatch-places',
+    filter: ['==', ['get', 'searching'], true],
+    layout: { 'icon-image': icon, 'icon-allow-overlap': true, 'icon-ignore-placement': true },
+    paint: { 'icon-opacity': opacity },
+  });
 
   const line = { 'line-cap': 'round', 'line-join': 'round' } as const;
   const pillPadding = ((g.pill.height - g.pill.fontSize) / 2) * s;
@@ -481,7 +586,7 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
     'text-offset': [0, -above / (g.pill.fontSize * s)],
     'text-allow-overlap': true,
     'icon-text-fit': 'both',
-    'icon-text-fit-padding': [pillPadding, pillPadding, pillPadding, pillPadding],
+    'icon-text-fit-padding': [pillPadding, 0, pillPadding, 0],
     'icon-allow-overlap': true,
   });
 
@@ -514,6 +619,8 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
       layout: line,
       paint: { 'line-color': orange, 'line-width': g.routeActive.width * s },
     },
+    ring('search-ring-outer', 'marker-ring', n.outerRingOpacity),
+    ring('search-ring', 'marker-ring-dashed', n.ringOpacity),
     {
       id: 'restaurants',
       type: 'symbol',
@@ -540,6 +647,29 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
       filter: kind(['home', 'drop']),
       paint: { 'circle-radius': g.home.dotR * s, 'circle-color': light.pinStroke },
     },
+    {
+      id: 'place-pill',
+      type: 'symbol',
+      source: 'dispatch-places',
+      filter: ['all', kind(['restaurant', 'restaurant-active']), ['has', 'label']],
+      layout: {
+        ...pillLayout((r.size / 2 + r.stroke) * s + pillPadding),
+        'icon-image': 'marker-pill',
+      },
+      paint: { 'text-color': light.pillText },
+    },
+    {
+      id: 'home-pill',
+      type: 'symbol',
+      source: 'dispatch-places',
+      filter: ['all', kind(['home', 'drop']), ['has', 'label']],
+      layout: {
+        ...pillLayout((g.home.r + g.home.stroke) * s + pillPadding),
+        'icon-image': 'marker-pill-ink',
+      },
+      paint: { 'text-color': light.pillInkText },
+    },
+    // The rider over everything, pills included, as the design draws them last.
     {
       id: 'selected-halo',
       type: 'circle',
@@ -573,53 +703,35 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
         'icon-allow-overlap': true,
       },
     },
-    {
-      id: 'place-pill',
-      type: 'symbol',
-      source: 'dispatch-places',
-      filter: ['all', kind(['restaurant', 'restaurant-active']), ['has', 'label']],
-      layout: {
-        ...pillLayout((r.size / 2 + r.stroke) * s + pillPadding),
-        'icon-image': 'marker-pill',
-      },
-      paint: { 'text-color': light.pillText },
-    },
-    {
-      id: 'home-pill',
-      type: 'symbol',
-      source: 'dispatch-places',
-      filter: ['all', kind(['home', 'drop']), ['has', 'label']],
-      layout: {
-        ...pillLayout((g.home.r + g.home.stroke) * s + pillPadding),
-        'icon-image': 'marker-pill-ink',
-      },
-      paint: { 'text-color': light.pillInkText },
-    },
   ] as LayerSpecification[];
+}
+
+/**
+ * The tracking map's radar around the restaurant while the order searches for a rider (PLAN.md
+ * §5.3): the needs-rider pulse on the `search-ring` layers. Returns a function that stops it.
+ */
+export function searchPulse(map: MapLibreMap): () => void {
+  return pulse(map, 'search-ring', 'search-ring-outer');
 }
 
 /**
  * The needs-rider pulse: the rings expand and fade on a 2 s loop, the only infinite animation
  * (PLAN.md §6.3). With reduced motion the rings stay still, as drawn in the design.
  */
-function pulse(map: MapLibreMap): () => void {
+function pulse(map: MapLibreMap, inner: string, outer: string): () => void {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
   const n = geometry.dashboard.newOrder;
   const period = parseFloat(tokens.motion.duration.needsRiderPulse);
   const grow = n.outerRingR / n.ringR;
   let frame = requestAnimationFrame(function tick(now) {
-    if (!map.getLayer('new-order-ring')) return;
+    if (!map.getLayer(inner)) return;
     for (const [id, offset, opacity] of [
-      ['new-order-ring', 0, n.ringOpacity],
-      ['new-order-ring-outer', 0.5, n.outerRingOpacity],
+      [inner, 0, n.ringOpacity],
+      [outer, 0.5, n.outerRingOpacity],
     ] as const) {
       const t = (((now / period + offset) % 1) + 1) % 1;
       // Each ring grows from the inner ring's radius to the outer ring's, fading out.
-      map.setLayoutProperty(
-        id,
-        'icon-size',
-        (1 + (grow - 1) * t) * (id === 'new-order-ring' ? 1 : 1 / grow),
-      );
+      map.setLayoutProperty(id, 'icon-size', (1 + (grow - 1) * t) * (id === inner ? 1 : 1 / grow));
       map.setPaintProperty(id, 'icon-opacity', opacity * (1 - t));
     }
     frame = requestAnimationFrame(tick);

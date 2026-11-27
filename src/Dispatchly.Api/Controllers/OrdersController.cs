@@ -38,6 +38,15 @@ public sealed class OrdersController(OrderService orders) : ControllerBase
         return CreatedAtAction(nameof(Get), new { code = order.Code }, order);
     }
 
+    /// <summary>The 3 nearest free riders a reassignment would choose from, with their distance from the restaurant.</summary>
+    [HttpGet("{code}/reassign/candidates")]
+    [Authorize(Roles = nameof(Role.Dispatcher))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public Task<IReadOnlyList<ReassignCandidate>> ReassignCandidates(string code, CancellationToken ct) =>
+        orders.ReassignCandidatesAsync(code, ct);
+
     /// <summary>Sends an order that hasn't been picked up to the next nearest free rider.</summary>
     [HttpPost("{code}/reassign")]
     [Authorize(Roles = nameof(Role.Dispatcher))]

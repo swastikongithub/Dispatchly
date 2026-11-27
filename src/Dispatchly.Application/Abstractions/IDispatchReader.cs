@@ -1,3 +1,4 @@
+using Dispatchly.Domain.Customers;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Restaurants;
@@ -19,6 +20,9 @@ public interface IDispatchReader
 
     Task<Rider?> RiderAsync(int id, CancellationToken ct);
 
+    /// <summary>The customer with their saved addresses.</summary>
+    Task<Customer?> CustomerAsync(int id, CancellationToken ct);
+
     /// <summary>The rider's active order with its restaurant and customer, if any.</summary>
     Task<Order?> RiderTaskAsync(int riderId, CancellationToken ct);
 
@@ -27,6 +31,18 @@ public interface IDispatchReader
 
     /// <summary>Every rider who isn't offline.</summary>
     Task<IReadOnlyList<Rider>> OnShiftRidersAsync(CancellationToken ct);
+
+    /// <summary>Deliveries completed since <paramref name="since"/>, by rider. Riders with none are left out.</summary>
+    Task<IReadOnlyDictionary<int, int>> DeliveriesByRiderAsync(DateTimeOffset since, CancellationToken ct);
+
+    Task<IReadOnlyList<Restaurant>> RestaurantsAsync(CancellationToken ct);
+
+    /// <summary>
+    /// The nearest Available riders within <paramref name="radiusMeters"/> of a point, nearest first,
+    /// without locking them: what an assignment would choose from right now.
+    /// </summary>
+    Task<IReadOnlyList<(Rider Rider, double DistanceMeters)>> NearestAvailableRidersAsync(
+        GeoPoint near, int radiusMeters, int? excludingRiderId, int take, CancellationToken ct);
 
     /// <summary>The counts behind the live stats: the average over orders delivered since <paramref name="averageSince"/>.</summary>
     Task<LiveCounts> LiveCountsAsync(DateTimeOffset averageSince, DateTimeOffset startOfDay, CancellationToken ct);

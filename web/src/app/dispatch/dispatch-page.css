@@ -1,0 +1,218 @@
+/* The dispatcher dashboard (designs/html/dashboard.html). Values come from design-tokens.json. */
+
+:host {
+  position: relative;
+  display: block;
+  height: 100dvh;
+  /* Not a scroll container: focusing or scrolling to something under the sheet can't shift the page. */
+  overflow: clip;
+  background: var(--ui-canvas);
+  color: var(--ui-text-primary);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  /* Its own layer, so map controls stay under the panels and the sheet. */
+  z-index: 0;
+}
+
+/* Everything over the map. The gaps between panels let clicks through to the map. */
+.overlay {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--spacing-dashboard-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  pointer-events: none;
+}
+.overlay > *,
+.middle > *,
+.bottom > * {
+  pointer-events: auto;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-12) var(--spacing-16);
+  padding: var(--spacing-10) var(--spacing-12) var(--spacing-10) var(--spacing-16);
+}
+.brand {
+  display: flex;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-tab);
+}
+.search {
+  flex: 1 1 var(--spacing-search-flex-basis);
+  max-width: var(--spacing-search-max-width);
+}
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-7);
+  font-size: var(--text-meta);
+  color: var(--ui-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+button.live {
+  border: 0;
+  background: transparent;
+  padding: var(--spacing-4) var(--spacing-6);
+  margin: calc(var(--spacing-4) * -1) calc(var(--spacing-6) * -1);
+  border-radius: var(--radius-tab);
+  font: inherit;
+  font-size: var(--text-meta);
+  color: var(--ui-text-muted);
+  cursor: pointer;
+}
+.live strong {
+  color: var(--ui-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+.live .dot {
+  flex: none;
+  width: var(--spacing-dot-live);
+  height: var(--spacing-dot-live);
+  border-radius: var(--radius-circle);
+  background: var(--ui-accent);
+  box-shadow: var(--shadow-live-ring);
+  transition:
+    background-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+.live[data-state='reconnecting'] .dot {
+  background: var(--ui-text-muted);
+  box-shadow: none;
+}
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4) var(--spacing-22);
+  margin-left: auto;
+}
+
+/* Orders, and the selected rider on the right */
+.middle {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: var(--spacing-12);
+  align-items: flex-start;
+  pointer-events: none;
+}
+.orders {
+  flex: 0 1 var(--spacing-orders-panel-width);
+  min-width: var(--spacing-panel-min-width);
+  max-height: 100%;
+}
+.spacer {
+  flex: 1 1 var(--spacing-panel-spacer-flex-basis);
+  pointer-events: none;
+}
+.rider {
+  flex: 0 1 var(--spacing-rider-card-width);
+  min-width: var(--spacing-panel-min-width);
+}
+/* The rider card slides in from the right (280 ms, PLAN.md §6.3). */
+.rider-in {
+  animation: rider-in var(--duration-panel) var(--ease-enter);
+}
+.rider-out {
+  animation: rider-out var(--duration-base) var(--ease-exit) forwards;
+}
+@keyframes rider-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--spacing-dashboard-padding)));
+  }
+}
+@keyframes rider-out {
+  to {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--spacing-dashboard-padding)));
+  }
+}
+
+/* 1024–1279 px: the rider card is a drawer over the map's right side (PLAN.md §5.2). */
+.rider.drawer {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--panel-top) + var(--spacing-12));
+  right: var(--spacing-dashboard-padding);
+  width: var(--spacing-rider-card-width);
+  max-height: calc(100% - var(--panel-top) - var(--spacing-12) - var(--spacing-dashboard-padding));
+  overflow-y: auto;
+  border-radius: var(--radius-panel);
+}
+
+/* Legend and map controls */
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.controls {
+  margin-left: auto;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+/* Small screens: under the sheet, where it rests over them. */
+.controls.covered {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Below 1024 px: the orders become a bottom sheet over the full-screen map, and the stats open
+   from the Live chip (PLAN.md §5.2). The map controls sit under the top bar. */
+.overlay.compact .top-bar {
+  gap: var(--spacing-10) var(--spacing-12);
+}
+.overlay.compact .search {
+  order: 1;
+  flex-basis: 100%;
+  max-width: none;
+}
+.overlay.compact .stats {
+  order: 2;
+  flex-basis: 100%;
+  margin-left: 0;
+}
+/* Phones: the stats in two rows of two, rather than three and one left on a row alone. */
+.overlay.phone .stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.overlay.compact .city {
+  display: none;
+}
+.overlay.compact .live {
+  margin-left: auto;
+}
+/* Fully open, the sheet stops below the top bar, so search and the Live chip stay in reach. */
+.sheet {
+  z-index: 1;
+  max-height: calc(100% - var(--panel-top) - var(--spacing-12));
+}
+.sheet-content {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.toasts {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--spacing-72);
+  z-index: 3;
+}

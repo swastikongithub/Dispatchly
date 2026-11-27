@@ -1,6 +1,8 @@
 @layer base {
   html {
     font-family: var(--font-text);
+    /* The designs use the browser's default line height; Tailwind's preflight sets 1.5. */
+    line-height: normal;
     background: var(--ui-canvas);
     color: var(--ui-text-primary);
     -webkit-font-smoothing: antialiased;

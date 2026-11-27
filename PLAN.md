@@ -529,6 +529,11 @@ These come from reviewing the approved mockups. Fix them as described. Nothing e
    - **Order row arrow:** the → between restaurant and area is a Lucide `arrow-right` icon (14px, secondary text colour), because the self-hosted Inter has no → glyph. The ≈ glyph stays as text.
    - **Map credit:** the OpenStreetMap attribution its licence requires, kept small and drawn in the theme's surface and text colours.
    - **Light versions of dark-only components** (panels, segmented control, timeline, disabled text, slide hint), the hover, disabled and loading styles, and pill padding of (height − font size) ÷ 2, as shown on `/styleguide`.
+7. **Decided during W5 (2026-11-27), for tracking (§5.3):**
+   - **Street names:** "…riding down Mathura Road" names a real road. Central Delhi's named main roads come from OpenStreetMap (ODbL), fetched once by `tools/fetch-delhi-streets.mjs` and embedded in the API. The server names the nearest one within 250 m, or none. `rider:position` and the order's rider card carry it as `street` (docs/realtime.md).
+   - **Call and Message work:** the customer gets their rider's phone number. The demo numbers are made up (`+91 00000 …`) and reach no one. No number masking for now.
+   - **Message** opens the phone's SMS app (`sms:`) until in-app chat is built. **Chat is a later addition**, not part of W5.
+   - **Get help** (top right) opens a panel with the rider's and the restaurant's numbers, each with Call. **Details ›** expands the order's items and where it's going.
 
 ---
 

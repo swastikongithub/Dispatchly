@@ -1,4 +1,5 @@
 using Dispatchly.Application.Abstractions;
+using Dispatchly.Domain.Customers;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Restaurants;
@@ -59,6 +60,9 @@ internal sealed class EfDispatchReader(DispatchlyDbContext db) : IDispatchReader
     public Task<Rider?> RiderAsync(int id, CancellationToken ct) =>
         db.Riders.AsNoTracking().SingleOrDefaultAsync(r => r.Id == id, ct);
 
+    public Task<Customer?> CustomerAsync(int id, CancellationToken ct) =>
+        db.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, ct);
+
     public Task<Order?> RiderTaskAsync(int riderId, CancellationToken ct) =>
         Active
             .Include(o => o.Restaurant)
@@ -82,6 +86,38 @@ internal sealed class EfDispatchReader(DispatchlyDbContext db) : IDispatchReader
             .Where(r => r.Status != RiderStatus.Offline)
             .OrderBy(r => r.Id)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyDictionary<int, int>> DeliveriesByRiderAsync(DateTimeOffset since, CancellationToken ct) =>
+        await db.Orders
+            .Where(o => o.RiderId != null && o.Status == OrderStatus.Delivered && o.DeliveredAt >= since)
+            .GroupBy(o => o.RiderId!.Value)
+            .Select(g => new { RiderId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.RiderId, g => g.Count, ct);
+
+    public async Task<IReadOnlyList<Restaurant>> RestaurantsAsync(CancellationToken ct) =>
+        await db.Restaurants.AsNoTracking().OrderBy(r => r.Id).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<(Rider Rider, double DistanceMeters)>> NearestAvailableRidersAsync(
+        GeoPoint near, int radiusMeters, int? excludingRiderId, int take, CancellationToken ct)
+    {
+        // KNN (<->) on the GiST index, as the assignment does, but without locking: this only shows
+        // who an assignment would choose from.
+        var riders = await db.Riders
+            .FromSqlRaw(
+                """
+                SELECT r.*, r.xmin
+                FROM riders r
+                WHERE r.status = 'Available'
+                  AND ST_DWithin(r.location, ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography, {2})
+                  AND r.id <> {3}
+                ORDER BY r.location <-> ST_SetSRID(ST_MakePoint({0}, {1}), 4326)::geography
+                LIMIT {4}
+                """,
+                near.Lng, near.Lat, (double)radiusMeters, excludingRiderId ?? 0, take)
+            .AsNoTracking()
+            .ToListAsync(ct);
+        return [.. riders.Select(r => (r, r.Location.DistanceTo(near))).OrderBy(c => c.Item2)];
+    }
 
     public async Task<LiveCounts> LiveCountsAsync(DateTimeOffset averageSince, DateTimeOffset startOfDay, CancellationToken ct)
     {

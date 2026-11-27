@@ -1,6 +1,7 @@
 using Dispatchly.Application.Abstractions;
 using Dispatchly.Infrastructure.Data;
 using Dispatchly.Infrastructure.Seeding;
+using Dispatchly.Infrastructure.Streets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,8 @@ public static class InfrastructureServices
         services.AddScoped<IDemoAccounts, EfDemoAccounts>();
         services.AddScoped<ISimulationReader, EfSimulationReader>();
         services.AddScoped<DemoSeeder>();
+        // Read once, on first use; the index is read-only after that.
+        services.AddSingleton<IStreetNames>(_ => StreetData.Load());
         return services;
     }
 

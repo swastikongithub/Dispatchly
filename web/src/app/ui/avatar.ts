@@ -61,10 +61,11 @@ export class Avatar {
   readonly name = input.required<string>();
   readonly size = input<'md' | 'sm' | 'button'>('md');
   readonly loading = input(false);
+  /** The first letters of the first two words, skipping words like "&" ("Saffron & Smoke": SS). */
   protected readonly initials = computed(() =>
     this.name()
       .split(/\s+/)
-      .filter(Boolean)
+      .filter((part) => /^\p{L}/u.test(part))
       .slice(0, 2)
       .map((part) => part[0]!.toUpperCase())
       .join(''),

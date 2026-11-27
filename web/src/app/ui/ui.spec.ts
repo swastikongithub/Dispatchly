@@ -31,6 +31,13 @@ describe('ui', () => {
     fixture.componentInstance.name.set('Ananya K.');
     fixture.detectChanges();
     expect(el.querySelector('ui-avatar')!.textContent!.trim()).toBe('AK');
+    // A restaurant's name: "&" and the like aren't initials.
+    fixture.componentInstance.name.set('Saffron & Smoke');
+    fixture.detectChanges();
+    expect(el.querySelector('ui-avatar')!.textContent!.trim()).toBe('SS');
+    fixture.componentInstance.name.set('Kulfi & Co.');
+    fixture.detectChanges();
+    expect(el.querySelector('ui-avatar')!.textContent!.trim()).toBe('KC');
   });
 
   it('rolls digits but keeps the plain value for screen readers', () => {

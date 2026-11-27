@@ -16,6 +16,17 @@ public sealed class RestaurantQueries(IDispatchReader reader)
     }
 }
 
+public sealed class CustomerQueries(IDispatchReader reader)
+{
+    /// <summary>The customer's saved addresses, in the order they were saved.</summary>
+    public async Task<IReadOnlyList<CustomerAddress>> AddressesAsync(int customerId, CancellationToken ct)
+    {
+        var customer = await reader.CustomerAsync(customerId, ct)
+            ?? throw new NotFoundException($"Customer {customerId} not found.");
+        return [.. customer.SavedAddresses.Select(a => new CustomerAddress(a.Label, a.Address, a.Area, new Position(a.Lat, a.Lng)))];
+    }
+}
+
 public sealed class StatsQueries(IDispatchReader reader, DispatchPolicy policy, TimeProvider clock)
 {
     /// <summary>The window for "Avg. delivery".</summary>

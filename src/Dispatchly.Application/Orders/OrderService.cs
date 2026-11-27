@@ -12,6 +12,7 @@ public sealed class OrderService(
     IDispatchReader reader,
     AssignmentService assignment,
     ILiveEvents live,
+    IStreetNames streets,
     DispatchPolicy policy,
     TimeProvider clock)
 {
@@ -59,6 +60,28 @@ public sealed class OrderService(
         return await GetAsync(code, new Viewer(Role.Dispatcher), ct);
     }
 
+    /// <summary>How many riders the Reassign popover lists (PLAN.md §5.2).</summary>
+    public const int ReassignCandidateCount = 3;
+
+    /// <summary>
+    /// The free riders a reassignment would choose from, nearest to the restaurant first: the same
+    /// search as <see cref="ReassignAsync"/>, without locking anyone.
+    /// </summary>
+    public async Task<IReadOnlyList<ReassignCandidate>> ReassignCandidatesAsync(string code, CancellationToken ct)
+    {
+        var order = (OrderCode.IsValid(code) ? await reader.OrderAsync(code, ct) : null)
+            ?? throw new NotFoundException($"Order {code} not found.");
+        if (order.Status != OrderStatus.Assigned)
+        {
+            throw new ConflictException(
+                "order_not_reassignable",
+                $"Order {code} is {order.Status}; only an assigned order that hasn't been picked up can be reassigned.");
+        }
+        var riders = await reader.NearestAvailableRidersAsync(
+            order.Restaurant.Location, policy.MaxRadius, order.RiderId, ReassignCandidateCount, ct);
+        return [.. riders.Select(c => c.Rider.ToCandidate(c.DistanceMeters))];
+    }
+
     /// <summary>One order for its customer or a dispatcher. Anyone else gets 404, so codes can't be probed.</summary>
     public async Task<OrderDetails> GetAsync(string code, Viewer viewer, CancellationToken ct)
     {
@@ -69,7 +92,7 @@ public sealed class OrderService(
         {
             throw new NotFoundException($"Order {code} not found.");
         }
-        return order.ToDetails(viewer);
+        return order.ToDetails(viewer, streets);
     }
 
     /// <summary>The dispatcher's queue: Needs rider first, then Running late, then by ETA (PLAN.md §5.2).</summary>

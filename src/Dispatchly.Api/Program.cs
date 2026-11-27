@@ -40,6 +40,7 @@ builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<RiderService>();
 builder.Services.AddScoped<RestaurantQueries>();
+builder.Services.AddScoped<CustomerQueries>();
 builder.Services.AddScoped<StatsQueries>();
 if (configuration.GetValue("Workers:AssignmentRetry", defaultValue: true))
 {
