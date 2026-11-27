@@ -89,35 +89,15 @@
         <p class="sentence ui-skeleton" aria-hidden="true">
           Aman picked up your order and is on the way.
         </p>
-        <div class="rider" aria-hidden="true">
-          <ui-avatar name="Rider" [loading]="true" />
-          <div class="who">
-            <div class="name ui-skeleton">Aman Verma</div>
-            <div class="vehicle ui-skeleton">Honda Activa · DL 3S CK 2041</div>
-          </div>
-        </div>
+        <app-tracking-rider [rider]="null" />
         <app-tracking-summary [order]="null" />
       }
     }
 
     @case ('ready') {
       @if (order(); as order) {
-        @if (done()) {
-          <div class="outcome" uiSheetPeek>
-            <div>
-              <div class="outcome-label">Your order</div>
-              <h1 class="outcome-title">
-                {{ stage() === 'delivered' ? 'Delivered' : 'Cancelled' }}
-              </h1>
-            </div>
-            <span class="outcome-icon" [attr.data-stage]="stage()" aria-hidden="true">
-              @if (stage() === 'delivered') {
-                <svg lucideCheck [strokeWidth]="strokeHeavy"></svg>
-              } @else {
-                <svg lucideX [strokeWidth]="strokeHeavy"></svg>
-              }
-            </span>
-          </div>
+        @if (outcome(); as outcome) {
+          <app-tracking-outcome uiSheetPeek [stage]="outcome" />
         } @else {
           <ui-eta
             uiSheetPeek
@@ -143,31 +123,7 @@
         }
 
         @if (order.rider; as rider) {
-          <div class="rider">
-            <ui-avatar [name]="rider.name" aria-hidden="true" />
-            <div class="who">
-              <div class="name">{{ rider.name }}</div>
-              <div class="vehicle" [attr.title]="rider.vehicle + ' · ' + rider.plate">
-                {{ rider.vehicle }} · {{ rider.plate }}
-              </div>
-            </div>
-            @if (rider.phone; as phone) {
-              <a
-                uiIconButton="outline"
-                [href]="callLink(phone)"
-                [attr.aria-label]="'Call ' + riderFirst()"
-              >
-                <svg lucidePhone aria-hidden="true"></svg>
-              </a>
-              <a
-                uiIconButton="outline"
-                [href]="messageLink(phone)"
-                [attr.aria-label]="'Message ' + riderFirst()"
-              >
-                <svg lucideMessageCircle aria-hidden="true"></svg>
-              </a>
-            }
-          </div>
+          <app-tracking-rider [rider]="rider" />
         }
 
         @if (order.deliveryCode && !done()) {
