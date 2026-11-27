@@ -42,6 +42,8 @@ const FULL_LAYOUT = `(min-width: ${tokens.layout.breakpoints.dashboardFull})`;
 const SHEET_LAYOUT = `(max-width: ${px(tokens.layout.breakpoints.dashboardDrawer) - 1}px)`;
 /** Narrower than the phone design (390 px): the top bar shows the mark without the name. */
 const NARROW_LAYOUT = `(max-width: ${px(tokens.layout.phoneDesignSize) - 1}px)`;
+/** Phones: too narrow for the four stats in a row. */
+const PHONE_LAYOUT = `(max-width: ${tokens.layout.breakpoints.phoneMax})`;
 
 /**
  * The dispatcher dashboard `/dispatch` (PLAN.md §5.2, design: dashboard.png): the live map with
@@ -102,6 +104,7 @@ export class DispatchPage {
   protected readonly sheet = signal(matchMedia(SHEET_LAYOUT).matches);
   protected readonly wide = signal(matchMedia(FULL_LAYOUT).matches);
   protected readonly narrow = signal(matchMedia(NARROW_LAYOUT).matches);
+  protected readonly phone = signal(matchMedia(PHONE_LAYOUT).matches);
   protected readonly sheetSnap = signal<SheetSnap>('peek');
   /** Small screens: the stats open from the Live chip. */
   protected readonly statsOpen = signal(false);
@@ -205,6 +208,7 @@ export class DispatchPage {
       [SHEET_LAYOUT, this.sheet],
       [FULL_LAYOUT, this.wide],
       [NARROW_LAYOUT, this.narrow],
+      [PHONE_LAYOUT, this.phone],
     ] as const) {
       const media = matchMedia(query);
       const listener = () => target.set(media.matches);
