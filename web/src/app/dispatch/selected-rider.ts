@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, output, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiClient, type Api } from '../core/api/api-client';
 import { RiderCard, type RiderCardData, type TimelineStep } from '../ui';
@@ -40,6 +49,7 @@ type OrderDetails = Api['OrderDetails'];
       @if (reassigning() && order(); as current) {
         <app-reassign-popover
           class="popover"
+          [attr.data-placement]="popover()"
           [code]="current.code"
           (closed)="closeReassign()"
           (reassigned)="closeReassign()"
@@ -52,12 +62,16 @@ type OrderDetails = Api['OrderDetails'];
       position: relative;
       display: block;
     }
-    .popover {
+    /* Beside the card, level with its actions; in the bottom sheet, below them. */
+    .popover[data-placement='side'] {
       position: absolute;
-      top: calc(100% + var(--spacing-12));
-      right: 0;
-      left: 0;
+      right: calc(100% + var(--spacing-12));
+      bottom: 0;
+      width: var(--spacing-rider-card-width);
       z-index: 1;
+    }
+    .popover[data-placement='inline'] {
+      margin-top: var(--spacing-12);
     }
   `,
 })
@@ -66,6 +80,8 @@ export class SelectedRider {
   private readonly api = inject(ApiClient);
 
   readonly closed = output<void>();
+  /** Where the Reassign confirmation opens. */
+  readonly popover = input<'side' | 'inline'>('side');
 
   protected readonly reassigning = signal(false);
   private readonly details = signal<OrderDetails | null>(null);
