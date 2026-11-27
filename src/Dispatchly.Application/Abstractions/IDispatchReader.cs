@@ -1,3 +1,4 @@
+using Dispatchly.Domain.Customers;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Restaurants;
@@ -18,6 +19,9 @@ public interface IDispatchReader
         GeoPoint near, int take, CancellationToken ct);
 
     Task<Rider?> RiderAsync(int id, CancellationToken ct);
+
+    /// <summary>The customer with their saved addresses.</summary>
+    Task<Customer?> CustomerAsync(int id, CancellationToken ct);
 
     /// <summary>The rider's active order with its restaurant and customer, if any.</summary>
     Task<Order?> RiderTaskAsync(int riderId, CancellationToken ct);
