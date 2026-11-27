@@ -35,9 +35,7 @@
   pointer-events: auto;
 }
 .top-bar.beside-panel {
-  left: calc(
-    var(--spacing-phone-overlay-inset) * 2 + var(--spacing-tracking-desktop-sheet-width)
-  );
+  left: calc(var(--spacing-phone-overlay-inset) * 2 + var(--spacing-tracking-desktop-sheet-width));
 }
 .title-pill {
   background: var(--ui-surface);
