@@ -15,27 +15,21 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
-  LucideCheck,
   LucideChevronLeft,
   LucideCircleQuestionMark,
   LucideLocateFixed,
-  LucideMessageCircle,
-  LucidePhone,
   LucideStar,
-  LucideX,
 } from '@lucide/angular';
 import type { PaddingOptions } from 'maplibre-gl';
 import { DemoSession } from '../core/auth/demo-session';
 import { LiveHub } from '../core/live/live-hub';
 import { clockTime, etaMinutes } from '../dispatch/queue';
 import { tokens } from '../tokens';
-import { Avatar, BottomSheet, Button, Eta, IconButton, Panel, SegmentedProgress } from '../ui';
+import { BottomSheet, Button, Eta, IconButton, Panel, SegmentedProgress } from '../ui';
 import {
   announcement,
-  callLink,
   distanceAway,
   firstName,
-  messageLink,
   progressOf,
   sentenceOf,
   stageOf,
@@ -47,6 +41,8 @@ import {
 } from './tracking-flow';
 import { TrackingHelp } from './tracking-help';
 import { TrackingMap } from './tracking-map';
+import { TrackingOutcome } from './tracking-outcome';
+import { TrackingRider } from './tracking-rider';
 import { TrackingStore } from './tracking-store';
 import { TrackingSummary } from './tracking-summary';
 
@@ -77,25 +73,22 @@ const afterPickup = (order: OrderDetails) =>
 @Component({
   selector: 'app-tracking-page',
   imports: [
-    Avatar,
     BottomSheet,
     Button,
     Eta,
     IconButton,
-    LucideCheck,
     LucideChevronLeft,
     LucideCircleQuestionMark,
     LucideLocateFixed,
-    LucideMessageCircle,
-    LucidePhone,
     LucideStar,
-    LucideX,
     NgTemplateOutlet,
     Panel,
     RouterLink,
     SegmentedProgress,
     TrackingHelp,
     TrackingMap,
+    TrackingOutcome,
+    TrackingRider,
     TrackingSummary,
   ],
   providers: [TrackingStore],
@@ -137,10 +130,7 @@ export class TrackingPage {
   protected readonly announced = signal('');
 
   protected readonly steps = STEPS;
-  protected readonly strokeHeavy = tokens.icon.strokeHeavy;
   protected readonly stars = STARS;
-  protected readonly callLink = callLink;
-  protected readonly messageLink = messageLink;
 
   protected readonly displayCode = computed(() => this.code().toUpperCase());
   protected readonly order = this.store.order;
@@ -148,9 +138,12 @@ export class TrackingPage {
     const order = this.order();
     return order ? stageOf(order, this.store.remaining()) : null;
   });
-  protected readonly done = computed(
-    () => this.stage() === 'delivered' || this.stage() === 'cancelled',
-  );
+  /** Delivered or cancelled, once the order is over. */
+  protected readonly outcome = computed(() => {
+    const stage = this.stage();
+    return stage === 'delivered' || stage === 'cancelled' ? stage : null;
+  });
+  protected readonly done = computed(() => this.outcome() !== null);
   protected readonly progress = computed(() => {
     const order = this.order();
     return order ? progressOf(order, this.store.remaining()) : { current: 0, partial: 0 };
