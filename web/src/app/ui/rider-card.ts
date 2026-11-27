@@ -82,7 +82,12 @@ export interface RiderCardData {
         [distance]="rider().remaining"
         [loading]="loading()"
       />
-      <ui-progress [value]="loading() ? 0 : rider().progress" label="Delivery progress" />
+      <!-- In a bottom sheet, the peek shows down to the progress bar. -->
+      <ui-progress
+        uiSheetPeek
+        [value]="loading() ? 0 : rider().progress"
+        label="Delivery progress"
+      />
       <ui-timeline [steps]="rider().steps" [loading]="loading()" />
     }
     <div class="stats">

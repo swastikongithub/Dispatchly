@@ -6,7 +6,9 @@ import {
   ElementRef,
   inject,
   model,
+  signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { spring, springs } from './motion';
 
@@ -39,6 +41,7 @@ const tapSlop = 8;
       <span class="grabber"></span>
     </button>
     <ng-content />
+    <span #shade class="shade" aria-hidden="true"></span>
   `,
   host: {
     '[attr.data-snap]': 'snap()',
@@ -86,6 +89,15 @@ const tapSlop = 8;
       outline: var(--focus-width) solid var(--ui-focus);
       outline-offset: var(--focus-offset);
     }
+    /* At peek, hides what starts right below the peek element, so the peek ends cleanly; it
+       fades as the sheet rises. */
+    .shade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      background: var(--ui-surface);
+      pointer-events: none;
+    }
     .grabber {
       display: block;
       margin: 0 auto;
@@ -98,8 +110,13 @@ const tapSlop = 8;
 })
 export class BottomSheet {
   readonly snap = model<SheetSnap>('full');
+  /** How much of its container (px, from the bottom) the sheet covers where it comes to rest. */
+  readonly covers = signal(0);
 
   private readonly el: HTMLElement = inject(ElementRef).nativeElement;
+  private readonly shade = viewChild.required<ElementRef<HTMLElement>>('shade');
+  /** Where the peek ends: the sheet's offset at peek, and the band below the peek element. */
+  private peek = { offset: 0, line: 0, band: 0 };
   private offset = 0;
   private target: SheetSnap | null = null;
   private dragging = false;
@@ -133,29 +150,40 @@ export class BottomSheet {
   private positions(): Record<SheetSnap, number> {
     const height = this.el.offsetHeight;
     const container = this.el.parentElement?.clientHeight ?? height;
+    const band = parseFloat(getComputedStyle(this.el).paddingBottom);
     const peek = this.el.querySelector<HTMLElement>('[uiSheetPeek]');
-    const padding = parseFloat(getComputedStyle(this.el).paddingBottom);
-    const peekHeight = peek ? peek.offsetTop + peek.offsetHeight + padding : height;
-    const peekOffset = Math.max(0, height - peekHeight);
+    // Measured on screen, as the content's own elements may be positioned.
+    const top = this.el.getBoundingClientRect().top - this.el.scrollTop;
+    const line = peek ? peek.getBoundingClientRect().bottom - top : height - band;
+    const peekOffset = Math.max(0, height - line - band);
+    this.peek = { offset: peekOffset, line, band };
     const halfOffset = Math.min(peekOffset, Math.max(0, height - container / 2));
     return { full: 0, half: halfOffset, peek: peekOffset };
   }
 
   private apply(): void {
     this.el.style.transform = `translateY(${this.offset}px)`;
+    const { offset, line, band } = this.peek;
+    const shade = this.shade().nativeElement.style;
+    shade.top = `${line}px`;
+    shade.height = `${band}px`;
+    shade.opacity = String(band > 0 ? clamp((this.offset - offset + band) / band) : 0);
   }
 
   private jump(): void {
     this.stop();
     this.offset = this.positions()[this.snap()];
     this.target = this.snap();
+    this.covers.set(this.el.offsetHeight - this.offset);
     this.apply();
   }
 
   private animateTo(snap: SheetSnap, velocity: number): void {
     this.stop();
     this.target = snap;
-    this.stop = spring(springs.sheet, this.offset, this.positions()[snap], velocity, (y) => {
+    const to = this.positions()[snap];
+    this.covers.set(this.el.offsetHeight - to);
+    this.stop = spring(springs.sheet, this.offset, to, velocity, (y) => {
       this.offset = y;
       this.apply();
     });
@@ -225,4 +253,8 @@ export class BottomSheet {
     this.el.addEventListener('pointerup', end);
     this.el.addEventListener('pointercancel', end);
   }
+}
+
+function clamp(value: number): number {
+  return Math.min(1, Math.max(0, value));
 }
