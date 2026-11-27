@@ -184,11 +184,17 @@ export class LiveMap {
   }
 
   zoomIn(): void {
-    this.map?.zoomIn({ duration: this.reducedMotion ? 0 : undefined });
+    this.map?.zoomIn(this.zoomOptions());
   }
 
   zoomOut(): void {
-    this.map?.zoomOut({ duration: this.reducedMotion ? 0 : undefined });
+    this.map?.zoomOut(this.zoomOptions());
+  }
+
+  /** MapLibre's own zoom animation, or none with reduced motion. (An undefined duration would
+   * replace its default and break the animation, so it's left out.) */
+  private zoomOptions(): { duration: number } | undefined {
+    return this.reducedMotion ? { duration: 0 } : undefined;
   }
 
   /** Back to the city view. */
