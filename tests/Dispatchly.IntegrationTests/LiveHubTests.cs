@@ -149,7 +149,8 @@ public sealed class LiveHubTests(PostgisServer postgis)
         (await riderApp.PostJsonAsync("/api/v1/rider/task/pickup")).EnsureSuccessStatusCode();
         var pickedUp = (await customer.WaitForAsync(LiveMessages.OrderChanged, m => m.Payload<OrderDetails>().Status == OrderStatus.PickedUp)).Payload<OrderDetails>();
         Assert.Equal(await app.DeliveryCodeAsync(code), pickedUp.DeliveryCode);
-        Assert.Null(pickedUp.Rider?.Phone);
+        // "Call Aman": the customer gets the rider's (made-up demo) number.
+        Assert.StartsWith("+91 00000 ", pickedUp.Rider?.Phone);
         await dispatch.WaitForAsync(LiveMessages.OrderChanged, m => Is(m, code, OrderStatus.PickedUp));
         await rider.WaitForAsync(LiveMessages.TaskChanged, m => m.Payload<RiderTaskView>().Task?.Status == OrderStatus.PickedUp);
 
