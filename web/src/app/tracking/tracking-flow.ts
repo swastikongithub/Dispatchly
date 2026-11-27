@@ -160,6 +160,18 @@ export function distanceAway(meters: number | null): string {
   return meters === null ? '' : `${km(Math.max(meters, NEAREST_SHOWN_METERS))} away`;
 }
 
+const dialled = (phone: string) => phone.replace(/[^\d+]/g, '');
+
+/** Call: "tel:+910000010001" from "+91 00000 10001". */
+export function callLink(phone: string): string {
+  return `tel:${dialled(phone)}`;
+}
+
+/** Message, as a text until chat is built (PLAN.md §11.7): "sms:+910000010001". */
+export function messageLink(phone: string): string {
+  return `sms:${dialled(phone)}`;
+}
+
 /** What the page last told a screen reader about, to say only what changed. */
 export interface Heard {
   status: OrderStatus;
