@@ -63,7 +63,7 @@
         <app-selected-rider
           class="rider"
           [class.drawer]="!wide()"
-          [style.--drawer-top.px]="drawerTop()"
+          [style.--panel-top.px]="panelTop()"
           animate.enter="rider-in"
           animate.leave="rider-out"
           (closed)="close()"
@@ -92,6 +92,7 @@
   <section
     uiBottomSheet
     class="sheet"
+    [style.--panel-top.px]="panelTop()"
     [(snap)]="sheetSnap"
     [attr.aria-label]="hasSelection() ? 'Selected rider' : 'Orders'"
   >
