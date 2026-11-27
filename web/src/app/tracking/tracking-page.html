@@ -73,7 +73,13 @@
         </li>
       </ul>
     } @else {
-      <p class="help-lead">Your order’s contacts show here once it loads.</p>
+      <p class="help-lead">
+        @if (store.phase() === 'not-found') {
+          There’s no order #{{ displayCode() }} to get help with.
+        } @else {
+          Your rider’s and the restaurant’s numbers show here once your order loads.
+        }
+      </p>
     }
   </section>
 }
@@ -111,7 +117,8 @@
         </p>
       } @else {
         <ui-eta uiSheetPeek variant="hero" [loading]="true" />
-        <ui-segmented-progress label="Order progress" [steps]="steps" [current]="0" />
+        <!-- No step is current until the order is in. -->
+        <ui-segmented-progress label="Order progress" [steps]="steps" [current]="-1" />
         <p class="sentence ui-skeleton">Aman picked up your order and is on the way.</p>
         <div class="rider" aria-hidden="true">
           <ui-avatar name="Rider" [loading]="true" />
@@ -164,7 +171,10 @@
           />
         }
 
-        <p class="sentence">{{ sentence() }}</p>
+        <!-- Cancelled says it all above. -->
+        @if (stage() !== 'cancelled') {
+          <p class="sentence">{{ sentence() }}</p>
+        }
 
         @if (order.rider; as rider) {
           <div class="rider">
