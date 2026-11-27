@@ -1,3 +1,4 @@
+using Dispatchly.Application.Abstractions;
 using Dispatchly.Domain.Dispatch;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
@@ -30,7 +31,8 @@ internal static class Views
         order.DropLocation.ToPosition(),
         [.. order.Route.Select(ToPosition)]);
 
-    public static OrderDetails ToDetails(this Order order, Viewer viewer)
+    /// <summary>The rider's phone goes to dispatchers and to the customer who placed the order.</summary>
+    public static OrderDetails ToDetails(this Order order, Viewer viewer, IStreetNames streets)
     {
         var isOwner = viewer.Role == Role.Customer && viewer.CustomerId == order.CustomerId;
         return new OrderDetails(
@@ -40,7 +42,7 @@ internal static class Views
             order.MinutesLate,
             order.Restaurant.ToStop(),
             order.ToDrop(),
-            order.Rider?.ToCard(includePhone: viewer.Role == Role.Dispatcher),
+            order.Rider?.ToCard(includePhone: isOwner || viewer.Role == Role.Dispatcher, streets),
             order.Items.ToLines(),
             order.TotalPaise,
             order.Payment,
@@ -125,7 +127,7 @@ internal static class Views
     private static DropStop ToDrop(this Order order) => new(
         order.Customer?.Name.Split(' ', 2)[0], order.DropLabel, order.DropAddress, order.DropArea, order.DropLocation.ToPosition());
 
-    private static RiderCard ToCard(this Rider rider, bool includePhone) => new(
+    private static RiderCard ToCard(this Rider rider, bool includePhone, IStreetNames streets) => new(
         rider.Id,
         rider.Name,
         rider.Vehicle,
@@ -133,7 +135,8 @@ internal static class Views
         includePhone ? rider.Phone : null,
         rider.Status,
         rider.Location.ToPosition(),
-        rider.Bearing);
+        rider.Bearing,
+        streets.Near(rider.Location));
 
     private static OrderLine[] ToLines(this IReadOnlyList<OrderItem> items) =>
         [.. items.Select(i => new OrderLine(i.MenuItemId, i.Name, i.Quantity, i.UnitPricePaise))];
