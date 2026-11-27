@@ -110,7 +110,10 @@ export class TrackingPage {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly topBar = viewChild.required<ElementRef<HTMLElement>>('topBar');
-  private readonly helpButton = viewChild.required<ElementRef<HTMLElement>>('helpButton');
+  /** The element, not the icon button component it hosts, so focus can come back to it. */
+  private readonly helpButton = viewChild.required<string, ElementRef<HTMLElement>>('helpButton', {
+    read: ElementRef,
+  });
   private readonly helpPanel = viewChild<TrackingHelp, ElementRef<HTMLElement>>(TrackingHelp, {
     read: ElementRef,
   });
