@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BottomSheet, SheetSnap } from './bottom-sheet';
+import { BottomSheet, SheetSnap, settleStop, wheelTarget } from './bottom-sheet';
 
 @Component({
   imports: [BottomSheet],
@@ -66,5 +66,34 @@ describe('bottom sheet grabber', () => {
     el.querySelector('.content')!.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
     fixture.detectChanges();
     expect(snap()).toBe('full');
+  });
+});
+
+describe('bottom sheet scrolling', () => {
+  // translateY of each stop, in px.
+  const stops = { full: 0, half: 300, peek: 500 };
+
+  it('raises the sheet with the scroll until it is fully open, then leaves the scroll to the content', () => {
+    expect(wheelTarget(300, 120, stops, false)).toBe(180);
+    expect(wheelTarget(60, 120, stops, false)).toBe(0);
+    expect(wheelTarget(0, 120, stops, true)).toBeNull();
+  });
+
+  it('lowers the sheet when scrolling back, from the top of its content only', () => {
+    expect(wheelTarget(300, -100, stops, false)).toBe(400);
+    expect(wheelTarget(450, -100, stops, false)).toBe(500);
+    // Fully open: a scroll back that began at the top lowers it; one that scrolled the content up
+    // to the top (a flick through the list) stops there.
+    expect(wheelTarget(0, -100, stops, true)).toBe(100);
+    expect(wheelTarget(0, -100, stops, false)).toBeNull();
+  });
+
+  it('comes to rest at the next stop in the direction it was moving', () => {
+    expect(settleStop(stops, 250, -1)).toBe('full');
+    expect(settleStop(stops, 250, 1)).toBe('half');
+    expect(settleStop(stops, 320, 1)).toBe('peek');
+    expect(settleStop(stops, 300, -1)).toBe('half');
+    expect(settleStop(stops, 0, -1)).toBe('full');
+    expect(settleStop(stops, 120, 0)).toBe('full');
   });
 });
