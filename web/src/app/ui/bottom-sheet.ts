@@ -1,8 +1,8 @@
 import {
   afterNextRender,
+  afterRenderEffect,
   Component,
   DestroyRef,
-  effect,
   ElementRef,
   inject,
   model,
@@ -171,12 +171,16 @@ export class BottomSheet {
   /** Where the peek ends: the sheet's offset at peek, and the band below the peek element. */
   private peek = { offset: 0, line: 0, band: 0 };
   private offset = 0;
+  /** The sheet's height when its stops were last measured. */
+  private height = 0;
   private target: SheetSnap | null = null;
   private dragging = false;
   private ready = false;
   private stop = () => {};
   /** px/s as the sheet last moved, so the next motion carries on from it. */
   private velocity = 0;
+  /** A spring is moving the sheet. */
+  private moving = false;
   /** A wheel or trackpad scroll in progress: where it's taking the sheet, and which way. */
   private scroll: { to: number; direction: number; fromTop: boolean; last: number } | null = null;
   private settleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -195,8 +199,12 @@ export class BottomSheet {
     afterNextRender(() => {
       this.jump();
       this.ready = true;
+      // New content or a new screen size moves the stops: in motion, the sheet carries on to
+      // where its stop now is; at rest, it stays on it.
       const observer = new ResizeObserver(() => {
-        if (!this.dragging && !this.scroll) this.jump();
+        if (this.dragging || this.scroll) return;
+        if (this.moving && this.target) this.animateTo(this.target, this.velocity);
+        else this.jump();
       });
       observer.observe(this.el);
       if (this.el.parentElement) observer.observe(this.el.parentElement);
@@ -206,7 +214,9 @@ export class BottomSheet {
         clearTimeout(this.settleTimer);
       });
     });
-    effect(() => {
+    // After rendering, so the stops are measured with the content that came with the change
+    // (a selection swaps the order list for the rider card as it moves the sheet to half).
+    afterRenderEffect(() => {
       const snap = this.snap();
       untracked(() => {
         if (!this.ready || this.dragging || snap === this.target) return;
@@ -228,6 +238,13 @@ export class BottomSheet {
     const peekOffset = Math.max(0, height - line - band);
     this.peek = { offset: peekOffset, line, band };
     const halfOffset = Math.min(peekOffset, Math.max(0, height - container / 2));
+    // New content made the sheet taller or shorter (the rider card for the order list): it keeps
+    // its top where it is on screen and moves on from there, rather than jump for a frame.
+    if (this.height && height !== this.height) {
+      this.offset += height - this.height;
+      this.apply();
+    }
+    this.height = height;
     return { full: 0, half: halfOffset, peek: peekOffset };
   }
 
@@ -242,6 +259,7 @@ export class BottomSheet {
 
   private jump(): void {
     this.stop();
+    this.moving = false;
     this.velocity = 0;
     this.offset = this.positions()[this.snap()];
     this.target = this.snap();
@@ -261,6 +279,7 @@ export class BottomSheet {
     this.stop();
     let from = this.offset;
     let last = performance.now();
+    this.moving = true;
     this.stop = spring(
       springs.sheet,
       this.offset,
@@ -274,7 +293,10 @@ export class BottomSheet {
         this.offset = y;
         this.apply();
       },
-      () => (this.velocity = 0),
+      () => {
+        this.velocity = 0;
+        this.moving = false;
+      },
     );
   }
 
@@ -404,6 +426,7 @@ export class BottomSheet {
     const scroller = this.scrollerAt(event.target);
     if (pulls && (event.pointerType === 'mouse' || scroller.scrollTop > 0)) return;
     this.stop();
+    this.moving = false;
     this.endScroll();
     this.dragging = true;
     const positions = this.positions();
