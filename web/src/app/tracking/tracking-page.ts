@@ -17,7 +17,6 @@ import { Router, RouterLink } from '@angular/router';
 import {
   LucideCheck,
   LucideChevronLeft,
-  LucideChevronRight,
   LucideCircleQuestionMark,
   LucideLocateFixed,
   LucideMessageCircle,
@@ -31,25 +30,25 @@ import { LiveHub } from '../core/live/live-hub';
 import { clockTime, etaMinutes } from '../dispatch/queue';
 import { tokens } from '../tokens';
 import { Avatar, BottomSheet, Button, Eta, IconButton, Panel, SegmentedProgress } from '../ui';
-import { prefersReducedMotion } from '../ui/motion';
 import {
   announcement,
+  callLink,
   distanceAway,
   firstName,
-  lineLabel,
+  messageLink,
   progressOf,
-  restaurantLine,
   sentenceOf,
   stageOf,
   STEPS,
-  summaryLine,
   type EtaChanged,
   type Heard,
   type OrderDetails,
   type RiderPosition,
 } from './tracking-flow';
+import { TrackingHelp } from './tracking-help';
 import { TrackingMap } from './tracking-map';
 import { TrackingStore } from './tracking-store';
+import { TrackingSummary } from './tracking-summary';
 
 const px = (value: string) => parseFloat(value);
 const ms = (duration: string) => parseFloat(duration);
@@ -73,7 +72,7 @@ const afterPickup = (order: OrderDetails) =>
  * Customer tracking `/track/:code` (PLAN.md §5.3, designs/html/tracking.html): the light map with
  * the rider on their way, and a sheet (a floating panel on desktop) with the ETA, the four steps,
  * a sentence about what's happening, the rider with Call and Message, the delivery code and the
- * order. Get help offers the rider's and the restaurant's numbers.
+ * order (TrackingSummary). Get help (TrackingHelp) offers the rider's and the restaurant's numbers.
  */
 @Component({
   selector: 'app-tracking-page',
@@ -85,7 +84,6 @@ const afterPickup = (order: OrderDetails) =>
     IconButton,
     LucideCheck,
     LucideChevronLeft,
-    LucideChevronRight,
     LucideCircleQuestionMark,
     LucideLocateFixed,
     LucideMessageCircle,
@@ -96,7 +94,9 @@ const afterPickup = (order: OrderDetails) =>
     Panel,
     RouterLink,
     SegmentedProgress,
+    TrackingHelp,
     TrackingMap,
+    TrackingSummary,
   ],
   providers: [TrackingStore],
   templateUrl: './tracking-page.html',
@@ -118,10 +118,11 @@ export class TrackingPage {
   private readonly location = inject(Location);
   private readonly topBar = viewChild.required<ElementRef<HTMLElement>>('topBar');
   private readonly helpButton = viewChild.required<ElementRef<HTMLElement>>('helpButton');
-  private readonly helpPanel = viewChild<ElementRef<HTMLElement>>('helpPanel');
+  private readonly helpPanel = viewChild<TrackingHelp, ElementRef<HTMLElement>>(TrackingHelp, {
+    read: ElementRef,
+  });
   private readonly sheetRef = viewChild(BottomSheet);
   private readonly sheetEl = viewChild(BottomSheet, { read: ElementRef<HTMLElement> });
-  private readonly detailsEl = viewChild<ElementRef<HTMLElement>>('details');
   private readonly injector = inject(Injector);
   protected readonly map = viewChild.required(TrackingMap);
 
@@ -138,7 +139,8 @@ export class TrackingPage {
   protected readonly steps = STEPS;
   protected readonly strokeHeavy = tokens.icon.strokeHeavy;
   protected readonly stars = STARS;
-  protected readonly lineLabel = lineLabel;
+  protected readonly callLink = callLink;
+  protected readonly messageLink = messageLink;
 
   protected readonly displayCode = computed(() => this.code().toUpperCase());
   protected readonly order = this.store.order;
@@ -172,14 +174,6 @@ export class TrackingPage {
       : distanceAway(this.order()?.rider ? this.store.remaining() : null),
   );
   protected readonly riderFirst = computed(() => firstName(this.order()?.rider?.name ?? ''));
-  protected readonly restaurant = computed(() => {
-    const order = this.order();
-    return order ? restaurantLine(order) : '';
-  });
-  protected readonly summary = computed(() => {
-    const order = this.order();
-    return order ? summaryLine(order) : '';
-  });
   /** The code read digit by digit ("4 8 2 1"), not as a number. */
   protected readonly codeLabel = computed(() => {
     const code = this.order()?.deliveryCode ?? '';
@@ -361,21 +355,12 @@ export class TrackingPage {
 
   /**
    * Details opens the order's lines under the summary. The sheet keeps its height, as the map
-   * keeps its room, and the lines scroll into view in it.
+   * keeps its room, and the summary scrolls the lines into view in it.
    */
   protected toggleDetails(): void {
     const open = !this.detailsOpen();
     this.sheetLock.set(open ? (this.sheetEl()?.nativeElement.offsetHeight ?? null) : null);
     this.detailsOpen.set(open);
-    if (!open) return;
-    afterNextRender(
-      () =>
-        this.detailsEl()?.nativeElement.scrollIntoView({
-          block: 'nearest',
-          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-        }),
-      { injector: this.injector },
-    );
   }
 
   protected toggleHelp(): void {
@@ -411,14 +396,6 @@ export class TrackingPage {
   protected rate(stars: number): void {
     this.rating.set(stars);
     sessionStorage.setItem(this.ratingKey(), String(stars));
-  }
-
-  protected tel(phone: string): string {
-    return `tel:${phone.replace(/[^\d+]/g, '')}`;
-  }
-
-  protected sms(phone: string): string {
-    return `sms:${phone.replace(/[^\d+]/g, '')}`;
   }
 
   private readonly ratingKey = computed(() => `dispatchly.rating.${this.displayCode()}`);
