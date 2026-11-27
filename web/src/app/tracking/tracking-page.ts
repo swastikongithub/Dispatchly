@@ -59,6 +59,8 @@ const INSET = px(tokens.layout.phoneOverlayInset);
 const PANEL_WIDTH = px(tokens.layout.trackingDesktopSheetWidth);
 const RECENTER_TOP = px(tokens.layout.trackingRecenterTop);
 const BUTTON = px(tokens.size.floatingButton);
+/** The map the design keeps above a phone's sheet: down to just below the recenter button. */
+const MAP_KEPT = RECENTER_TOP + BUTTON + INSET;
 /** Room kept for the map credit above the sheet: a touch target, as on the order page. */
 const CREDIT_ROW = px(tokens.layout.minTouchTarget);
 /** "Updating…" once the connection has been gone this long, as the dashboard's "Reconnecting…". */
@@ -223,10 +225,17 @@ export class TrackingPage {
   protected readonly creditBottom = computed(() =>
     this.creditRides() ? this.padding().bottom : 0,
   );
-  /** The map's padding: the camera keeps the pins clear of the credit's row too. */
+  /**
+   * The map's padding: the camera keeps the pins clear of the credit's row too. It frames for a
+   * sheet no taller than the design leaves room for, so a sheet raised past that on a short phone
+   * covers part of the route for a while, instead of squeezing the route into the strip above it
+   * and moving the camera again when it comes back down.
+   */
   protected readonly mapPadding = computed<Required<PaddingOptions>>(() => {
     const padding = this.padding();
-    return this.creditRides() ? { ...padding, bottom: padding.bottom + CREDIT_ROW } : padding;
+    if (this.panel()) return padding;
+    const sheet = Math.min(padding.bottom, this.screenHeight() - MAP_KEPT);
+    return { ...padding, bottom: sheet + (this.creditRides() ? CREDIT_ROW : 0) };
   });
 
   constructor() {
@@ -258,7 +267,7 @@ export class TrackingPage {
       afterNextRender(
         () => {
           const sheet = this.sheetEl()?.nativeElement;
-          const room = host.clientHeight - (RECENTER_TOP + BUTTON + INSET);
+          const room = host.clientHeight - MAP_KEPT;
           if (sheet && sheet.offsetHeight > room) this.sheetSnap.set('half');
         },
         { injector: this.injector },
