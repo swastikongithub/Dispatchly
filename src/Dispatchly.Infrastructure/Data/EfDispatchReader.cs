@@ -1,4 +1,5 @@
 using Dispatchly.Application.Abstractions;
+using Dispatchly.Domain.Customers;
 using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Restaurants;
@@ -58,6 +59,9 @@ internal sealed class EfDispatchReader(DispatchlyDbContext db) : IDispatchReader
 
     public Task<Rider?> RiderAsync(int id, CancellationToken ct) =>
         db.Riders.AsNoTracking().SingleOrDefaultAsync(r => r.Id == id, ct);
+
+    public Task<Customer?> CustomerAsync(int id, CancellationToken ct) =>
+        db.Customers.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, ct);
 
     public Task<Order?> RiderTaskAsync(int riderId, CancellationToken ct) =>
         Active
