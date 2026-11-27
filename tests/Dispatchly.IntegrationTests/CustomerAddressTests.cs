@@ -39,7 +39,11 @@ public sealed class CustomerAddressTests(PostgisServer postgis)
             new SavedAddress { Label = "Home", Address = "C-9, Nizamuddin East", Area = "Nizamuddin East", Lat = 28.5893, Lng = 77.2510 },
             new SavedAddress { Label = "Work", Address = "F-41, Inner Circle", Area = "Connaught Place", Lat = 28.6328, Lng = 77.2197 },
         ]);
-        await new World(app).AddAsync(customer);
+        await app.ExecuteAsync(db =>
+        {
+            db.Add(customer);
+            return db.SaveChangesAsync(Ct);
+        });
 
         var addresses = await app.Customer(customer.Id).GetJsonAsync<List<CustomerAddress>>(Url);
 
