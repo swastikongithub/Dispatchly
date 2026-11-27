@@ -135,6 +135,11 @@ public sealed record MenuEntry(string Id, string Name, int PricePaise);
 /// <summary>A restaurant on the dashboard map.</summary>
 public sealed record RestaurantPin(int Id, string Name, string Area, Position Location);
 
+// ---- Customer -------------------------------------------------------------------------------
+
+/// <summary>A saved delivery address ("Home"): where the order page starts and drops the pin.</summary>
+public sealed record CustomerAddress(string Label, string Address, string Area, Position Location);
+
 // ---- Rider app ------------------------------------------------------------------------------
 
 /// <summary>Everything the rider app shows: the rider's day and their current task, if any.</summary>
