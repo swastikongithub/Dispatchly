@@ -475,6 +475,20 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
   ];
 }
 
+/**
+ * How far (px) right of the selected rider its name/ETA pill reaches: the design's offset, then
+ * the label between the pill's round ends, measured in the page's text font.
+ */
+export function selectedPillReach(label: string): number {
+  const g = geometry.dashboard.pill;
+  const s = viewScale('dashboard');
+  const context = document.createElement('canvas').getContext('2d');
+  if (!context) return 0;
+  const font = getComputedStyle(document.documentElement).getPropertyValue('--font-text');
+  context.font = `${g.weight} ${g.fontSize * s}px ${font || family}`;
+  return (g.offset[0] + 2 * g.radius) * s + context.measureText(label).width;
+}
+
 /** A rider's look for each dashboard status, in px: what `color` and `radius` fade between. */
 export function dashboardRiderStyle(): Record<
   DashboardRiderStatus,
