@@ -125,7 +125,15 @@ function emptyCollection(): FeatureCollection {
  * `setStyle`. Returns a function that stops the needs-rider pulse.
  */
 export function addMarkers(map: MapLibreMap, theme: Theme, view: MarkerView): () => void {
-  for (const id of ['dispatch-routes', 'dispatch-places', 'dispatch-riders']) {
+  // The dashboard draws the selected rider and its route from their own small sources
+  // (`focus`, `focus-route`), so the frames that move them don't re-send every rider and route.
+  for (const id of [
+    'dispatch-routes',
+    'dispatch-places',
+    'dispatch-riders',
+    'dispatch-focus',
+    'dispatch-focus-route',
+  ]) {
     if (!map.getSource(id)) map.addSource(id, { type: 'geojson', data: emptyCollection() });
   }
   const s = viewScale(view);
@@ -135,9 +143,11 @@ export function addMarkers(map: MapLibreMap, theme: Theme, view: MarkerView): ()
   return view === 'dashboard' ? pulse(map) : () => {};
 }
 
+export type MarkerSource = 'routes' | 'places' | 'riders' | 'focus' | 'focus-route';
+
 export function setMarkerData(
   map: MapLibreMap,
-  data: Partial<Record<'routes' | 'places' | 'riders', FeatureCollection>>,
+  data: Partial<Record<MarkerSource, FeatureCollection>>,
 ): void {
   for (const [key, collection] of Object.entries(data)) {
     (map.getSource(`dispatch-${key}`) as GeoJSONSource | undefined)?.setData(collection);
@@ -236,7 +246,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-travelled',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('travelled'),
       layout: line,
       paint: {
@@ -248,7 +258,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-glow',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('active'),
       layout: line,
       paint: {
@@ -260,7 +270,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'route-active',
       type: 'line',
-      source: 'dispatch-routes',
+      source: 'dispatch-focus-route',
       filter: kind('active'),
       layout: line,
       paint: { 'line-color': accent.orange, 'line-width': g.routeActive.width * s },
@@ -390,7 +400,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'selected-halo-outer',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.outerHaloR * s,
@@ -401,7 +411,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'selected-halo',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.haloR * s,
@@ -412,7 +422,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'selected',
       type: 'circle',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       paint: {
         'circle-radius': g.selected.r * s,
@@ -426,7 +436,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'selected-pointer',
       type: 'symbol',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: isSelected,
       layout: {
         'icon-image': 'marker-pointer-selected',
@@ -439,7 +449,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
     {
       id: 'selected-pill',
       type: 'symbol',
-      source: 'dispatch-riders',
+      source: 'dispatch-focus',
       filter: ['all', isSelected, ['has', 'label']],
       layout: {
         'text-field': ['get', 'label'],

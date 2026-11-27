@@ -29,6 +29,13 @@ const CAMERA = ms(tokens.motion.duration.camera);
 const DIMMED = tokens.opacity.markersDisconnected;
 /** Other riders' routes move with their riders, but at city zoom once a second is plenty. */
 const OTHER_ROUTES_EVERY_MS = 1000;
+/**
+ * Riders other than the selected one are redrawn at 30 fps (PLAN.md §6.2): every redraw rebuilds
+ * the rider source's tiles, which drops frames with 500 riders on slower CPUs, and at city zoom a
+ * rider moves about a pixel a second, so 30 fps looks the same. The selected rider keeps every
+ * frame. The slack keeps a 60 Hz display on every other frame despite timer jitter.
+ */
+const OTHER_RIDERS_EVERY_MS = 1000 / 30 - 4;
 /** The zoom a selection flies to, unless the map is already closer. */
 const SELECTED_ZOOM = 14;
 /** Where the dashboard opens: central Delhi, as in the design. */
@@ -93,8 +100,12 @@ export class LiveMap {
   private readonly fades = new Map<number, Fade>();
   private opacity = 0;
   private lastFrame = 0;
-  private otherRoutes: Feature<LineString>[] = [];
   private otherRoutesAt = -Infinity;
+  private otherRoutesKey = '';
+  private otherRidersAt = -Infinity;
+  private otherRidersKey: number | null = null;
+  /** The selected rider or route was drawn last frame. */
+  private focusShown = false;
   private flownTo = '';
   /** The camera flight under way, if any. */
   private flight: { center: LngLat; zoom: number } | null = null;
@@ -277,9 +288,16 @@ export class LiveMap {
         ? Math.min(target, this.opacity + step)
         : Math.max(target, this.opacity - step);
 
+    // A new selection moves a rider between the two sources at once, so it never shows twice or
+    // goes missing for a frame.
+    const selectedId = selection?.riderId ?? null;
+    const othersDue =
+      now - this.otherRidersAt >= OTHER_RIDERS_EVERY_MS || selectedId !== this.otherRidersKey;
     const features: Feature<Point>[] = [];
+    const focus: Feature<Point>[] = [];
     let selectedAt: LngLat | null = null;
     for (const rider of frames) {
+      if (!othersDue && rider.id !== selectedId) continue;
       const status: DashboardRiderStatus =
         rider.status === 'Available'
           ? 'available'
@@ -293,32 +311,45 @@ export class LiveMap {
         opacity: this.opacity,
         ...this.crossfade(rider.id, status, now),
       };
-      if (selection?.riderId === rider.id) {
-        selectedAt = [rider.lng, rider.lat];
-        properties['selected'] = true;
-        properties['label'] = this.pillLabel(riders.get(rider.id)?.name, order, wallClock);
-      }
-      features.push({
+      const feature: Feature<Point> = {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [rider.lng, rider.lat] },
         properties,
-      });
+      };
+      if (rider.id === selectedId) {
+        selectedAt = [rider.lng, rider.lat];
+        properties['selected'] = true;
+        properties['label'] = this.pillLabel(riders.get(rider.id)?.name, order, wallClock);
+        focus.push(feature);
+      } else {
+        features.push(feature);
+      }
     }
-    for (const id of this.fades.keys()) if (!this.store.motion.has(id)) this.fades.delete(id);
 
-    if (now - this.otherRoutesAt >= OTHER_ROUTES_EVERY_MS) {
-      this.otherRoutesAt = now;
-      this.otherRoutes = this.quiet()
-        ? []
-        : this.routesOfOthers(frames, orders, selection?.riderId ?? null);
+    const data: Parameters<typeof setMarkerData>[1] = {};
+    if (othersDue) {
+      this.otherRidersAt = now;
+      this.otherRidersKey = selectedId;
+      data.riders = { type: 'FeatureCollection', features };
+      for (const id of this.fades.keys()) if (!this.store.motion.has(id)) this.fades.delete(id);
     }
-    setMarkerData(map, {
-      riders: { type: 'FeatureCollection', features },
-      routes: {
-        type: 'FeatureCollection',
-        features: [...this.otherRoutes, ...this.selectedRoute(order, selectedAt)],
-      },
-    });
+    // Other riders' routes change slowly: they're redrawn every second, or at once when the
+    // selection or the map layers change.
+    const othersKey = `${this.quiet()}|${selectedId ?? ''}`;
+    if (now - this.otherRoutesAt >= OTHER_ROUTES_EVERY_MS || othersKey !== this.otherRoutesKey) {
+      this.otherRoutesAt = now;
+      this.otherRoutesKey = othersKey;
+      const lines = this.quiet() ? [] : this.routesOfOthers(frames, orders, selectedId);
+      data.routes = { type: 'FeatureCollection', features: lines };
+    }
+    // The selected rider and its route move every frame; once they're gone, cleared once.
+    const route = this.selectedRoute(order, selectedAt);
+    if (focus.length || route.length || this.focusShown) {
+      this.focusShown = focus.length > 0 || route.length > 0;
+      data.focus = { type: 'FeatureCollection', features: focus };
+      data['focus-route'] = { type: 'FeatureCollection', features: route };
+    }
+    setMarkerData(map, data);
   }
 
   /** Status changes cross-fade colour, size, pointer and late ring over 220 ms (PLAN.md §6.2). */

@@ -170,9 +170,20 @@ export class Styleguide {
     if (theme === 'dark') {
       addMarkers(map, 'dark', 'dashboard');
       setMarkerData(map, {
-        routes: collection([
+        // The selected rider and its route have their own sources on the dashboard.
+        'focus-route': collection([
           line([restaurant, [77.2228, 28.6131], rider], 'travelled'),
           line(activeRoute, 'active'),
+        ]),
+        focus: collection([
+          point(rider[0]!, rider[1]!, {
+            status: 'on-delivery',
+            bearing: 153,
+            selected: true,
+            label: 'Aman · 8 min',
+          }),
+        ]),
+        routes: collection([
           line(
             [
               [77.2079, 28.6203],
@@ -200,12 +211,6 @@ export class Styleguide {
           point(77.2172, 28.5968, { kind: 'new-order' }),
         ]),
         riders: collection([
-          point(rider[0]!, rider[1]!, {
-            status: 'on-delivery',
-            bearing: 153,
-            selected: true,
-            label: 'Aman · 8 min',
-          }),
           point(77.2079, 28.6203, { status: 'on-delivery', bearing: 140 }),
           point(77.2398, 28.6162, { status: 'on-delivery', bearing: 215 }),
           point(77.2152, 28.6105, { status: 'available' }),
