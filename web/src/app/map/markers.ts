@@ -475,18 +475,35 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
   ];
 }
 
+/** How far (px) a marker reaches each way from the point it marks. */
+export interface MarkerExtent {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
 /**
- * How far (px) right of the selected rider its name/ETA pill reaches: the design's offset, then
- * the label between the pill's round ends, measured in the page's text font.
+ * How far the selected rider reaches on the map: its halo, and to the right its name/ETA pill
+ * (the design's offset, then the label between the pill's round ends, measured in the page's
+ * text font).
  */
-export function selectedPillReach(label: string): number {
-  const g = geometry.dashboard.pill;
+export function selectedRiderExtent(label: string): MarkerExtent {
+  const { pill, selected } = geometry.dashboard;
   const s = viewScale('dashboard');
+  let text = 0;
   const context = document.createElement('canvas').getContext('2d');
-  if (!context) return 0;
-  const font = getComputedStyle(document.documentElement).getPropertyValue('--font-text');
-  context.font = `${g.weight} ${g.fontSize * s}px ${font || family}`;
-  return (g.offset[0] + 2 * g.radius) * s + context.measureText(label).width;
+  if (context) {
+    const font = getComputedStyle(document.documentElement).getPropertyValue('--font-text');
+    context.font = `${pill.weight} ${pill.fontSize * s}px ${font || family}`;
+    text = context.measureText(label).width;
+  }
+  return {
+    left: -selected.haloR * s,
+    top: Math.min(pill.offset[1], -selected.haloR) * s,
+    right: Math.max((pill.offset[0] + 2 * pill.radius) * s + text, selected.haloR * s),
+    bottom: Math.max(pill.offset[1] + pill.height, selected.haloR) * s,
+  };
 }
 
 /** A rider's look for each dashboard status, in px: what `color` and `radius` fade between. */
