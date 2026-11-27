@@ -110,9 +110,9 @@ const EMPTY: Record<QueueTab, string> = {
         }
       }
     </ul>
-    @if (!loading() && !expanded() && filtered().length > collapsedRows) {
+    @if (!loading() && !expanded() && (filtered().length > collapsedRows || clipped())) {
       <button type="button" class="show-all" (click)="expand()">
-        Show all {{ filtered().length }} orders
+        Show all {{ counts()[tab()] }} orders
       </button>
     }
   `,
@@ -225,6 +225,8 @@ export class OrdersPanel {
   protected readonly skeletonRows = Array.from({ length: COLLAPSED_ROWS }, (_, i) => i);
   protected readonly tab = signal<QueueTab>('all');
   protected readonly expanded = signal(false);
+  /** Collapsed, rows that would fit only in part are hidden (see fit). */
+  protected readonly clipped = signal(false);
   protected readonly loading = computed(() => this.store.phase() === 'loading');
   protected readonly counts = this.store.counts;
   protected readonly selectedCode = computed(() => this.store.selection()?.code ?? null);
@@ -336,7 +338,8 @@ export class OrdersPanel {
   /**
    * Collapsed, where the screen is too short for every row, the list ends at the last row that
    * fits whole, with "Show all" right below it: a row cut through the middle reads as a list to
-   * scroll. It lets go of its height first, so it can tell when there's room for more.
+   * scroll. It lets go of its height first, so it can tell when there's room for more. Whenever
+   * rows are hidden, "Show all" is there to reach them.
    */
   protected fit(): void {
     const list = this.list()?.nativeElement;
@@ -344,6 +347,7 @@ export class OrdersPanel {
     const rows = [...list.children] as HTMLElement[];
     list.style.maxHeight = '';
     for (const row of rows) delete row.dataset['clipped'];
+    this.clipped.set(false);
     if (this.expanded()) return;
     const ring = parseFloat(getComputedStyle(list).paddingBottom);
     const room = list.clientHeight - ring;
@@ -357,6 +361,7 @@ export class OrdersPanel {
     list.style.maxHeight = `${top(rows[cut]!) + ring}px`;
     // Hidden too: the room kept for the last row's focus ring would show the next one's top.
     for (const row of rows.slice(cut)) row.dataset['clipped'] = '';
+    this.clipped.set(true);
   }
 
   private rows(): HTMLElement[] {
