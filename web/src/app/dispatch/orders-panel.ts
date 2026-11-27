@@ -149,11 +149,16 @@ const EMPTY: Record<QueueTab, string> = {
     .tabs {
       margin: var(--spacing-14) var(--spacing-4) var(--spacing-8);
     }
+    /* Rows that don't fit are clipped (collapsed) or scroll (expanded). The list keeps room
+       for the focus ring around its rows. */
     .rows {
+      flex: 0 1 auto;
       list-style: none;
-      margin: 0;
-      padding: 0;
       min-height: 0;
+      overflow: hidden;
+      --ring: calc(var(--focus-width) + var(--focus-offset));
+      margin: calc(var(--ring) * -1);
+      padding: var(--ring);
     }
     .rows.expanded {
       overflow-y: auto;
