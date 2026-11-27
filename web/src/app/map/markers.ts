@@ -17,9 +17,14 @@ import { tokens } from '../tokens';
  * `dispatch-places` (Point, kind: restaurant | restaurant-active | drop | other-drop |
  * new-order | home, label?), `dispatch-riders` (Point, status: available | on-delivery | late,
  * bearing, selected?, label?).
+ *
+ * Dashboard riders may also carry what a live map animates (each defaults to the static look):
+ * `color` and `radius` while the status cross-fades, `pointer` and `ring` (0-1) as the heading
+ * pointer and late ring fade in or out, and `opacity` (0-1) for fading in and dimming.
  */
 
 export type MarkerView = 'dashboard' | 'tracking';
+export type DashboardRiderStatus = 'available' | 'on-delivery' | 'late';
 type Theme = 'dark' | 'light';
 
 const geometry = tokens.marker.geometry;
@@ -39,6 +44,9 @@ const dash = (pattern: string, width: number) => pattern.split(' ').map((n) => N
 const kind = (k: string | string[]): ExpressionSpecification =>
   Array.isArray(k) ? ['match', ['get', 'kind'], k, true, false] : ['==', ['get', 'kind'], k];
 const notSelected: ExpressionSpecification = ['!=', ['get', 'selected'], true];
+/** A rider's `opacity` property, 1 when it has none. */
+const opacity: ExpressionSpecification = ['coalesce', ['get', 'opacity'], 1];
+const fraction = (name: string): ExpressionSpecification => ['coalesce', ['get', name], 1];
 const isSelected: ExpressionSpecification = ['==', ['get', 'selected'], true];
 
 /** Draws an image for MapLibre at device resolution. `draw` works in px from the centre. */
@@ -329,13 +337,17 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       id: 'riders-late-ring',
       type: 'circle',
       source: 'dispatch-riders',
-      filter: ['all', notSelected, ['==', ['get', 'status'], 'late']],
+      filter: [
+        'all',
+        notSelected,
+        ['any', ['==', ['get', 'status'], 'late'], ['>', ['coalesce', ['get', 'ring'], 0], 0]],
+      ],
       paint: {
         'circle-radius': g.late.ringR * s,
         'circle-color': 'transparent',
         'circle-stroke-width': g.late.ringStroke * s,
         'circle-stroke-color': status.late,
-        'circle-stroke-opacity': g.late.ringOpacity,
+        'circle-stroke-opacity': ['*', g.late.ringOpacity, fraction('ring'), opacity],
       },
     },
     {
@@ -344,11 +356,12 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       source: 'dispatch-riders',
       filter: notSelected,
       paint: {
-        'circle-radius': riderRadius,
-        'circle-color': riderColor,
+        'circle-radius': ['coalesce', ['get', 'radius'], riderRadius],
+        'circle-color': ['coalesce', ['get', 'color'], riderColor],
         'circle-stroke-width': g.available.stroke * s,
         'circle-stroke-color': land,
-        'circle-color-transition': { duration: parseFloat(tokens.motion.duration.base) },
+        'circle-opacity': opacity,
+        'circle-stroke-opacity': opacity,
       },
     },
     {
@@ -359,7 +372,11 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       layout: {
         'icon-image': [
           'case',
-          ['==', ['get', 'status'], 'on-delivery'],
+          [
+            'any',
+            ['==', ['get', 'status'], 'on-delivery'],
+            ['>', ['coalesce', ['get', 'pointer'], 0], 0],
+          ],
           'marker-pointer',
           'marker-blocker',
         ],
@@ -367,6 +384,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
       },
+      paint: { 'icon-opacity': ['*', fraction('pointer'), opacity] },
     },
     // Selected rider halo → selected rider → label pill
     {
@@ -377,7 +395,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       paint: {
         'circle-radius': g.selected.outerHaloR * s,
         'circle-color': accent.orange,
-        'circle-opacity': g.selected.outerHaloOpacity,
+        'circle-opacity': ['*', g.selected.outerHaloOpacity, opacity],
       },
     },
     {
@@ -388,7 +406,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
       paint: {
         'circle-radius': g.selected.haloR * s,
         'circle-color': accent.orange,
-        'circle-opacity': g.selected.haloOpacity,
+        'circle-opacity': ['*', g.selected.haloOpacity, opacity],
       },
     },
     {
@@ -401,6 +419,8 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'circle-color': accent.orange,
         'circle-stroke-width': g.selected.stroke * s,
         'circle-stroke-color': textPrimary,
+        'circle-opacity': opacity,
+        'circle-stroke-opacity': opacity,
       },
     },
     {
@@ -414,6 +434,7 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
       },
+      paint: { 'icon-opacity': opacity },
     },
     {
       id: 'selected-pill',
@@ -436,9 +457,23 @@ function dashboardLayers(map: MapLibreMap, s: number, land: string): LayerSpecif
         'icon-text-fit-padding': [pillPadding, pillPadding, pillPadding, pillPadding],
         'icon-allow-overlap': true,
       },
-      paint: { 'text-color': dark.pillText },
+      paint: { 'text-color': dark.pillText, 'text-opacity': opacity, 'icon-opacity': opacity },
     },
   ];
+}
+
+/** A rider's look for each dashboard status, in px: what `color` and `radius` fade between. */
+export function dashboardRiderStyle(): Record<
+  DashboardRiderStatus,
+  { color: string; radius: number }
+> {
+  const g = geometry.dashboard;
+  const s = viewScale('dashboard');
+  return {
+    available: { color: status.available, radius: g.available.r * s },
+    'on-delivery': { color: status.onDelivery, radius: g.onDelivery.r * s },
+    late: { color: status.late, radius: g.late.r * s },
+  };
 }
 
 function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
