@@ -1,0 +1,445 @@
+/*
+ * Customer tracking (PLAN.md §5.3, designs/html/tracking.html). Values come from
+ * design-tokens.json; the delivered, cancelled, not found, Get help and Details pieces are built
+ * from the same parts (§5.5).
+ */
+
+:host {
+  position: relative;
+  display: block;
+  height: 100dvh;
+  /* Not a scroll container: focusing something under the sheet can't shift the page. */
+  overflow: clip;
+  background: var(--ui-canvas);
+  color: var(--ui-text-primary);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Back, the order pill and Get help, floating over the map. */
+.top-bar {
+  position: absolute;
+  top: var(--spacing-phone-overlay-inset);
+  left: var(--spacing-phone-overlay-inset);
+  right: var(--spacing-phone-overlay-inset);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.top-bar > * {
+  pointer-events: auto;
+}
+.top-bar.beside-panel {
+  left: calc(var(--spacing-phone-overlay-inset) * 2 + var(--spacing-tracking-desktop-sheet-width));
+}
+.title-pill {
+  background: var(--ui-surface);
+  border-radius: var(--radius-pill);
+  padding: var(--spacing-9) var(--spacing-14);
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--ui-floating-shadow);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Appears once the customer moves the map; kept clear of the top bar and the sheet. */
+.recenter {
+  position: absolute;
+  top: 0;
+  right: var(--spacing-phone-overlay-inset);
+  z-index: 1;
+  transform: translateY(var(--recenter-top, var(--spacing-tracking-recenter-top)));
+  transition: transform var(--duration-panel) var(--ease-standard);
+  animation: fade-in var(--duration-base) var(--ease-enter);
+}
+
+/* Get help: the rider's and the restaurant's numbers, below the help button. */
+.help {
+  position: absolute;
+  top: calc(var(--top-bar-bottom, 0px) + var(--spacing-8));
+  right: var(--spacing-phone-overlay-inset);
+  z-index: 3;
+  box-sizing: border-box;
+  width: min(
+    var(--spacing-tracking-desktop-sheet-width),
+    100% - var(--spacing-phone-overlay-inset) * 2
+  );
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-18);
+  background: var(--ui-surface);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--ui-floating-shadow);
+  animation: drop-in var(--duration-base) var(--ease-enter);
+}
+.help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+.help-title {
+  margin: 0;
+  font-size: var(--text-spec);
+  font-weight: var(--font-weight-semibold);
+}
+.help-lead {
+  margin: 0;
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+.contacts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.contacts li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-10);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+}
+.contacts li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.who-name {
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+}
+.who-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Phones: the sheet stops below the top bar. */
+.sheet {
+  z-index: 2;
+  max-height: calc(100% - var(--top-bar-bottom, 0px) - var(--spacing-12));
+}
+
+/*
+ * Desktop: a 400px panel floating on the left, over the full-width map (PLAN.md §5.3). It's as
+ * tall as what it holds, up to the map's height.
+ */
+.panel {
+  position: absolute;
+  top: var(--spacing-phone-overlay-inset);
+  left: var(--spacing-phone-overlay-inset);
+  z-index: 2;
+  box-sizing: border-box;
+  max-height: calc(100% - var(--spacing-phone-overlay-inset) * 2);
+  width: var(--spacing-tracking-desktop-sheet-width);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24) var(--spacing-20);
+  background: var(--ui-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--ui-floating-shadow);
+}
+
+/* Delivered or cancelled, in the ETA's place: the outcome with a check (or a cross). */
+.outcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.outcome-label {
+  font-size: var(--text-ui);
+  color: var(--ui-text-secondary);
+}
+.outcome-title {
+  margin: var(--spacing-4) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-eta-hero);
+  font-weight: var(--text-eta-hero--font-weight);
+  letter-spacing: var(--text-eta-hero--letter-spacing);
+  line-height: var(--text-eta-hero--line-height);
+}
+.outcome-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-avatar);
+  height: var(--spacing-avatar);
+  margin-bottom: var(--spacing-4);
+  border-radius: var(--radius-circle);
+  background: var(--ui-accent-tint);
+  color: var(--ui-accent-text);
+}
+.outcome-icon[data-stage='cancelled'] {
+  background: var(--ui-raised);
+  color: var(--ui-text-secondary);
+}
+.outcome-icon svg {
+  width: var(--icon-size-22);
+  height: var(--icon-size-22);
+}
+/* The check comes in once, as the slide to confirm's does. */
+.outcome-icon[data-stage='delivered'] {
+  animation: check-in var(--duration-success-check) var(--ease-enter);
+}
+
+.sentence {
+  margin: 0;
+  font-size: var(--text-body-small);
+  line-height: var(--text-body-small--line-height);
+  color: var(--ui-text-body);
+}
+.sentence.ui-skeleton {
+  align-self: flex-start;
+}
+
+/* The rider: avatar, name, vehicle and plate, Call and Message. */
+.rider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  background: var(--ui-raised);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-12);
+}
+.rider .who {
+  display: block;
+}
+.name {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  width: fit-content;
+}
+/* One line with an ellipsis; the full text is in its title (PLAN.md §11.3). */
+.vehicle {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: fit-content;
+}
+
+.code-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-12);
+  border: var(--border-width-hairline) solid var(--ui-surface-border);
+  border-radius: var(--radius-card-small);
+  padding: var(--spacing-12) var(--spacing-14);
+}
+.code-title {
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+}
+.code-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+.code {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: var(--text-delivery-code);
+  font-weight: var(--text-delivery-code--font-weight);
+  letter-spacing: var(--text-delivery-code--letter-spacing);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rate your delivery: five stars in the call buttons' frame. */
+.rate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-10);
+}
+.rate-title {
+  font-size: var(--text-body-small);
+  font-weight: var(--font-weight-semibold);
+}
+.rate-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+.stars {
+  display: flex;
+  gap: var(--spacing-8);
+}
+.stars .lit {
+  color: var(--ui-accent-text);
+}
+.stars .lit svg {
+  fill: var(--ui-accent);
+  stroke: var(--ui-accent);
+}
+
+/* "Saffron & Smoke, Khan Market · 2 items · ₹640 · Paid online · Details ›". */
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--duration-instant) var(--ease-standard);
+}
+.summary:active {
+  transform: scale(var(--scale-press));
+}
+.summary-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.summary-title {
+  font-size: var(--text-body-small);
+  font-weight: var(--font-weight-semibold);
+}
+.summary-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--ui-accent-text);
+}
+.link svg {
+  width: var(--icon-size-16);
+  height: var(--icon-size-16);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.link.open svg {
+  transform: rotate(90deg);
+}
+
+/* The order's lines and where it goes, under the summary. */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  animation: fade-in var(--duration-base) var(--ease-enter);
+}
+.details[hidden] {
+  display: none;
+}
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
+  font-size: var(--text-ui);
+}
+.lines li:first-child {
+  padding-top: 0;
+}
+.price {
+  flex: none;
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.deliver-to {
+  display: flex;
+  flex-direction: column;
+}
+.deliver-title {
+  font-size: var(--text-ui);
+  font-weight: var(--font-weight-semibold);
+}
+.deliver-sub {
+  font-size: var(--text-meta);
+  color: var(--ui-text-secondary);
+}
+
+/* Not found, as the order page's headings. */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-panel-title);
+  font-weight: var(--text-panel-title--font-weight);
+  letter-spacing: var(--text-panel-title--letter-spacing);
+  text-wrap: balance;
+}
+.sub {
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--ui-text-secondary);
+}
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--ui-text-secondary);
+}
+.wide {
+  width: 100%;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--spacing-8) * -1));
+  }
+}
+@keyframes check-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--scale-map-frame-enter));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recenter,
+  .help,
+  .details,
+  .outcome-icon[data-stage='delivered'] {
+    animation: none;
+  }
+  .recenter,
+  .link svg {
+    transition: none;
+  }
+}
