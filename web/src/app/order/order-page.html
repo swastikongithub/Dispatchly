@@ -178,13 +178,7 @@
             [unavailable]="count() === 0"
             (click)="place()"
           >
-            @if (placing()) {
-              Placing order…
-            } @else if (count() > 0) {
-              Place order · {{ total() }}
-            } @else {
-              Place order
-            }
+            {{ placing() ? 'Placing order…' : 'Place order' }}
           </button>
           @if (placeFailed()) {
             <p class="error" role="alert">Couldn’t place the order. Try again.</p>
