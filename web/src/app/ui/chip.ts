@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
 
-export type ChipTone = 'accent' | 'available' | 'late' | 'needs-rider';
+export type ChipTone = 'accent' | 'available' | 'late' | 'needs-rider' | 'neutral';
 
 /**
  * Status chip: 12/600 pill with a tint background and the status text colour.
- * `needs-rider` is the outlined chip with a 6px dot from the order queue.
+ * `needs-rider` is the outlined chip with a 6px dot from the order queue. `neutral` is Delivered
+ * (PLAN.md §3.3): the raised surface with body text, as the designs have no neutral tint.
  * Sizes follow the designs: sm 3×8 (order row), md 3×9 (rider card), lg 4×10 (rider sheet).
  */
 @Component({
@@ -57,6 +58,10 @@ export type ChipTone = 'accent' | 'available' | 'late' | 'needs-rider';
     :host([data-tone='late']) {
       background: var(--ui-late-tint);
       color: var(--ui-late-text);
+    }
+    :host([data-tone='neutral']) {
+      background: var(--ui-raised);
+      color: var(--ui-text-body);
     }
     :host([data-tone='needs-rider']) {
       color: var(--ui-accent-text);

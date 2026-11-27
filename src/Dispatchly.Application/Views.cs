@@ -24,7 +24,11 @@ internal static class Views
         order.SearchRadiusMeters,
         order.CreatedAt,
         order.PromisedBy,
-        order.EstimatedDeliveryAt);
+        order.EstimatedDeliveryAt,
+        order.RestaurantId,
+        order.Restaurant.Location.ToPosition(),
+        order.DropLocation.ToPosition(),
+        [.. order.Route.Select(ToPosition)]);
 
     public static OrderDetails ToDetails(this Order order, Viewer viewer)
     {
@@ -79,7 +83,7 @@ internal static class Views
         rider.Location.ToPosition(),
         rider.Bearing);
 
-    public static LiveRider ToLive(this Rider rider, string? orderCode) => new(
+    public static LiveRider ToLive(this Rider rider, string? orderCode, int deliveriesToday) => new(
         rider.Id,
         rider.Name,
         rider.Vehicle,
@@ -89,7 +93,14 @@ internal static class Views
         rider.Location.ToPosition(),
         rider.Bearing,
         orderCode,
-        rider.OnlineSince);
+        rider.OnlineSince,
+        deliveriesToday);
+
+    public static RestaurantPin ToPin(this Restaurant restaurant) =>
+        new(restaurant.Id, restaurant.Name, restaurant.Area, restaurant.Location.ToPosition());
+
+    public static ReassignCandidate ToCandidate(this Rider rider, double distanceMeters) =>
+        new(rider.Id, rider.Name, rider.Vehicle, rider.Plate, Math.Round(distanceMeters));
 
     public static RiderPoint ToPoint(this Rider rider) => new(
         rider.Id,

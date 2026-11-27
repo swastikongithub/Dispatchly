@@ -16,7 +16,7 @@ import { booleanAttribute, Component, input } from '@angular/core';
     '[attr.data-variant]': 'uiButton() || "primary"',
     '[attr.data-size]': 'size()',
     '[attr.aria-busy]': 'loading() || null',
-    '[attr.aria-disabled]': 'loading() || null',
+    '[attr.aria-disabled]': 'loading() || unavailable() || null',
   },
   styles: `
     :host {
@@ -143,4 +143,9 @@ export class Button {
   readonly uiButton = input<'primary' | 'contrast' | 'outline' | 'secondary' | 'menu' | ''>('');
   readonly size = input<'md' | 'lg'>('md');
   readonly loading = input(false, { transform: booleanAttribute });
+  /**
+   * Looks and reads as disabled but stays focusable, so its title can say why. The click
+   * handler must check it too.
+   */
+  readonly unavailable = input(false, { transform: booleanAttribute });
 }

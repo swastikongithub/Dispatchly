@@ -145,15 +145,17 @@ The server decides the ETA and lateness. Show them as they come, and don't work 
 
 A client starts from a snapshot and then applies messages on top of it. Snapshots are REST calls under `/api/v1`.
 
-| Method | Path                    | Who        | Returns                                                                 |
-| ------ | ----------------------- | ---------- | ----------------------------------------------------------------------- |
-| GET    | `/api/v1/live/snapshot` | dispatcher | `{ at, riders: LiveRider[], orders: OrderSummary[], stats: LiveStats }` |
-| GET    | `/api/v1/live/public`   | anyone     | `{ at, riders: RiderPoint[], stats: LiveStats }`                        |
+| Method | Path                    | Who        | Returns                                                                                               |
+| ------ | ----------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| GET    | `/api/v1/live/snapshot` | dispatcher | `{ at, riders: LiveRider[], orders: OrderSummary[], stats: LiveStats, restaurants: RestaurantPin[] }` |
+| GET    | `/api/v1/live/public`   | anyone     | `{ at, riders: RiderPoint[], stats: LiveStats }`                                                      |
 
 - `GET /live/snapshot` returns:
-  - every rider on shift, each with name, vehicle, plate, phone and status, plus `orderCode` when the rider is on an order
-  - the order queue, in the same order as `GET /orders`
+  - every rider on shift, each with name, vehicle, plate, phone, status and `deliveriesToday` (since midnight in Delhi), plus `orderCode` when the rider is on an order
+  - the order queue, in the same order as `GET /orders`. Each `OrderSummary` carries what the map draws: `restaurantId`, `restaurantLocation`, `dropLocation` and the `route` from restaurant to drop. `order:changed` to `dispatch` carries the same fields.
   - the same stats as `GET /stats/live`
+  - every restaurant (`id`, `name`, `area`, `location`), for the map's restaurant pins
+- Riders who come on shift after the snapshot appear in `riders:batch` with a position and status only. Fetch the snapshot again to get their names.
 - `GET /live/public` returns what the landing page needs: positions as `RiderPoint` arrays, and the stats.
 - The other screens start from their own REST call:
   - the customer's tracking page: `GET /orders/{code}`

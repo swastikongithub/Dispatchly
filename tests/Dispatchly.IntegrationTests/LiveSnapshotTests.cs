@@ -34,9 +34,43 @@ public sealed class LiveSnapshotTests(PostgisServer postgis)
         Assert.All(snapshot.Riders.Where(r => r.Status != RiderStatus.Available), r => Assert.NotNull(r.OrderCode));
         // The same queue, in the same order, as GET /orders, and the same stats as GET /stats/live.
         var queue = await dispatcher.GetJsonAsync<List<OrderSummary>>("/api/v1/orders");
-        Assert.Equal(queue, snapshot.Orders);
+        Assert.Equal(JsonSerializer.Serialize(queue, Http.Json), JsonSerializer.Serialize(snapshot.Orders, Http.Json));
         Assert.Equal(OrderStatus.Searching, snapshot.Orders[0].Status);
         Assert.Equal(await dispatcher.GetJsonAsync<LiveStats>("/api/v1/stats/live"), snapshot.Stats);
+    }
+
+    [Fact]
+    public async Task The_dashboard_snapshot_has_what_the_map_and_the_rider_card_draw()
+    {
+        await using var app = await TestApp.StartAsync(postgis, Seed.DemoCity);
+
+        var snapshot = await app.Dispatcher().GetJsonAsync<LiveSnapshot>("/api/v1/live/snapshot");
+
+        // Every restaurant, for the white squares.
+        var restaurants = await app.QueryAsync(db => db.Restaurants.OrderBy(r => r.Id).ToListAsync(Ct));
+        Assert.Equal(
+            restaurants.Select(r => (r.Id, r.Name, r.Area, r.Location.Lat, r.Location.Lng)),
+            snapshot.Restaurants.Select(r => (r.Id, r.Name, r.Area, r.Location.Lat, r.Location.Lng)));
+        // Each order's restaurant, drop and route, for its pins and lines.
+        var orders = await app.QueryAsync(db => db.Orders.Include(o => o.Restaurant).ToDictionaryAsync(o => o.Code, Ct));
+        Assert.All(snapshot.Orders, summary =>
+        {
+            var order = orders[summary.Code];
+            Assert.Equal(order.RestaurantId, summary.RestaurantId);
+            Assert.Equal(new Position(order.Restaurant.Location.Lat, order.Restaurant.Location.Lng), summary.RestaurantLocation);
+            Assert.Equal(new Position(order.DropLocation.Lat, order.DropLocation.Lng), summary.DropLocation);
+            Assert.Equal(order.Route.Select(p => new Position(p.Lat, p.Lng)), summary.Route);
+            Assert.True(summary.Route.Count >= 2);
+        });
+        // "9 deliveries today": delivered since midnight in Delhi, per rider.
+        var delhi = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(5.5));
+        var midnight = new DateTimeOffset(delhi.Date, delhi.Offset).ToUniversalTime();
+        var delivered = await app.QueryAsync(db => db.Orders
+            .Where(o => o.Status == OrderStatus.Delivered && o.DeliveredAt >= midnight)
+            .GroupBy(o => o.RiderId!.Value)
+            .ToDictionaryAsync(g => g.Key, g => g.Count(), Ct));
+        Assert.Contains(snapshot.Riders, r => r.DeliveriesToday > 0);
+        Assert.All(snapshot.Riders, r => Assert.Equal(delivered.GetValueOrDefault(r.Id), r.DeliveriesToday));
     }
 
     [Fact]

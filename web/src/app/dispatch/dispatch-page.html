@@ -1,0 +1,117 @@
+<app-live-map
+  class="map"
+  [padding]="padding()"
+  [dimmed]="dimmed()"
+  [quiet]="quiet()"
+  [style.--credit-bottom.px]="creditBottom()"
+/>
+
+<div class="overlay" [class.compact]="sheet()" [class.phone]="phone()">
+  <header #topBar class="top-bar ui-panel">
+    <a class="brand" href="/" aria-label="Dispatchly"><ui-wordmark [markOnly]="narrow()" /></a>
+    <button type="button" uiButton="menu" class="city" (click)="map().goHome()">
+      Central Delhi<svg lucideChevronDown aria-hidden="true"></svg>
+    </button>
+    <app-search-palette class="search" (place)="map().flyTo($event)" />
+
+    @if (sheet()) {
+      <button
+        type="button"
+        class="live"
+        [attr.data-state]="reconnecting() ? 'reconnecting' : 'live'"
+        [attr.aria-expanded]="statsOpen()"
+        aria-controls="dispatch-stats"
+        (click)="statsOpen.set(!statsOpen())"
+      >
+        <ng-container *ngTemplateOutlet="liveText" />
+      </button>
+    } @else {
+      <span class="live" [attr.data-state]="reconnecting() ? 'reconnecting' : 'live'">
+        <ng-container *ngTemplateOutlet="liveText" />
+      </span>
+    }
+    <span class="sr-only" aria-live="polite">{{ reconnecting() ? 'Reconnecting…' : '' }}</span>
+
+    @if (!sheet() || statsOpen()) {
+      <div id="dispatch-stats" class="stats">
+        <ui-stat [value]="stats()?.ridersOnline ?? 0" label="Riders online" [loading]="loading()" />
+        <ui-stat [value]="stats()?.activeOrders ?? 0" label="Active orders" [loading]="loading()" />
+        <ui-stat [value]="averageDelivery()" label="Avg. delivery" [loading]="loading()" />
+        <ui-stat
+          [value]="stats()?.runningLate ?? 0"
+          label="Running late"
+          [tone]="(stats()?.runningLate ?? 0) > 0 ? 'late' : 'default'"
+          [loading]="loading()"
+        />
+      </div>
+    }
+    <button
+      type="button"
+      uiAvatar
+      size="button"
+      class="account"
+      [name]="account()"
+      [attr.aria-label]="'Account: ' + account() + ', dispatcher'"
+    ></button>
+  </header>
+
+  @if (!sheet()) {
+    <div class="middle">
+      <app-orders-panel class="orders" (filter)="searchOrders()" />
+      <div class="spacer"></div>
+      @if (hasSelection()) {
+        <app-selected-rider
+          class="rider"
+          [class.drawer]="!wide()"
+          [style.--panel-top.px]="panelTop()"
+          animate.enter="rider-in"
+          animate.leave="rider-out"
+          (closed)="close()"
+        />
+      }
+    </div>
+  }
+
+  <div #controls class="bottom">
+    @if (!sheet()) {
+      <ui-legend [items]="legend()" [loading]="loading()" />
+    }
+    <ui-map-controls
+      class="controls"
+      [class.covered]="controlsCovered()"
+      [inert]="controlsCovered()"
+      (layers)="quiet.set(!quiet())"
+      (recenter)="map().recenter()"
+      (zoomIn)="map().zoomIn()"
+      (zoomOut)="map().zoomOut()"
+    />
+  </div>
+</div>
+
+@if (sheet()) {
+  <section
+    uiBottomSheet
+    class="sheet"
+    [style.--panel-top.px]="panelTop()"
+    [(snap)]="sheetSnap"
+    [attr.aria-label]="hasSelection() ? 'Selected rider' : 'Orders'"
+  >
+    @if (hasSelection()) {
+      <app-selected-rider class="sheet-content" placement="inline" (closed)="close()" />
+    } @else {
+      <app-orders-panel class="sheet-content" (filter)="searchOrders()" />
+    }
+  </section>
+}
+
+<app-toasts class="toasts" />
+
+<ng-template #liveText>
+  <span class="dot" aria-hidden="true"></span>
+  @if (reconnecting()) {
+    <span>Reconnecting…</span>
+  } @else {
+    <strong>Live</strong>
+    <span [class.ui-skeleton]="updatedAgo() === null">updated {{ updatedAgo() ?? 0 }}s ago</span>
+  }
+</ng-template>
