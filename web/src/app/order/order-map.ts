@@ -11,6 +11,7 @@ import {
 import type { Feature, FeatureCollection, Point } from 'geojson';
 import type {
   LngLatBoundsLike,
+  LngLatLike,
   Map as MapLibreMap,
   MapLibreEvent,
   PaddingOptions,
@@ -122,15 +123,14 @@ export class OrderMap {
       untracked(() => setMarkerData(this.map!, { places: data }));
     });
 
-    // Each step frames what it's about.
+    // Each step frames what it's about, again when what it's about arrives.
     effect(() => {
       if (!this.loaded()) return;
-      const step = this.step();
-      // Read here so the camera moves again when they arrive.
-      const restaurants = this.restaurants();
-      const selected = this.selected();
-      const address = this.address();
-      untracked(() => this.frame(step, restaurants, selected, address));
+      this.step();
+      this.restaurants();
+      this.selected();
+      this.address();
+      untracked(() => this.frame());
     });
 
     effect(() => {
@@ -163,6 +163,8 @@ export class OrderMap {
    * the pin along: it flies to the pin.
    */
   private readonly follow = (event: MapLibreEvent<unknown> & { originalEvent?: unknown }) => {
+    // The customer moved the map: it stays where they put it.
+    if (event.originalEvent) this.framed = false;
     if (this.step() !== 'drop' || !this.map || !(event.originalEvent || this.gliding)) return;
     const { lng, lat } = this.map.getCenter();
     this.pin.set([lng, lat]);
@@ -170,10 +172,15 @@ export class OrderMap {
 
   /** The map is gliding the pin back within its radius. */
   private gliding = false;
+  /** A flight from `frame` is under way. */
+  private flying = false;
+  /** The camera is where `frame` put it: the customer hasn't moved the map since. */
+  private framed = false;
 
   /** A pin moved too far from the address glides back to the edge of its radius. */
   private readonly keepNear = () => {
     this.gliding = false;
+    this.flying = false;
     const address = this.address();
     const pin = this.pin();
     if (this.step() !== 'drop' || !this.map || !address || !pin) return;
@@ -183,53 +190,70 @@ export class OrderMap {
     this.map.easeTo({ center: kept, duration: this.reducedMotion ? 0 : CAMERA / 2 });
   };
 
-  private frame(
-    step: OrderStep,
-    restaurants: readonly Restaurant[],
-    selected: Restaurant | null,
-    address: Address | null,
-  ): void {
+  /** Moves the camera to what the step is about, in the map left clear by the padding. */
+  private frame(): void {
     const map = this.map!;
+    const step = this.step();
+    const address = this.address();
+    const selected = this.selected();
+    const padding = this.padding();
     const home = this.pin() ?? (address ? lngLat(address.location) : null);
+    let camera: { center: LngLat | LngLatLike; zoom: number } | undefined;
     if (step === 'drop') {
-      if (!home) return;
-      const options = { center: home, zoom: PIN_ZOOM, padding: this.padding() };
-      if (this.reducedMotion) map.jumpTo(options);
-      else map.flyTo({ ...options, duration: CAMERA, essential: false });
+      if (home) camera = { center: home, zoom: PIN_ZOOM };
+    } else {
+      const points: LngLat[] = [
+        ...(step === 'summary'
+          ? selected
+            ? [lngLat(selected.location)]
+            : []
+          : this.restaurants().map((r) => lngLat(r.location))),
+        ...(home ? [home] : []),
+      ];
+      if (points.length > 0) {
+        const bounds: LngLatBoundsLike = [
+          [Math.min(...points.map((p) => p[0])), Math.min(...points.map((p) => p[1]))],
+          [Math.max(...points.map((p) => p[0])), Math.max(...points.map((p) => p[1]))],
+        ];
+        // Fitted inside the padding plus a margin for the pills. An equal margin on every side
+        // leaves the middle where the padding alone puts it, so the camera keeps that padding.
+        const fit = map.cameraForBounds(bounds, {
+          padding: {
+            top: padding.top + FIT_MARGIN,
+            right: padding.right + FIT_MARGIN,
+            bottom: padding.bottom + FIT_MARGIN,
+            left: padding.left + FIT_MARGIN,
+          },
+          absolutePadding: true,
+          maxZoom: FIT_MAX_ZOOM,
+        });
+        if (fit?.center !== undefined && fit.zoom !== undefined) {
+          camera = { center: fit.center, zoom: fit.zoom };
+        }
+      }
+    }
+    if (!camera) return;
+    this.framed = true;
+    if (this.reducedMotion) {
+      map.jumpTo({ ...camera, padding });
       return;
     }
-    const points: LngLat[] =
-      step === 'summary'
-        ? [...(selected ? [lngLat(selected.location)] : []), ...(home ? [home] : [])]
-        : [...restaurants.map((r) => lngLat(r.location)), ...(home ? [home] : [])];
-    if (points.length === 0) return;
-    const bounds: LngLatBoundsLike = [
-      [Math.min(...points.map((p) => p[0])), Math.min(...points.map((p) => p[1]))],
-      [Math.max(...points.map((p) => p[0])), Math.max(...points.map((p) => p[1]))],
-    ];
-    const padding = this.padding();
-    const camera = map.cameraForBounds(bounds, {
-      padding: {
-        top: padding.top + FIT_MARGIN,
-        right: padding.right + FIT_MARGIN,
-        bottom: padding.bottom + FIT_MARGIN,
-        left: padding.left + FIT_MARGIN,
-      },
-      maxZoom: FIT_MAX_ZOOM,
-    });
-    if (!camera) return;
-    // cameraForBounds centres the whole map; with the padding set, the visible part is centred.
-    const options = { center: camera.center, zoom: camera.zoom, padding };
-    if (this.reducedMotion) map.jumpTo(options);
-    else map.flyTo({ ...options, duration: CAMERA, essential: false });
+    map.flyTo({ ...camera, padding, duration: CAMERA, essential: false });
+    // Ending a flight (arriving, a drag, another flight) fires moveend, which clears this.
+    this.flying = map.isMoving();
   }
 
   /**
-   * New room around the map (the sheet moved). In the drop step the pin stays in the middle of
+   * New room around the map (the sheet moved). While the camera is where the step put it, it
+   * frames the step again in the new room; in the drop step the pin stays in the middle of
    * what's visible; otherwise the map stays put on screen and only the centre it keeps moves.
    */
   private pad(padding: Required<PaddingOptions>): void {
     const map = this.map!;
+    if (this.flying || this.framed) {
+      this.frame();
+      return;
+    }
     const pin = this.pin();
     if (this.step() === 'drop' && pin) {
       map.jumpTo({ center: pin, padding });
