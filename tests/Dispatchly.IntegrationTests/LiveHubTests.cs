@@ -2,11 +2,14 @@ using System.Net;
 using System.Text.Json;
 using Dispatchly.Api.Live;
 using Dispatchly.Application;
+using Dispatchly.Application.Abstractions;
 using Dispatchly.Application.Live;
+using Dispatchly.Domain.Geo;
 using Dispatchly.Domain.Orders;
 using Dispatchly.Domain.Riders;
 using Dispatchly.IntegrationTests.Support;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dispatchly.IntegrationTests;
 
@@ -229,6 +232,9 @@ public sealed class LiveHubTests(PostgisServer postgis)
         Assert.Equal(placed.Code, position.Code);
         Assert.Equal(riderAccount.Id, position.RiderId);
         Assert.InRange(position.RemainingMeters!.Value, 2_780, 2_820);
+        // …and the street they're on, for "riding down Mathura Road".
+        var streets = app.Services.GetRequiredService<IStreetNames>();
+        Assert.Equal(streets.Near(new GeoPoint(position.Location.Lat, position.Location.Lng)), position.Street);
 
         // The rider heads the wrong way: the ETA jumps past the promise, so the customer and the
         // dispatchers' queue hear about it on the next tick.
