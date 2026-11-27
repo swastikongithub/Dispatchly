@@ -121,11 +121,13 @@ The `public` group never gets names, phone numbers, order codes or order details
   "riderId": 17,
   "location": { "lat": 28.600312, "lng": 77.227021 },
   "bearing": 184.2,
-  "remainingMeters": 2140
+  "remainingMeters": 2140,
+  "street": "Mathura Road"
 }
 ```
 
-`remainingMeters` is the straight-line distance the rider still has to cover. Before pickup, that is via the restaurant.
+- `remainingMeters` is the straight-line distance the rider still has to cover. Before pickup, that is via the restaurant.
+- `street` names the main road the rider is on, from OpenStreetMap: the nearest named road within 250 m, or `null` when there isn't one. The tracking page says "…and is riding down Mathura Road". The rider card in `OrderDetails` carries the same `street`.
 
 ### `eta:changed`: `EtaChanged`
 
