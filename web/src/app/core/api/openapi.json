@@ -45,6 +45,38 @@
         }
       }
     },
+    "/api/v1/customer/addresses": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerAddress"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/live/snapshot": {
       "get": {
         "tags": [
@@ -559,6 +591,29 @@
   },
   "components": {
     "schemas": {
+      "CustomerAddress": {
+        "required": [
+          "label",
+          "address",
+          "area",
+          "location"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Position"
+          }
+        }
+      },
       "DeliverRequest": {
         "required": [
           "code"
@@ -1847,6 +1902,9 @@
   "tags": [
     {
       "name": "Auth"
+    },
+    {
+      "name": "Customer"
     },
     {
       "name": "Live"
