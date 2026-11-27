@@ -90,9 +90,16 @@ export class LiveMap {
   /** Map layers off: riders only, without restaurants and other riders' routes and drops. */
   readonly quiet = input(false);
 
+  /**
+   * Height (px) of the map's bottom-right corner, which holds the credit: two lines on a narrow
+   * map until it collapses to its "i" button. The dashboard keeps selections clear of it.
+   */
+  readonly creditHeight = signal(0);
+
   protected readonly home = centralDelhi;
   protected readonly homeZoom = HOME_ZOOM;
 
+  private readonly destroyRef = inject(DestroyRef);
   private map?: MapLibreMap;
   private readonly loaded = signal(false);
   private readonly reducedMotion = prefersReducedMotion();
@@ -118,9 +125,8 @@ export class LiveMap {
   });
 
   constructor() {
-    const destroyRef = inject(DestroyRef);
     let frame = 0;
-    destroyRef.onDestroy(() => {
+    this.destroyRef.onDestroy(() => {
       cancelAnimationFrame(frame);
       this.stopPulse();
     });
@@ -190,6 +196,14 @@ export class LiveMap {
         if (typeof code === 'string') this.store.selectOrder(code);
       });
       this.pointer(map, layer);
+    }
+    const corner = map.getContainer().querySelector('.maplibregl-ctrl-bottom-right');
+    if (corner) {
+      const observer = new ResizeObserver(() =>
+        this.creditHeight.set(corner.getBoundingClientRect().height),
+      );
+      observer.observe(corner);
+      this.destroyRef.onDestroy(() => observer.disconnect());
     }
     this.loaded.set(true);
   }
