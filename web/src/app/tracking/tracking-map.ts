@@ -273,14 +273,11 @@ export class TrackingMap {
     return { type: 'FeatureCollection', features };
   }
 
-  /** What the camera keeps in view at this step. */
+  /** What the camera keeps in view: the whole way, from the restaurant to the door, and the rider. */
   private framed(order: OrderDetails): LngLat[] {
-    const restaurant = lngLat(order.restaurant.location);
-    const drop = lngLat(order.drop.location);
+    const places = [lngLat(order.restaurant.location), lngLat(order.drop.location)];
     const rider = this.rider(order)?.at;
-    if (!rider) return [restaurant, drop];
-    // Before pickup the rider is headed to the restaurant; after it, to the door.
-    return order.status === 'Assigned' ? [rider, restaurant, drop] : [rider, drop];
+    return rider ? [rider, ...places] : places;
   }
 
   /**
