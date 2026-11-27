@@ -10,12 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  LucideChevronLeft,
-  LucideChevronRight,
-  LucideMinus,
-  LucidePlus,
-} from '@lucide/angular';
+import { LucideChevronLeft, LucideChevronRight, LucideMinus, LucidePlus } from '@lucide/angular';
 import type { PaddingOptions } from 'maplibre-gl';
 import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../core/api/api-client';
