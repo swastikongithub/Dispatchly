@@ -37,7 +37,7 @@ type OrderDetails = Api['OrderDetails'];
   template: `
     @if (card(); as data) {
       <ui-rider-card
-        [class.bare]="popover() === 'inline'"
+        [class.bare]="placement() === 'inline'"
         [rider]="data"
         [loading]="loading()"
         [canReassign]="canReassign()"
@@ -50,7 +50,7 @@ type OrderDetails = Api['OrderDetails'];
       @if (reassigning() && order(); as current) {
         <app-reassign-popover
           class="popover"
-          [attr.data-placement]="popover()"
+          [attr.data-placement]="placement()"
           [code]="current.code"
           (closed)="closeReassign()"
           (reassigned)="closeReassign()"
@@ -88,8 +88,11 @@ export class SelectedRider {
   private readonly api = inject(ApiClient);
 
   readonly closed = output<void>();
-  /** Where the Reassign confirmation opens. */
-  readonly popover = input<'side' | 'inline'>('side');
+  /**
+   * Where the Reassign confirmation opens: beside the card, or below it in the bottom sheet.
+   * (Not `popover`: that's an HTML attribute, and the browser would size the host as a popover.)
+   */
+  readonly placement = input<'side' | 'inline'>('side');
 
   protected readonly reassigning = signal(false);
   private readonly details = signal<OrderDetails | null>(null);
