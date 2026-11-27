@@ -152,9 +152,12 @@ export function lineLabel(line: OrderLine): { name: string; price: string } {
   };
 }
 
+/** "0.1 km", the smallest distance `km` shows; closer than that still reads 0.1 km, never 0. */
+const NEAREST_SHOWN_METERS = 100;
+
 /** "3.1 km away", or nothing while no rider is on the way. */
 export function distanceAway(meters: number | null): string {
-  return meters === null ? '' : `${km(meters)} away`;
+  return meters === null ? '' : `${km(Math.max(meters, NEAREST_SHOWN_METERS))} away`;
 }
 
 /** What the page last told a screen reader about, to say only what changed. */
