@@ -648,6 +648,29 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
       paint: { 'circle-radius': g.home.dotR * s, 'circle-color': light.pinStroke },
     },
     {
+      id: 'place-pill',
+      type: 'symbol',
+      source: 'dispatch-places',
+      filter: ['all', kind(['restaurant', 'restaurant-active']), ['has', 'label']],
+      layout: {
+        ...pillLayout((r.size / 2 + r.stroke) * s + pillPadding),
+        'icon-image': 'marker-pill',
+      },
+      paint: { 'text-color': light.pillText },
+    },
+    {
+      id: 'home-pill',
+      type: 'symbol',
+      source: 'dispatch-places',
+      filter: ['all', kind(['home', 'drop']), ['has', 'label']],
+      layout: {
+        ...pillLayout((g.home.r + g.home.stroke) * s + pillPadding),
+        'icon-image': 'marker-pill-ink',
+      },
+      paint: { 'text-color': light.pillInkText },
+    },
+    // The rider over everything, pills included, as the design draws them last.
+    {
       id: 'selected-halo',
       type: 'circle',
       source: 'dispatch-riders',
@@ -679,28 +702,6 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
       },
-    },
-    {
-      id: 'place-pill',
-      type: 'symbol',
-      source: 'dispatch-places',
-      filter: ['all', kind(['restaurant', 'restaurant-active']), ['has', 'label']],
-      layout: {
-        ...pillLayout((r.size / 2 + r.stroke) * s + pillPadding),
-        'icon-image': 'marker-pill',
-      },
-      paint: { 'text-color': light.pillText },
-    },
-    {
-      id: 'home-pill',
-      type: 'symbol',
-      source: 'dispatch-places',
-      filter: ['all', kind(['home', 'drop']), ['has', 'label']],
-      layout: {
-        ...pillLayout((g.home.r + g.home.stroke) * s + pillPadding),
-        'icon-image': 'marker-pill-ink',
-      },
-      paint: { 'text-color': light.pillInkText },
     },
   ] as LayerSpecification[];
 }
