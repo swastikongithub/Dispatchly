@@ -1,0 +1,196 @@
+<app-order-map
+  class="map"
+  [step]="step()"
+  [restaurants]="restaurants()"
+  [address]="address()"
+  [selected]="selected()"
+  [hovered]="hovered()"
+  [padding]="padding()"
+  [style.--credit-bottom.px]="creditBottom()"
+  (pick)="pick($event)"
+/>
+
+<div #topBar class="top-bar" [class.beside-panel]="panel()">
+  <button type="button" uiIconButton="floating" aria-label="Back" (click)="back()">
+    <svg lucideChevronLeft aria-hidden="true"></svg>
+  </button>
+  <span class="title-pill">New order</span>
+  <span class="balance" aria-hidden="true"></span>
+</div>
+
+@if (panel()) {
+  <section uiPanel class="panel" aria-label="New order">
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+} @else {
+  <section
+    uiBottomSheet
+    class="sheet"
+    [style.--top-bar-bottom.px]="padding().top"
+    [(snap)]="sheetSnap"
+    aria-label="New order"
+  >
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+}
+
+<ng-template #content>
+  @switch (step()) {
+    @case ('restaurant') {
+      <header class="head" uiSheetPeek>
+        <h1 class="title">Restaurants near you</h1>
+        <p class="sub" [class.ui-skeleton]="!address()">
+          Delivering to {{ address()?.label ?? 'Home' }} ·
+          {{ address()?.address ?? 'B-14, Lajpat Nagar II' }}
+        </p>
+      </header>
+
+      @if (loading()) {
+        <ul class="list" aria-busy="true" aria-label="Restaurants">
+          @for (row of skeletons; track row) {
+            <li
+              appRestaurantRow
+              name="Saffron & Smoke"
+              area="Khan Market"
+              distance="0.8 km"
+              [prepMinutes]="12"
+              [loading]="true"
+            ></li>
+          }
+        </ul>
+      } @else if (failed()) {
+        <div class="quiet" role="alert">
+          <p>Couldn't load the restaurants.</p>
+          <button type="button" uiButton="secondary" (click)="load()">Try again</button>
+        </div>
+      } @else if (restaurants().length === 0) {
+        <p class="quiet">No restaurants deliver here yet.</p>
+      } @else {
+        <ul class="list" aria-label="Restaurants">
+          @for (restaurant of restaurants(); track restaurant.id) {
+            <li
+              appRestaurantRow
+              [name]="restaurant.name"
+              [area]="restaurant.area"
+              [distance]="km(restaurant.distanceMeters)"
+              [prepMinutes]="restaurant.prepMinutes"
+              [selected]="restaurant.id === selectedId()"
+              (select)="choose(restaurant)"
+              (pointerenter)="hovered.set(restaurant.id)"
+              (pointerleave)="hovered.set(null)"
+              (focusin)="hovered.set(restaurant.id)"
+              (focusout)="hovered.set(null)"
+            ></li>
+          }
+        </ul>
+      }
+    }
+
+    @case ('drop') {
+      <header class="head">
+        <h1 class="title">Set the drop pin</h1>
+        <p class="sub">Move the map to put the pin on your door.</p>
+      </header>
+      @if (address(); as address) {
+        <div class="card">
+          <span class="card-title">{{ address.label }}</span>
+          <span class="card-sub">{{ address.address }}</span>
+        </div>
+      }
+      <button type="button" uiButton class="wide" uiSheetPeek (click)="confirmDrop()">
+        Deliver here
+      </button>
+    }
+
+    @case ('summary') {
+      @if (selected(); as restaurant) {
+        <header class="head" uiSheetPeek>
+          <h1 class="title">{{ restaurant.name }}</h1>
+          <p class="sub">
+            {{ restaurant.area }} · Ready in {{ restaurant.prepMinutes }} min ·
+            {{ km(restaurant.distanceMeters) }} away
+          </p>
+        </header>
+
+        <ul class="menu" aria-label="Menu">
+          @for (item of restaurant.menu; track item.id) {
+            <li class="item">
+              <span class="item-text">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-price">{{ rupees(item.pricePaise) }}</span>
+              </span>
+              <span class="stepper">
+                @if (quantity(item.id) > 0) {
+                  <button
+                    type="button"
+                    uiIconButton="outline"
+                    [attr.aria-label]="'One less ' + item.name"
+                    (click)="change(item.id, -1)"
+                  >
+                    <svg lucideMinus aria-hidden="true"></svg>
+                  </button>
+                  <span class="quantity" aria-live="polite">{{ quantity(item.id) }}</span>
+                }
+                <button
+                  type="button"
+                  uiIconButton="outline"
+                  [attr.aria-label]="'One more ' + item.name"
+                  [disabled]="quantity(item.id) >= 20"
+                  (click)="change(item.id, 1)"
+                >
+                  <svg lucidePlus aria-hidden="true"></svg>
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+
+        @if (address(); as address) {
+          <button type="button" class="link-row" (click)="back()">
+            <span>
+              <span class="link-title">Deliver to {{ address.label }}</span>
+              <span class="link-sub">{{ address.address }}</span>
+            </span>
+            <span class="link">Change<svg lucideChevronRight aria-hidden="true"></svg></span>
+          </button>
+        }
+
+        <ui-segmented
+          label="Payment"
+          [options]="payments"
+          [value]="payment()"
+          (valueChange)="setPayment($event)"
+        />
+
+        <div class="place">
+          <p class="sub total" aria-live="polite">
+            @if (count() > 0) {
+              {{ itemsLabel(count()) }} · {{ total() }}
+            } @else {
+              Add something from the menu.
+            }
+          </p>
+          <button
+            type="button"
+            uiButton
+            class="wide"
+            [loading]="placing()"
+            [unavailable]="count() === 0"
+            (click)="place()"
+          >
+            @if (placing()) {
+              Placing order…
+            } @else if (count() > 0) {
+              Place order · {{ total() }}
+            } @else {
+              Place order
+            }
+          </button>
+          @if (placeFailed()) {
+            <p class="error" role="alert">Couldn't place the order. Try again.</p>
+          }
+        </div>
+      }
+    }
+  }
+</ng-template>
