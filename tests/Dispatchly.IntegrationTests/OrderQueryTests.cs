@@ -70,8 +70,8 @@ public sealed class OrderQueryTests(PostgisServer postgis)
         Assert.Equal("Saffron & Smoke", hero.Restaurant.Name);
         Assert.Equal("Priya", hero.Drop.CustomerFirstName);
         Assert.Equal("Aman Verma", hero.Rider?.Name);
-        // Only dispatchers get the rider's phone.
-        Assert.Null(hero.Rider?.Phone);
+        // "Call Aman": the demo's made-up numbers, which can't reach anyone.
+        Assert.StartsWith("+91 00000 ", hero.Rider?.Phone);
         Assert.Equal(
             [OrderEventType.Placed, OrderEventType.Assigned, OrderEventType.ArrivedAtRestaurant, OrderEventType.PickedUp, OrderEventType.OnTheWay],
             hero.Timeline.Select(e => e.Type));
@@ -93,6 +93,26 @@ public sealed class OrderQueryTests(PostgisServer postgis)
         Assert.Equal("Neha Gupta", order.Rider?.Name);
         Assert.NotNull(order.Rider?.Phone);
         Assert.Null(order.DeliveryCode);
+    }
+
+    [Fact]
+    public async Task The_customer_sees_which_street_their_rider_is_on()
+    {
+        await using var app = await TestApp.StartAsync(postgis, Seed.DemoCity);
+        var customer = app.Customer(await app.DemoCustomerIdAsync());
+        var aman = await app.QueryAsync(db => db.Riders.Where(r => r.Name == "Aman Verma").Select(r => r.Id).SingleAsync(Ct));
+
+        // By Sundar Nagar, on Mathura Road (OpenStreetMap).
+        var onMathuraRoad = await app.Rider(aman).PostJsonAsync("/api/v1/rider/location", new { lat = 28.592765, lng = 77.244095 });
+        Assert.Equal(HttpStatusCode.NoContent, onMathuraRoad.StatusCode);
+        var hero = await customer.GetJsonAsync<OrderDetails>("/api/v1/orders/DL-4817");
+        Assert.Equal("Mathura Road", hero.Rider?.Street);
+
+        // Far from any main road, no street is named.
+        var offRoad = await app.Rider(aman).PostJsonAsync("/api/v1/rider/location", new { lat = 28.0, lng = 77.0 });
+        Assert.Equal(HttpStatusCode.NoContent, offRoad.StatusCode);
+        hero = await customer.GetJsonAsync<OrderDetails>("/api/v1/orders/DL-4817");
+        Assert.Null(hero.Rider?.Street);
     }
 
     [Theory]
