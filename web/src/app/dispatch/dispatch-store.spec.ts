@@ -178,6 +178,19 @@ describe('DispatchStore', () => {
     expect(store.selection()).toBeNull();
   });
 
+  it('keeps the same selection while other orders and riders change', async () => {
+    const store = setup();
+    await loaded(store);
+    store.selectRider(18);
+    store.selectOrder('DL-4817');
+    const before = store.selection();
+
+    // Anything reading the selection (the open Reassign confirmation) mustn't see a new one.
+    store.onOrderChanged(order('DL-4823', { status: 'Assigned', riderId: 18 }), iso(1000));
+    store.onBatch({ at: iso(2000), riders: [[17, 28.6, 77.21, 90, 'Delivering']] }, 100);
+    expect(store.selection()).toBe(before);
+  });
+
   it('drops riders who went off shift, and their selection', async () => {
     const store = setup();
     await loaded(store);

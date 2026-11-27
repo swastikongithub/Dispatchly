@@ -92,17 +92,21 @@ export class DispatchStore {
   /**
    * The selected order and its rider. Picking either selects both; it follows live changes
    * (a reassigned order brings its new rider) and falls back to the rider once the order leaves.
+   * It only changes when the order or rider does, not on every live update around it.
    */
-  readonly selection = computed<Selection | null>(() => {
-    const code = this.selectedCode();
-    const entry = code ? this.entries().get(code) : undefined;
-    if (entry && entry.state !== 'leaving') return { code, riderId: entry.order.riderId };
-    const riderId = this.selectedRider();
-    if (riderId !== null && this.riders().has(riderId)) {
-      return { code: this.orderOfRider().get(riderId)?.code ?? null, riderId };
-    }
-    return null;
-  });
+  readonly selection = computed<Selection | null>(
+    () => {
+      const code = this.selectedCode();
+      const entry = code ? this.entries().get(code) : undefined;
+      if (entry && entry.state !== 'leaving') return { code, riderId: entry.order.riderId };
+      const riderId = this.selectedRider();
+      if (riderId !== null && this.riders().has(riderId)) {
+        return { code: this.orderOfRider().get(riderId)?.code ?? null, riderId };
+      }
+      return null;
+    },
+    { equal: (a, b) => a?.code === b?.code && a?.riderId === b?.riderId },
+  );
 
   private snapshotAt = -Infinity;
   private statsAt = -Infinity;
