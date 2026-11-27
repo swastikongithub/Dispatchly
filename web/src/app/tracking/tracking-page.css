@@ -1,7 +1,7 @@
 /*
  * Customer tracking (PLAN.md §5.3, designs/html/tracking.html). Values come from
- * design-tokens.json; the delivered, cancelled and not found pieces are built from the same parts
- * (§5.5). Get help and the order summary with Details are their own components.
+ * design-tokens.json; not found is built from the same parts (§5.5). The outcome, the rider, the
+ * order summary with Details, and Get help are their own components.
  */
 
 :host {
@@ -99,49 +99,6 @@
   box-shadow: var(--ui-floating-shadow);
 }
 
-/* Delivered or cancelled, in the ETA's place: the outcome with a check (or a cross). */
-.outcome {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-.outcome-label {
-  font-size: var(--text-ui);
-  color: var(--ui-text-secondary);
-}
-.outcome-title {
-  margin: var(--spacing-4) 0 0;
-  font-family: var(--font-display);
-  font-size: var(--text-eta-hero);
-  font-weight: var(--text-eta-hero--font-weight);
-  letter-spacing: var(--text-eta-hero--letter-spacing);
-  line-height: var(--text-eta-hero--line-height);
-}
-.outcome-icon {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--spacing-avatar);
-  height: var(--spacing-avatar);
-  margin-bottom: var(--spacing-4);
-  border-radius: var(--radius-circle);
-  background: var(--ui-accent-tint);
-  color: var(--ui-accent-text);
-}
-.outcome-icon[data-stage='cancelled'] {
-  background: var(--ui-raised);
-  color: var(--ui-text-secondary);
-}
-.outcome-icon svg {
-  width: var(--icon-size-22);
-  height: var(--icon-size-22);
-}
-/* The check comes in once, as the slide to confirm's does. */
-.outcome-icon[data-stage='delivered'] {
-  animation: check-in var(--duration-success-check) var(--ease-enter);
-}
-
 .sentence {
   margin: 0;
   font-size: var(--text-body-small);
@@ -150,34 +107,6 @@
 }
 .sentence.ui-skeleton {
   align-self: flex-start;
-}
-
-/* The rider: avatar, name, vehicle and plate, Call and Message. */
-.rider {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-12);
-  background: var(--ui-raised);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-12);
-}
-.who {
-  flex: 1;
-  min-width: 0;
-}
-.name {
-  font-size: var(--text-body);
-  font-weight: var(--font-weight-semibold);
-  width: fit-content;
-}
-/* One line with an ellipsis; the full text is in its title (PLAN.md §11.3). */
-.vehicle {
-  font-size: var(--text-meta);
-  color: var(--ui-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: fit-content;
 }
 
 .code-card {
@@ -269,18 +198,9 @@
     opacity: 0;
   }
 }
-@keyframes check-in {
-  from {
-    opacity: 0;
-    transform: scale(var(--scale-map-frame-enter));
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .recenter,
-  .outcome-icon[data-stage='delivered'] {
-    animation: none;
-  }
   .recenter {
+    animation: none;
     transition: none;
   }
 }
