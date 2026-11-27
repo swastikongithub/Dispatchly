@@ -1,0 +1,272 @@
+<app-tracking-map class="map" [padding]="padding()" [style.--credit-bottom.px]="creditBottom()" />
+
+<div #topBar class="top-bar" [class.beside-panel]="panel()">
+  <button type="button" uiIconButton="floating" aria-label="Back" (click)="back()">
+    <svg lucideChevronLeft aria-hidden="true"></svg>
+  </button>
+  <span class="title-pill">Order #{{ displayCode() }}</span>
+  <button
+    #helpButton
+    type="button"
+    uiIconButton="floating"
+    aria-label="Get help"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="helpOpen()"
+    (click)="toggleHelp()"
+  >
+    <svg lucideCircleQuestionMark aria-hidden="true"></svg>
+  </button>
+</div>
+
+@if (!map().following()) {
+  <div class="recenter" [style.--recenter-top.px]="recenterTop()">
+    <button
+      type="button"
+      uiIconButton="floating"
+      [attr.aria-label]="order()?.rider ? 'Recenter on rider' : 'Recenter map'"
+      (click)="map().recenter()"
+    >
+      <svg lucideLocateFixed aria-hidden="true"></svg>
+    </button>
+  </div>
+}
+
+@if (helpOpen()) {
+  <section #helpPanel uiPanel class="help" role="dialog" aria-labelledby="help-title">
+    <div class="help-head">
+      <h2 class="help-title" id="help-title">Get help</h2>
+      <button type="button" uiIconButton="raised" aria-label="Close help" (click)="closeHelp(true)">
+        <svg lucideX aria-hidden="true"></svg>
+      </button>
+    </div>
+    @if (order(); as order) {
+      <ul class="contacts">
+        @if (order.rider?.phone; as phone) {
+          <li>
+            <ui-avatar [name]="order.rider!.name" size="sm" aria-hidden="true" />
+            <span class="who">
+              <span class="who-name">{{ order.rider!.name }}</span>
+              <span class="who-sub">Your rider · {{ phone }}</span>
+            </span>
+            <a
+              uiIconButton="outline"
+              [href]="tel(phone)"
+              [attr.aria-label]="'Call ' + riderFirst()"
+            >
+              <svg lucidePhone aria-hidden="true"></svg>
+            </a>
+          </li>
+        }
+        <li>
+          <ui-avatar [name]="order.restaurant.name" size="sm" aria-hidden="true" />
+          <span class="who">
+            <span class="who-name">{{ order.restaurant.name }}</span>
+            <span class="who-sub">Restaurant · {{ order.restaurant.phone }}</span>
+          </span>
+          <a
+            uiIconButton="outline"
+            [href]="tel(order.restaurant.phone)"
+            [attr.aria-label]="'Call ' + order.restaurant.name"
+          >
+            <svg lucidePhone aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    } @else {
+      <p class="help-lead">Your order’s contacts show here once it loads.</p>
+    }
+  </section>
+}
+
+@if (panel()) {
+  <section uiPanel class="panel" aria-label="Delivery status">
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+} @else {
+  <section uiBottomSheet class="sheet" [(snap)]="sheetSnap" aria-label="Delivery status">
+    <ng-container *ngTemplateOutlet="content" />
+  </section>
+}
+
+<p class="sr-only" aria-live="polite">{{ announced() }}</p>
+
+<ng-template #content>
+  @switch (store.phase()) {
+    @case ('not-found') {
+      <header class="head" uiSheetPeek>
+        <h1 class="title">Order not found</h1>
+        <p class="sub">
+          There’s no order #{{ displayCode() }} on your account. Check the link, or place a new
+          order.
+        </p>
+      </header>
+      <a uiButton class="wide" routerLink="/order">Place an order</a>
+    }
+
+    @case ('loading') {
+      @if (store.failed()) {
+        <p class="notice" role="alert" uiSheetPeek>
+          Couldn’t load your order.
+          <button type="button" uiButton="menu" (click)="retry()">Try again</button>
+        </p>
+      } @else {
+        <ui-eta uiSheetPeek variant="hero" [loading]="true" />
+        <ui-segmented-progress label="Order progress" [steps]="steps" [current]="0" />
+        <p class="sentence ui-skeleton">Aman picked up your order and is on the way.</p>
+        <div class="rider" aria-hidden="true">
+          <ui-avatar name="Rider" [loading]="true" />
+          <div class="who">
+            <div class="name ui-skeleton">Aman Verma</div>
+            <div class="vehicle ui-skeleton">Honda Activa · DL 3S CK 2041</div>
+          </div>
+        </div>
+        <div class="summary-text" aria-hidden="true">
+          <span class="summary-title ui-skeleton">Saffron &amp; Smoke, Khan Market</span>
+          <span class="summary-sub ui-skeleton">2 items · ₹640 · Paid online</span>
+        </div>
+      }
+    }
+
+    @case ('ready') {
+      @if (order(); as order) {
+        @if (done()) {
+          <div class="outcome" uiSheetPeek>
+            <div>
+              <div class="outcome-label">Your order</div>
+              <h1 class="outcome-title">
+                {{ stage() === 'delivered' ? 'Delivered' : 'Cancelled' }}
+              </h1>
+            </div>
+            <span class="outcome-icon" [attr.data-stage]="stage()" aria-hidden="true">
+              @if (stage() === 'delivered') {
+                <svg lucideCheck [strokeWidth]="strokeHeavy"></svg>
+              } @else {
+                <svg lucideX [strokeWidth]="strokeHeavy"></svg>
+              }
+            </span>
+          </div>
+        } @else {
+          <ui-eta
+            uiSheetPeek
+            variant="hero"
+            [value]="eta()"
+            [time]="arrival()"
+            [distance]="distance()"
+          />
+        }
+
+        @if (stage() !== 'cancelled') {
+          <ui-segmented-progress
+            label="Order progress"
+            [steps]="steps"
+            [current]="progress().current"
+            [partial]="progress().partial"
+          />
+        }
+
+        <p class="sentence">{{ sentence() }}</p>
+
+        @if (order.rider; as rider) {
+          <div class="rider">
+            <ui-avatar [name]="rider.name" aria-hidden="true" />
+            <div class="who">
+              <div class="name">{{ rider.name }}</div>
+              <div class="vehicle" [attr.title]="rider.vehicle + ' · ' + rider.plate">
+                {{ rider.vehicle }} · {{ rider.plate }}
+              </div>
+            </div>
+            @if (rider.phone; as phone) {
+              <a
+                uiIconButton="outline"
+                [href]="tel(phone)"
+                [attr.aria-label]="'Call ' + riderFirst()"
+              >
+                <svg lucidePhone aria-hidden="true"></svg>
+              </a>
+              <a
+                uiIconButton="outline"
+                [href]="sms(phone)"
+                [attr.aria-label]="'Message ' + riderFirst()"
+              >
+                <svg lucideMessageCircle aria-hidden="true"></svg>
+              </a>
+            }
+          </div>
+        }
+
+        @if (order.deliveryCode && !done()) {
+          <div class="code-card">
+            <div>
+              <div class="code-title">Delivery code</div>
+              <div class="code-sub">
+                Share it with {{ riderFirst() || 'your rider' }} at the door
+              </div>
+            </div>
+            <div class="code" role="text" [attr.aria-label]="codeLabel()">
+              {{ order.deliveryCode }}
+            </div>
+          </div>
+        }
+
+        @if (stage() === 'delivered') {
+          <div class="rate">
+            <div>
+              <div class="rate-title" id="rate-title">Rate your delivery</div>
+              <div class="rate-sub" aria-live="polite">
+                @if (rating()) {
+                  Thanks for rating {{ riderFirst() || 'your rider' }}.
+                } @else {
+                  How did {{ riderFirst() || 'your rider' }} do?
+                }
+              </div>
+            </div>
+            <div class="stars" role="group" aria-labelledby="rate-title">
+              @for (star of stars; track star) {
+                <button
+                  type="button"
+                  uiIconButton="outline"
+                  [class.lit]="(rating() ?? 0) >= star"
+                  [attr.aria-label]="star === 1 ? '1 star' : star + ' stars'"
+                  [attr.aria-pressed]="rating() === star"
+                  (click)="rate(star)"
+                >
+                  <svg lucideStar aria-hidden="true"></svg>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <button
+          type="button"
+          class="summary"
+          aria-controls="order-details"
+          [attr.aria-expanded]="detailsOpen()"
+          (click)="detailsOpen.set(!detailsOpen())"
+        >
+          <span class="summary-text">
+            <span class="summary-title">{{ restaurant() }}</span>
+            <span class="summary-sub">{{ summary() }}</span>
+          </span>
+          <span class="link" [class.open]="detailsOpen()">
+            Details<svg lucideChevronRight aria-hidden="true"></svg>
+          </span>
+        </button>
+        <div id="order-details" class="details" [hidden]="!detailsOpen()">
+          <ul class="lines" aria-label="Items">
+            @for (line of order.items; track line.menuItemId) {
+              <li>
+                <span>{{ lineLabel(line).name }}</span>
+                <span class="price">{{ lineLabel(line).price }}</span>
+              </li>
+            }
+          </ul>
+          <div class="deliver-to">
+            <span class="deliver-title">Deliver to {{ order.drop.label ?? 'your door' }}</span>
+            <span class="deliver-sub">{{ order.drop.address }}</span>
+          </div>
+        </div>
+      }
+    }
+  }
+</ng-template>
