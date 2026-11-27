@@ -25,7 +25,8 @@ public sealed class CustomerAddressTests(PostgisServer postgis)
         Assert.Equal("Home", home.Label);
         Assert.Equal("B-14, Lajpat Nagar II", home.Address);
         Assert.Equal("Lajpat Nagar II", home.Area);
-        var saved = await app.QueryAsync(db => db.Customers.Where(c => c.Id == id).Select(c => c.SavedAddresses).SingleAsync(Ct));
+        // Owned addresses can't be projected without their owner, so load the customer.
+        var saved = (await app.QueryAsync(db => db.Customers.AsNoTracking().SingleAsync(c => c.Id == id, Ct))).SavedAddresses;
         Assert.Equal(saved[0].Lat, home.Location.Lat);
         Assert.Equal(saved[0].Lng, home.Location.Lng);
     }
