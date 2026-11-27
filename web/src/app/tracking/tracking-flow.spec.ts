@@ -1,9 +1,11 @@
 import {
   AROUND_THE_CORNER_METERS,
   announcement,
+  callLink,
   distanceAway,
   firstName,
   lineLabel,
+  messageLink,
   progressOf,
   restaurantLine,
   sentenceOf,
@@ -275,6 +277,13 @@ describe('the order summary', () => {
   it('never says the rider is 0 km away while they hand the order over', () => {
     expect(distanceAway(40)).toBe('0.1 km away');
     expect(distanceAway(0)).toBe('0.1 km away');
+  });
+});
+
+describe('calling and messaging', () => {
+  it('dials the number without its spaces', () => {
+    expect(callLink('+91 00000 10001')).toBe('tel:+910000010001');
+    expect(messageLink('+91 00000 20007')).toBe('sms:+910000020007');
   });
 });
 
