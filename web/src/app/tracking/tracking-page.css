@@ -1,7 +1,7 @@
 /*
  * Customer tracking (PLAN.md §5.3, designs/html/tracking.html). Values come from
- * design-tokens.json; the delivered, cancelled, not found, Get help and Details pieces are built
- * from the same parts (§5.5).
+ * design-tokens.json; the delivered, cancelled and not found pieces are built from the same parts
+ * (§5.5). Get help and the order summary with Details are their own components.
  */
 
 :host {
@@ -59,72 +59,16 @@
   animation: fade-in var(--duration-base) var(--ease-enter);
 }
 
-/* Get help: the rider's and the restaurant's numbers, below the help button. */
+/* Get help (its own component): below the help button. */
 .help {
   position: absolute;
   top: calc(var(--top-bar-bottom, 0px) + var(--spacing-8));
   right: var(--spacing-phone-overlay-inset);
   z-index: 3;
-  box-sizing: border-box;
   width: min(
     var(--spacing-tracking-desktop-sheet-width),
     100% - var(--spacing-phone-overlay-inset) * 2
   );
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  padding: var(--spacing-18);
-  background: var(--ui-surface);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--ui-floating-shadow);
-  animation: drop-in var(--duration-base) var(--ease-enter);
-}
-.help-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-}
-.help-title {
-  margin: 0;
-  font-size: var(--text-spec);
-  font-weight: var(--font-weight-semibold);
-}
-.help-lead {
-  margin: 0;
-  font-size: var(--text-meta);
-  color: var(--ui-text-secondary);
-}
-.contacts {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.contacts li {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-10);
-  padding: var(--spacing-8) 0;
-  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
-}
-.contacts li:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-.who {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.who-name {
-  font-size: var(--text-ui);
-  font-weight: var(--font-weight-semibold);
-}
-.who-sub {
-  font-size: var(--text-meta);
-  color: var(--ui-text-secondary);
-  font-variant-numeric: tabular-nums;
 }
 
 /* Phones: the sheet stops below the top bar, and keeps its height while Details is open. */
@@ -217,8 +161,9 @@
   border-radius: var(--radius-panel);
   padding: var(--spacing-12);
 }
-.rider .who {
-  display: block;
+.who {
+  flex: 1;
+  min-width: 0;
 }
 .name {
   font-size: var(--text-body);
@@ -287,104 +232,6 @@
   stroke: var(--ui-accent);
 }
 
-/* "Saffron & Smoke, Khan Market · 2 items · ₹640 · Paid online · Details ›". */
-.summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-12);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform var(--duration-instant) var(--ease-standard);
-}
-.summary:active {
-  transform: scale(var(--scale-press));
-}
-/* As in the design: the name on its own line, the line under it inline in the row's text. */
-.summary-text {
-  min-width: 0;
-  display: block;
-}
-.summary-title {
-  display: block;
-  width: fit-content;
-  font-size: var(--text-body-small);
-  font-weight: var(--font-weight-semibold);
-}
-.summary-sub {
-  font-size: var(--text-meta);
-  color: var(--ui-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-.link {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  font-size: var(--text-ui);
-  font-weight: var(--font-weight-semibold);
-  color: var(--ui-accent-text);
-}
-.link svg {
-  width: var(--icon-size-16);
-  height: var(--icon-size-16);
-  transition: transform var(--duration-base) var(--ease-standard);
-}
-.link.open svg {
-  transform: rotate(90deg);
-}
-
-/* The order's lines and where it goes, under the summary. */
-.details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-12);
-  /* Scrolled into view with the sheet's (and the panel's) bottom padding under it. */
-  scroll-margin-bottom: var(--spacing-24);
-  animation: fade-in var(--duration-base) var(--ease-enter);
-}
-.details[hidden] {
-  display: none;
-}
-.lines {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.lines li {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--spacing-12);
-  padding: var(--spacing-8) 0;
-  border-bottom: var(--border-width-hairline) solid var(--ui-divider);
-  font-size: var(--text-ui);
-}
-.lines li:first-child {
-  padding-top: 0;
-}
-.price {
-  flex: none;
-  color: var(--ui-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-.deliver-to {
-  display: flex;
-  flex-direction: column;
-}
-.deliver-title {
-  font-size: var(--text-ui);
-  font-weight: var(--font-weight-semibold);
-}
-.deliver-sub {
-  font-size: var(--text-meta);
-  color: var(--ui-text-secondary);
-}
-
 /* Not found, as the order page's headings. */
 .head {
   display: flex;
@@ -422,12 +269,6 @@
     opacity: 0;
   }
 }
-@keyframes drop-in {
-  from {
-    opacity: 0;
-    transform: translateY(calc(var(--spacing-8) * -1));
-  }
-}
 @keyframes check-in {
   from {
     opacity: 0;
@@ -436,13 +277,10 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .recenter,
-  .help,
-  .details,
   .outcome-icon[data-stage='delivered'] {
     animation: none;
   }
-  .recenter,
-  .link svg {
+  .recenter {
     transition: none;
   }
 }
