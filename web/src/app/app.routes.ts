@@ -12,6 +12,11 @@ export const routes: Routes = [
     loadComponent: () => import('./order/order-page').then((m) => m.OrderPage),
   },
   {
+    path: 'track/:code',
+    title: 'Track your order · Dispatchly',
+    loadComponent: () => import('./tracking/tracking-page').then((m) => m.TrackingPage),
+  },
+  {
     path: 'styleguide',
     title: 'Styleguide · Dispatchly',
     loadComponent: () => import('./styleguide/styleguide').then((m) => m.Styleguide),
