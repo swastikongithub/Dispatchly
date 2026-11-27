@@ -12,6 +12,7 @@ public sealed class OrderService(
     IDispatchReader reader,
     AssignmentService assignment,
     ILiveEvents live,
+    IStreetNames streets,
     DispatchPolicy policy,
     TimeProvider clock)
 {
@@ -91,7 +92,7 @@ public sealed class OrderService(
         {
             throw new NotFoundException($"Order {code} not found.");
         }
-        return order.ToDetails(viewer);
+        return order.ToDetails(viewer, streets);
     }
 
     /// <summary>The dispatcher's queue: Needs rider first, then Running late, then by ETA (PLAN.md §5.2).</summary>
