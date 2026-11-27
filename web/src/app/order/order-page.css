@@ -59,13 +59,17 @@
   max-height: calc(100% - var(--top-bar-bottom, 0px) - var(--spacing-12));
 }
 
-/* Desktop: a 400px panel floating on the left, over the full-width map (PLAN.md §5.3). */
+/*
+ * Desktop: a 400px panel floating on the left, over the full-width map (PLAN.md §5.3). It's as
+ * tall as what it holds, up to the map's height.
+ */
 .panel {
   position: absolute;
   top: var(--spacing-phone-overlay-inset);
   left: var(--spacing-phone-overlay-inset);
-  bottom: var(--spacing-phone-overlay-inset);
   z-index: 2;
+  box-sizing: border-box;
+  max-height: calc(100% - var(--spacing-phone-overlay-inset) * 2);
   width: var(--spacing-tracking-desktop-sheet-width);
   overflow-y: auto;
   display: flex;
