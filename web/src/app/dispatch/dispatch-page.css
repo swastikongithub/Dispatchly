@@ -144,10 +144,10 @@ button.live {
 .rider.drawer {
   position: absolute;
   z-index: 1;
-  top: calc(var(--drawer-top) + var(--spacing-12));
+  top: calc(var(--panel-top) + var(--spacing-12));
   right: var(--spacing-dashboard-padding);
   width: var(--spacing-rider-card-width);
-  max-height: calc(100% - var(--drawer-top) - var(--spacing-12) - var(--spacing-dashboard-padding));
+  max-height: calc(100% - var(--panel-top) - var(--spacing-12) - var(--spacing-dashboard-padding));
   overflow-y: auto;
   border-radius: var(--radius-panel);
 }
@@ -192,9 +192,10 @@ button.live {
 .overlay.compact .live {
   margin-left: auto;
 }
+/* Fully open, the sheet stops below the top bar, so search and the Live chip stay in reach. */
 .sheet {
   z-index: 1;
-  max-height: calc(100% - var(--spacing-dashboard-padding));
+  max-height: calc(100% - var(--panel-top) - var(--spacing-12));
 }
 .sheet-content {
   background: transparent;
