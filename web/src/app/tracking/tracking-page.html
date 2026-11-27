@@ -93,7 +93,13 @@
     <ng-container *ngTemplateOutlet="content" />
   </section>
 } @else {
-  <section uiBottomSheet class="sheet" [(snap)]="sheetSnap" aria-label="Delivery status">
+  <section
+    uiBottomSheet
+    class="sheet"
+    [(snap)]="sheetSnap"
+    [style.--sheet-lock.px]="sheetLock()"
+    aria-label="Delivery status"
+  >
     <ng-container *ngTemplateOutlet="content" />
   </section>
 }
@@ -256,7 +262,7 @@
           class="summary"
           aria-controls="order-details"
           [attr.aria-expanded]="detailsOpen()"
-          (click)="detailsOpen.set(!detailsOpen())"
+          (click)="toggleDetails()"
         >
           <span class="summary-text">
             <span class="summary-title">{{ restaurant() }}</span>
@@ -266,7 +272,7 @@
             Details<svg lucideChevronRight aria-hidden="true"></svg>
           </span>
         </button>
-        <div id="order-details" class="details" [hidden]="!detailsOpen()">
+        <div #details id="order-details" class="details" [hidden]="!detailsOpen()">
           <ul class="lines" aria-label="Items">
             @for (line of order.items; track line.menuItemId) {
               <li>
