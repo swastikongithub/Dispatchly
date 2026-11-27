@@ -78,6 +78,8 @@
     }
     <ui-map-controls
       class="controls"
+      [class.covered]="controlsCovered()"
+      [inert]="controlsCovered()"
       (layers)="quiet.set(!quiet())"
       (recenter)="map().recenter()"
       (zoomIn)="map().zoomIn()"
