@@ -15,8 +15,9 @@ import { tokens } from '../tokens';
  *
  * Sources: `dispatch-routes` (LineString, kind: active | travelled | other),
  * `dispatch-places` (Point, kind: restaurant | restaurant-active | drop | other-drop |
- * new-order | home, label?), `dispatch-riders` (Point, status: available | on-delivery | late,
- * bearing, selected?, label?).
+ * new-order | home, label?, searching?), `dispatch-riders` (Point, status: available |
+ * on-delivery | late, bearing, selected?, label?). On the tracking map a restaurant with
+ * `searching` gets the needs-rider rings, which `searchPulse` animates.
  *
  * Dashboard riders may also carry what a live map animates (each defaults to the static look):
  * `color` and `radius` while the status cross-fades, `pointer` and `ring` (0-1) as the heading
@@ -142,7 +143,7 @@ export function addMarkers(map: MapLibreMap, theme: Theme, view: MarkerView): ()
   const land = tokens.color.map[theme].land;
   const layers = view === 'dashboard' ? dashboardLayers(map, s, land) : trackingLayers(map, s);
   for (const layer of layers) if (!map.getLayer(layer.id)) map.addLayer(layer);
-  return view === 'dashboard' ? pulse(map) : () => {};
+  return view === 'dashboard' ? pulse(map, 'new-order-ring', 'new-order-ring-outer') : () => {};
 }
 
 export type MarkerSource = 'routes' | 'places' | 'riders' | 'focus' | 'focus-route';
@@ -549,6 +550,31 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
     color: light.pillBorder,
   });
   pill(map, 'marker-pill-ink', g.pill.height * s, light.pillInk);
+  // While the order searches for a rider, the needs-rider rings ripple around the restaurant.
+  const n = geometry.dashboard.newOrder;
+  image(map, 'marker-ring-dashed', 2 * (n.outerRingR + n.ringStroke) * s, (c) => {
+    c.beginPath();
+    c.arc(0, 0, n.ringR * s, 0, Math.PI * 2);
+    c.setLineDash(n.ringDash.split(' ').map((d) => Number(d) * s));
+    c.lineWidth = n.ringStroke * s;
+    c.strokeStyle = orange;
+    c.stroke();
+  });
+  image(map, 'marker-ring', 2 * (n.outerRingR + n.outerRingStroke) * s, (c) => {
+    c.beginPath();
+    c.arc(0, 0, n.outerRingR * s, 0, Math.PI * 2);
+    c.lineWidth = n.outerRingStroke * s;
+    c.strokeStyle = orange;
+    c.stroke();
+  });
+  const ring = (id: string, icon: string, opacity: number): LayerSpecification => ({
+    id,
+    type: 'symbol',
+    source: 'dispatch-places',
+    filter: ['==', ['get', 'searching'], true],
+    layout: { 'icon-image': icon, 'icon-allow-overlap': true, 'icon-ignore-placement': true },
+    paint: { 'icon-opacity': opacity },
+  });
 
   const line = { 'line-cap': 'round', 'line-join': 'round' } as const;
   const pillPadding = ((g.pill.height - g.pill.fontSize) / 2) * s;
@@ -593,6 +619,8 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
       layout: line,
       paint: { 'line-color': orange, 'line-width': g.routeActive.width * s },
     },
+    ring('search-ring-outer', 'marker-ring', n.outerRingOpacity),
+    ring('search-ring', 'marker-ring-dashed', n.ringOpacity),
     {
       id: 'restaurants',
       type: 'symbol',
@@ -678,27 +706,31 @@ function trackingLayers(map: MapLibreMap, s: number): LayerSpecification[] {
 }
 
 /**
+ * The tracking map's radar around the restaurant while the order searches for a rider (PLAN.md
+ * §5.3): the needs-rider pulse on the `search-ring` layers. Returns a function that stops it.
+ */
+export function searchPulse(map: MapLibreMap): () => void {
+  return pulse(map, 'search-ring', 'search-ring-outer');
+}
+
+/**
  * The needs-rider pulse: the rings expand and fade on a 2 s loop, the only infinite animation
  * (PLAN.md §6.3). With reduced motion the rings stay still, as drawn in the design.
  */
-function pulse(map: MapLibreMap): () => void {
+function pulse(map: MapLibreMap, inner: string, outer: string): () => void {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
   const n = geometry.dashboard.newOrder;
   const period = parseFloat(tokens.motion.duration.needsRiderPulse);
   const grow = n.outerRingR / n.ringR;
   let frame = requestAnimationFrame(function tick(now) {
-    if (!map.getLayer('new-order-ring')) return;
+    if (!map.getLayer(inner)) return;
     for (const [id, offset, opacity] of [
-      ['new-order-ring', 0, n.ringOpacity],
-      ['new-order-ring-outer', 0.5, n.outerRingOpacity],
+      [inner, 0, n.ringOpacity],
+      [outer, 0.5, n.outerRingOpacity],
     ] as const) {
       const t = (((now / period + offset) % 1) + 1) % 1;
       // Each ring grows from the inner ring's radius to the outer ring's, fading out.
-      map.setLayoutProperty(
-        id,
-        'icon-size',
-        (1 + (grow - 1) * t) * (id === 'new-order-ring' ? 1 : 1 / grow),
-      );
+      map.setLayoutProperty(id, 'icon-size', (1 + (grow - 1) * t) * (id === inner ? 1 : 1 / grow));
       map.setPaintProperty(id, 'icon-opacity', opacity * (1 - t));
     }
     frame = requestAnimationFrame(tick);
