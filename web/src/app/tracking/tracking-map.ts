@@ -114,7 +114,10 @@ export class TrackingMap {
       return `Map: ${rider} is between ${order.restaurant.area} and ${home}`;
     }
     if (rider && order.status === 'Assigned') {
-      return `Map: ${rider} is on the way to ${order.restaurant.name} in ${order.restaurant.area}`;
+      const where = `${order.restaurant.name} in ${order.restaurant.area}`;
+      return order.rider?.status === 'AtRestaurant'
+        ? `Map: ${rider} is at ${where}`
+        : `Map: ${rider} is on the way to ${where}`;
     }
     return `Map: ${order.restaurant.name} in ${order.restaurant.area} and ${home}`;
   });
