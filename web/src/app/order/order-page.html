@@ -59,10 +59,10 @@
           }
         </ul>
       } @else if (failed()) {
-        <div class="quiet" role="alert">
-          <p>Couldn't load the restaurants.</p>
-          <button type="button" uiButton="secondary" (click)="load()">Try again</button>
-        </div>
+        <p class="notice" role="alert">
+          Couldn’t load the restaurants.
+          <button type="button" uiButton="menu" (click)="load()">Try again</button>
+        </p>
       } @else if (restaurants().length === 0) {
         <p class="quiet">No restaurants deliver here yet.</p>
       } @else {
@@ -187,7 +187,7 @@
             }
           </button>
           @if (placeFailed()) {
-            <p class="error" role="alert">Couldn't place the order. Try again.</p>
+            <p class="error" role="alert">Couldn’t place the order. Try again.</p>
           }
         </div>
       }
