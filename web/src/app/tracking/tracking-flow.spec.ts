@@ -271,6 +271,11 @@ describe('the order summary', () => {
     expect(distanceAway(3100)).toBe('3.1 km away');
     expect(distanceAway(null)).toBe('');
   });
+
+  it('never says the rider is 0 km away while they hand the order over', () => {
+    expect(distanceAway(40)).toBe('0.1 km away');
+    expect(distanceAway(0)).toBe('0.1 km away');
+  });
 });
 
 describe('what screen readers hear', () => {
