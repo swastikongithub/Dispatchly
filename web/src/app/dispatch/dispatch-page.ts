@@ -159,6 +159,14 @@ export class DispatchPage {
     return room >= px(tokens.layout.minTouchTarget) ? cover : 0;
   });
 
+  /**
+   * Small screens: the sheet comes to rest over the map controls. They fade out rather than show
+   * half above its edge, and come back as it lowers.
+   */
+  protected readonly controlsCovered = computed(
+    () => this.sheet() && this.screenHeight() - this.sheetCover() < this.controlsBottom(),
+  );
+
   /** Room the panels take, so the camera centres a selection in the map that's visible. */
   protected readonly padding = computed(() => {
     const space = px(tokens.layout.dashboardPadding);
