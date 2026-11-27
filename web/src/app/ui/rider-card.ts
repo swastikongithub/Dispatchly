@@ -98,7 +98,7 @@ export interface RiderCardData {
           type="button"
           uiButton="secondary"
           [loading]="loading() || reassigning()"
-          [attr.aria-disabled]="!canReassign() || null"
+          [unavailable]="!canReassign()"
           [attr.title]="reassignHint()"
           [attr.aria-expanded]="reassignOpen() ?? null"
           (click)="canReassign() && reassign.emit()"
