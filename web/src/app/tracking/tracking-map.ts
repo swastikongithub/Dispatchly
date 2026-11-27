@@ -20,7 +20,7 @@ import { MapView, centralDelhi } from '../map/map-view';
 import { addMarkers, searchPulse, setMarkerData, viewScale } from '../map/markers';
 import { tokens } from '../tokens';
 import { prefersReducedMotion } from '../ui/motion';
-import { firstName, type OrderDetails } from './tracking-flow';
+import { firstName, stageOf, type OrderDetails } from './tracking-flow';
 import { TrackingStore } from './tracking-store';
 
 const ms = (duration: string) => parseFloat(duration);
@@ -92,10 +92,16 @@ export class TrackingMap {
   /** What the last frame drew, so a rider standing still isn't sent again. */
   private drawn = '';
 
-  /** What changes what the camera frames: the step, the rider and where the rider is headed. */
+  /** Around the corner, the camera closes in on the rider and the door. */
+  private readonly lastStretch = computed(() => {
+    const order = this.store.order();
+    return !!order && stageOf(order, this.store.remaining()) === 'around-the-corner';
+  });
+  /** What changes what the camera frames: the step, the rider, where the rider is headed. */
   private readonly framing = computed(() => {
     const order = this.store.order();
-    return order ? `${order.status}|${order.rider?.id ?? ''}|${order.rider?.status ?? ''}` : '';
+    if (!order) return '';
+    return `${order.status}|${order.rider?.id ?? ''}|${order.rider?.status ?? ''}|${this.lastStretch()}`;
   });
 
   /** For screen readers, in place of the design's "Map: Aman is between Khan Market and …". */
@@ -273,10 +279,15 @@ export class TrackingMap {
     return { type: 'FeatureCollection', features };
   }
 
-  /** What the camera keeps in view: the whole way, from the restaurant to the door, and the rider. */
+  /**
+   * What the camera keeps in view: the whole way, from the restaurant to the door, and the rider,
+   * as the design shows it; for the last stretch, the rider and the door (PLAN.md §5.3).
+   */
   private framed(order: OrderDetails): LngLat[] {
-    const places = [lngLat(order.restaurant.location), lngLat(order.drop.location)];
+    const drop = lngLat(order.drop.location);
     const rider = this.rider(order)?.at;
+    if (rider && this.lastStretch()) return [rider, drop];
+    const places = [lngLat(order.restaurant.location), drop];
     return rider ? [rider, ...places] : places;
   }
 
