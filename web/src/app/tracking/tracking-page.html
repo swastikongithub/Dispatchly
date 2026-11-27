@@ -129,7 +129,9 @@
         <ui-eta uiSheetPeek variant="hero" [loading]="true" />
         <!-- No step is current until the order is in. -->
         <ui-segmented-progress label="Order progress" [steps]="steps" [current]="-1" />
-        <p class="sentence ui-skeleton">Aman picked up your order and is on the way.</p>
+        <p class="sentence ui-skeleton" aria-hidden="true">
+          Aman picked up your order and is on the way.
+        </p>
         <div class="rider" aria-hidden="true">
           <ui-avatar name="Rider" [loading]="true" />
           <div class="who">
